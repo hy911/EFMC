@@ -8,6 +8,8 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  // Docker 部署：产出自包含的 standalone server（node server.js 直接运行）
+  output: 'standalone',
   images: {
     localPatterns: [
       {

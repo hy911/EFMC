@@ -1,3 +1,4 @@
+import path from 'path'
 import type { CollectionConfig } from 'payload'
 
 import { anyone, authenticated } from '@/access'
@@ -25,8 +26,9 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // 存储目录（相对项目根）；.gitignore 排除，生产挂持久化卷
-    staticDir: 'uploads',
+    // 存储目录：锚定进程工作目录（dev = 项目根，Docker standalone = /app），
+    // 生产环境把 /app/uploads 挂为持久化卷；.gitignore 已排除
+    staticDir: path.resolve(process.cwd(), 'uploads'),
     // 统一转 WebP：质量 80 在体积与画质间平衡
     formatOptions: { format: 'webp', options: { quality: 80 } },
     imageSizes: [

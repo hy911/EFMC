@@ -1,67 +1,89 @@
-# Payload Blank Template
+# Donglin Controls 官网（EFMC）
 
-This template comes configured with the bare minimum to get started on anything you need.
+天津东林众控自动化科技有限公司官网 —— 面向海外 B2B 客户的展示 + 询盘（Lead Gen）站点。
 
-## Quick start
+**技术栈**：Payload CMS 3 + Next.js 16（App Router）单体架构 · PostgreSQL · Tailwind CSS v4 · next-intl · TypeScript。CMS 后台、SEO 前端、询盘 API 同一代码库、一次部署，零 SaaS 订阅。
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+## 功能一览（一期）
 
-## Quick Start - local setup
+- **首页**：严格按 Claude Design 设计稿 1:1 还原（工业深蓝 `#0B1F3F` + 强调蓝 `#1B63E8`），布局代码固定，产品/行业/联系方式由后台驱动
+- **数据模型**：Products（多图/规格/分类/精选，无价格）、ProductCategories、Certificates、ApplicationScenarios、Pages（5 种 block 灵活布局）、Inquiries（仅 API 写入，后台只读 + 改状态）、Media（自动 WebP 多尺寸）、SiteSettings（联系方式/WhatsApp）
+- **多语言（两层）**：UI 文案 next-intl（`src/i18n/messages/*.json`，开发维护）；业务内容 Payload Localization（后台切语言编辑）。URL 子目录 `/en` `/zh`，默认 en，zh 未翻译字段自动回落
+- **询盘链路**：表单 → `/api/inquiries`（Zod 校验 + 蜜罐 + Cloudflare Turnstile）→ 写库 → Resend 邮件通知（失败不阻塞）；WhatsApp 浮动按钮 + 产品页 wa.me 深链预填产品名
+- **SEO**：每页 hreflang（en/zh/x-default）、分语种 sitemap.xml、robots.txt、JSON-LD（Organization/Product/Article）、图片 alt 本地化、SSG + ISR（后台保存即触发 revalidate）
 
-To spin up this template locally, follow these steps:
+## 本地开发
 
-### Clone
+```bash
+# 1. 数据库（本机 Docker 起一个 Postgres 即可）
+docker run -d --name efmc-pg -e POSTGRES_USER=payload -e POSTGRES_PASSWORD=payload \
+  -e POSTGRES_DB=efmc -p 5432:5432 postgres:16-alpine
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+# 2. 环境变量
+cp .env.example .env   # 按需修改；本地开发 Resend/Turnstile 留空即可
 
-### Development
+# 3. 依赖 + 数据库迁移 + 演示数据
+pnpm install
+pnpm payload migrate
+pnpm seed              # 幂等；创建管理员 admin@example.com / changeme-123456
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+# 4. 启动
+pnpm dev               # 前台 http://localhost:3000/en  后台 /admin
+```
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+常用命令：`pnpm generate:types`（改 collection 后重新生成 payload-types.ts）、`pnpm payload migrate:create <name>`（改 schema 后生成迁移，迁移文件必须进 git）、`pnpm lint`、`pnpm build`。
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+## 生产部署（VPS + Docker Compose + Cloudflare）
 
-#### Docker (Optional)
+```bash
+# VPS 上
+cp .env.example .env
+# 必改：PAYLOAD_SECRET（openssl rand -hex 32）、POSTGRES_PASSWORD、
+#       NEXT_PUBLIC_SITE_URL=https://你的域名、
+#       DATABASE_URL=postgres://payload:<密码>@postgres:5432/efmc（主机名用服务名）
+#       RESEND_API_KEY / INQUIRY_NOTIFY_TO / TURNSTILE 两个 key
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+./deploy.sh   # = up postgres → build app（host 网络：迁移+预渲染需连库）→ up -d
+```
 
-To do so, follow these steps:
+要点：
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+- **迁移在镜像构建阶段执行**（standalone 运行时不含 Payload CLI），所以 build 必须能连到数据库 —— compose 已配置 `build.network: host` + 仅绑定 `127.0.0.1` 的 5432 端口
+- **uploads 卷**：媒体文件在 `uploads` named volume，删容器不丢图
+- **应用端口**只绑 `127.0.0.1:3000`，由 Cloudflare Tunnel 或本机 Nginx/Caddy 回源
 
-## How it works
+### Cloudflare 侧配置
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+1. DNS 橙云代理，SSL/TLS 模式 **Full (strict)**（本机反代配源站证书）或使用 Cloudflare Tunnel
+2. Cache Rules：`/admin*` 与 `/api/*` **Bypass cache**（后台与询盘接口绝不能缓存）
+3. 询盘接口已优先读取 `CF-Connecting-IP` 获取真实客户端 IP（Turnstile 校验用）
+4. Turnstile 在 Cloudflare 控制台创建 widget，把 site key / secret 填入 `.env`
 
-### Collections
+## 目录结构
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+```
+src/
+├── app/
+│   ├── (frontend)/[locale]/        # /en /zh 前台：首页、products/[slug]、[slug] 固定页
+│   ├── (payload)/                  # Payload 后台 /admin 与 REST /api（无语言前缀）
+│   ├── api/inquiries/route.ts      # 询盘提交接口（表单唯一写入口）
+│   ├── sitemap.ts / robots.ts      # 分语种 sitemap + robots
+├── collections/                    # Payload collections（含中文后台标签）
+├── globals/SiteSettings.ts         # 联系方式 / WhatsApp（运营后台可改）
+├── blocks/                         # Pages 的 block 定义 + 前端渲染器
+├── components/{ui,layout,home}/    # 原子组件 / 布局 / 首页区块
+├── fields/                         # 可复用 SEO 字段组、slug hook
+├── hooks/revalidate.ts             # 发布即刷新（ISR 按需 revalidate）
+├── i18n/                           # next-intl 路由与 UI 文案 JSON
+├── lib/                            # Local API 查询、SEO/JSON-LD、Turnstile、Resend
+├── migrations/                     # 数据库迁移（进 git，构建时执行）
+├── payload.config.ts               # Payload 唯一配置入口（含 en/zh localization）
+└── proxy.ts                        # next-intl 语言路由（排除 /admin /api）
+seed/                               # 演示数据种子（pnpm seed，幂等）
+```
 
-- #### Users (Authentication)
+## 二期规划锚点
 
-  Users are auth-enabled collections that have access to the admin panel.
-
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
-
-- #### Media
-
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
-
-### Docker
-
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
-
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
-
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-## Questions
-
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+- CaseStudies / Posts collection：按 Products 的模式加 collection + 路由 + sitemap 即可
+- 更多语种（西/俄/阿）：`src/i18n/routing.ts` 与 `payload.config.ts` localization 同步追加；RTL 语种在 Payload locale 配置加 `rtl: true`，前端 `<html dir>` 按语种输出
+- 图片迁移对象存储：换 `@payloadcms/storage-s3` 插件，Media collection 无需改动
