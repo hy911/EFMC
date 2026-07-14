@@ -1,0 +1,93 @@
+@import 'tailwindcss';
+
+/**
+ * 全站设计 token —— 严格取自 Claude Design 首页设计稿（Donglin Homepage）。
+ * Tailwind v4 的 CSS-first 配置：@theme 中的变量会自动生成对应的工具类，
+ * 例如 --color-navy 可用 bg-navy / text-navy / border-navy 等。
+ */
+@theme {
+  /* ===== 品牌色 ===== */
+  /* 工业深蓝主色（Hero / 联系区背景、标题文字） */
+  --color-navy: #0b1f3f;
+  /* 更深的页脚蓝 */
+  --color-navy-deep: #081733;
+  /* 行业区块的中间蓝 */
+  --color-navy-mid: #0f2a54;
+
+  /* 强调色（CTA 按钮、链接）—— 已确认用蓝 #1B63E8 */
+  --color-accent: #1b63e8;
+  /* 强调色 hover（浅色背景上加深） */
+  --color-accent-strong: #0a57d5;
+  /* 强调色 hover（深色背景上提亮） */
+  --color-accent-soft: #4f8df2;
+
+  /* ===== 中性色 ===== */
+  /* 正文墨色 */
+  --color-ink: #121826;
+  /* 次级文字（灰蓝） */
+  --color-steel: #5b6472;
+  /* 导航链接色 */
+  --color-slate-nav: #2a3342;
+  /* 分隔线 / 卡片描边 */
+  --color-line: #e7eaf0;
+  /* 浅灰蓝区块背景 */
+  --color-mist: #f5f7fb;
+  /* 表单输入框描边 */
+  --color-input: #d4dae3;
+
+  /* ===== 深色背景上的文字色 ===== */
+  /* 深蓝底上的小标题（eyebrow）蓝 */
+  --color-sky: #8fb4f5;
+  /* 深蓝底上的次级文字 */
+  --color-fog: #8a96aa;
+  /* 深蓝底上的正文 */
+  --color-cloud: #b9c4d6;
+
+  /* ===== 功能色 ===== */
+  /* WhatsApp 在线状态点 */
+  --color-whatsapp: #33c464;
+
+  /* ===== 字体 ===== */
+  /* 标题字体（Archivo，自托管） */
+  --font-display: 'Archivo', 'Noto Sans SC', sans-serif;
+  /* 正文字体（IBM Plex Sans，自托管） */
+  --font-sans: 'IBM Plex Sans', 'Noto Sans SC', Helvetica, Arial, sans-serif;
+
+  /* ===== 布局 ===== */
+  /* 设计稿内容最大宽度 1240px */
+  --container-content: 77.5rem;
+}
+
+/* 基础样式：对齐设计稿的排版基调 */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+}
+
+/* 入场动画：设计稿的 reveal 效果（上移 24px + 淡入，0.7s ease）。
+   由 RevealObserver 客户端组件通过 IntersectionObserver 添加 .in 类触发 */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+[data-reveal].in {
+  opacity: 1;
+  transform: none;
+}
+/* 尊重用户的减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
