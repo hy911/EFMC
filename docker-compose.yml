@@ -1,0 +1,56 @@
+# =============================================================================
+# 生产部署（海外 VPS，前置 Cloudflare）
+#
+# 首次部署 / 更新部署统一用 ./deploy.sh，等价于：
+#   1. docker compose up -d postgres          # 先起数据库
+#   2. docker compose build app               # host 网络构建（迁移 + 预渲染需连库）
+#   3. docker compose up -d                   # 起应用
+#
+# 环境变量放同目录 .env（参考 .env.example）；生产 DATABASE_URL 的主机名用
+# 服务名 postgres，例如 postgres://payload:<密码>@postgres:5432/efmc
+# =============================================================================
+
+services:
+  app:
+    build:
+      context: .
+      # 构建阶段通过宿主机 127.0.0.1:5432 访问 postgres 容器（下方端口只绑本机）
+      network: host
+      args:
+        DATABASE_URL: postgres://${POSTGRES_USER:-payload}:${POSTGRES_PASSWORD:?set in .env}@127.0.0.1:5432/${POSTGRES_DB:-efmc}
+        PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set in .env}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    restart: unless-stopped
+    ports:
+      # 只暴露给本机反代/Cloudflared；如直接用 Cloudflare 回源可改为 "3000:3000"
+      - '127.0.0.1:3000:3000'
+    env_file:
+      - .env
+    volumes:
+      # 媒体上传持久化（Payload 本地存储）
+      - uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-payload}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-efmc}
+    ports:
+      # 仅绑定本机：给镜像构建阶段与运维排查用，不对公网暴露
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-payload} -d ${POSTGRES_DB:-efmc}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
+  uploads:

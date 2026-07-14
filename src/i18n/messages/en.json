@@ -1,0 +1,115 @@
+{
+  "common": {
+    "siteName": "DONGLIN CONTROLS",
+    "siteTagline": "Industrial Automation",
+    "requestQuote": "Request a Quote",
+    "getQuote": "Get a Quote",
+    "learnMore": "Learn more"
+  },
+  "nav": {
+    "products": "Products",
+    "solutions": "Solutions",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "hero": {
+    "eyebrow": "Authorized Partner of ABB & Schneider Electric",
+    "title": "Complete industrial automation, engineered to specification.",
+    "subtitle": "From PLC control cabinets to full water-treatment automation systems — designed, built, and commissioned by a 30-engineer team in Tianjin, China.",
+    "ctaPrimary": "Request a Quote",
+    "ctaSecondary": "Explore Products",
+    "imageBadge": "PLC Control Systems",
+    "stats": {
+      "established": { "value": "2016", "label": "Established" },
+      "engineers": { "value": "30+", "label": "Engineers" },
+      "industries": { "value": "5", "label": "Industries served" }
+    }
+  },
+  "capabilities": {
+    "eyebrow": "What we do",
+    "title": "Four engineering divisions, one integrated delivery.",
+    "items": {
+      "software": {
+        "title": "Software Development",
+        "desc": "SCADA, MES integration, and custom industrial software tailored to your process."
+      },
+      "electrical": {
+        "title": "Electrical Engineering",
+        "desc": "Panel design, schematics, and low-voltage distribution to IEC standards."
+      },
+      "automation": {
+        "title": "Automation Control",
+        "desc": "PLC programming, motion control, and turnkey control-cabinet manufacturing."
+      },
+      "network": {
+        "title": "AI & Network Engineering",
+        "desc": "Industrial networking, edge computing, and AI-assisted process optimization."
+      }
+    }
+  },
+  "products": {
+    "eyebrow": "Featured products",
+    "title": "Control systems built with ABB & Schneider components.",
+    "talkToEngineer": "Talk to an engineer →",
+    "requestQuote": "Request a Quote →"
+  },
+  "trust": {
+    "eyebrow": "Why Donglin",
+    "title": "Authorized. Experienced. Accountable.",
+    "body": "Tianjin Donglin Zhongkong Automation Technology Co., Ltd. is an authorized distributor and system integrator for ABB and Schneider Electric — genuine components, factory-backed warranty, engineered to international standards.",
+    "stats": {
+      "founded": { "value": "2016", "label": "Founded in Tianjin" },
+      "engineers": { "value": "30+", "label": "In-house engineers" },
+      "divisions": { "value": "4", "label": "Engineering divisions" },
+      "partnerships": { "value": "2", "label": "Authorized brand partnerships" }
+    }
+  },
+  "industries": {
+    "eyebrow": "Industries",
+    "title": "Automation for the sectors that run the world."
+  },
+  "contact": {
+    "title": "Tell us about your project.",
+    "body": "Send your requirements — drawings, I/O lists, or just an idea. An engineer replies within one business day.",
+    "whatsapp": "Chat on WhatsApp",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "locationLabel": "Location",
+    "form": {
+      "title": "Request a Quote",
+      "name": "Name",
+      "company": "Company",
+      "email": "Work email",
+      "country": "Country",
+      "phone": "Phone (optional)",
+      "message": "Describe your project — application, I/O count, target components…",
+      "submit": "Send Inquiry",
+      "submitting": "Sending…",
+      "success": "Sent — we'll reply within 1 business day",
+      "error": "Something went wrong. Please try again or email us directly.",
+      "validation": {
+        "nameRequired": "Please enter your name",
+        "emailInvalid": "Please enter a valid email address",
+        "messageRequired": "Please describe your project"
+      }
+    }
+  },
+  "whatsapp": {
+    "floatLabel": "Chat with us on WhatsApp",
+    "productMessage": "Hello, I'm interested in {product}. Please send me more information."
+  },
+  "footer": {
+    "blurb": "Tianjin Donglin Zhongkong Automation Technology Co., Ltd. Industrial automation systems, engineered and built in Tianjin since 2016.",
+    "company": "Company",
+    "products": "Products",
+    "contact": "Contact",
+    "copyright": "© {year} Tianjin Donglin Zhongkong Automation Technology Co., Ltd.",
+    "authorized": "Authorized partner of ABB & Schneider Electric"
+  },
+  "meta": {
+    "home": {
+      "title": "Donglin Controls — Industrial Automation Systems | ABB & Schneider Authorized",
+      "description": "PLC control cabinets, HMI systems, VFD panels and water-treatment automation — designed, built and commissioned in Tianjin, China. Authorized partner of ABB & Schneider Electric."
+    }
+  }
+}

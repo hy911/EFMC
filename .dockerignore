@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+uploads
+seed/.assets
+.env
+.env.*
+!.env.example
+Dockerfile
+docker-compose.yml
+tests
+*.md
