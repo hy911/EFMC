@@ -1,25 +1,68 @@
-import { setRequestLocale } from 'next-intl/server'
-import { getTranslations } from 'next-intl/server'
+import type { Metadata } from 'next'
+
+import { hasLocale } from 'next-intl'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
+
+import { Capabilities } from '@/components/home/Capabilities'
+import { ContactCTA } from '@/components/home/ContactCTA'
+import { FeaturedProducts } from '@/components/home/FeaturedProducts'
+import { Hero } from '@/components/home/Hero'
+import { Industries } from '@/components/home/Industries'
+import { Trust } from '@/components/home/Trust'
+import { Footer } from '@/components/layout/Footer'
+import { Navbar } from '@/components/layout/Navbar'
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat'
+import { RevealInit } from '@/components/ui/RevealInit'
+import { routing, type Locale } from '@/i18n/routing'
+import { getFeaturedProducts, getIndustries, getSiteSettings } from '@/lib/queries'
 
 type Props = {
   params: Promise<{ locale: string }>
 }
 
+// ISR：运营改内容后最长 10 分钟自动生效；M5 的 revalidate hook 会做到发布即更新
+export const revalidate = 600
+
+/** 首页多语言 metadata（完整 hreflang 在 M5 统一补全） */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'meta.home' })
+  return {
+    title: t('title'),
+    description: t('description'),
+  }
+}
+
 /**
- * 首页 —— M1 阶段的占位实现，用于验证双语路由与 Tailwind 管线。
- * M3 会替换为按设计稿 1:1 还原的完整首页。
+ * 首页 —— 按 Claude Design 设计稿 1:1 还原。
+ * 区块结构在代码里固定；产品 / 行业 / 联系方式等数据由 Payload 驱动。
  */
 export default async function HomePage({ params }: Props) {
-  const { locale } = await params
+  const { locale: raw } = await params
+  const locale: Locale = hasLocale(routing.locales, raw) ? raw : routing.defaultLocale
   setRequestLocale(locale)
-  const t = await getTranslations('hero')
+
+  // 三个查询无依赖，并行取数
+  const [settings, products, industries] = await Promise.all([
+    getSiteSettings(locale),
+    getFeaturedProducts(locale),
+    getIndustries(locale),
+  ])
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-(--container-content) items-center px-8">
-      <div>
-        <p className="text-sm tracking-[2.2px] text-accent uppercase">{t('eyebrow')}</p>
-        <h1 className="mt-4 font-display text-5xl font-bold text-navy">{t('title')}</h1>
-      </div>
-    </main>
+    <>
+      <Navbar />
+      <main>
+        <Hero />
+        <Capabilities />
+        <FeaturedProducts products={products} />
+        <Trust />
+        <Industries industries={industries} />
+        <ContactCTA settings={settings} />
+      </main>
+      <Footer settings={settings} products={products} />
+      <WhatsAppFloat number={settings.contact.whatsAppNumber} />
+      <RevealInit />
+    </>
   )
 }

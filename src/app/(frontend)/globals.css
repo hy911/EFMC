@@ -71,21 +71,23 @@
 }
 
 /* 入场动画：设计稿的 reveal 效果（上移 24px + 淡入，0.7s ease）。
-   由 RevealObserver 客户端组件通过 IntersectionObserver 添加 .in 类触发 */
-[data-reveal] {
+   渐进增强：仅当 RevealInit 在 <html> 上标记 .reveal-ready（JS 已就绪）后
+   才应用隐藏初始态 —— 无 JS / JS 未加载时内容始终可见，不影响 SEO 与可访问性。
+   .in 类由 IntersectionObserver 在元素进入视口时添加 */
+html.reveal-ready [data-reveal] {
   opacity: 0;
   transform: translateY(24px);
   transition:
     opacity 0.7s ease,
     transform 0.7s ease;
 }
-[data-reveal].in {
+html.reveal-ready [data-reveal].in {
   opacity: 1;
   transform: none;
 }
 /* 尊重用户的减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
+  html.reveal-ready [data-reveal] {
     opacity: 1;
     transform: none;
     transition: none;

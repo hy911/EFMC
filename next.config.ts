@@ -11,7 +11,12 @@ const nextConfig: NextConfig = {
   images: {
     localPatterns: [
       {
+        // Payload 媒体库文件
         pathname: '/api/media/file/**',
+      },
+      {
+        // 仓库内静态图片（logo、hero 占位图）
+        pathname: '/images/**',
       },
     ],
   },
