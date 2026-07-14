@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* 富文本（Lexical 输出）排版样式 */
+@plugin '@tailwindcss/typography';
 
 /**
  * 全站设计 token —— 严格取自 Claude Design 首页设计稿（Donglin Homepage）。

@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { anyone, authenticated } from '@/access'
+import { revalidateSiteSettings } from '@/hooks/revalidate'
 
 /**
  * 站点设置（Global）—— 联系方式、WhatsApp 号码等运营可改的全站信息。
@@ -15,6 +16,10 @@ export const SiteSettings: GlobalConfig = {
   access: {
     read: anyone,
     update: authenticated,
+  },
+  hooks: {
+    // 联系方式等全站信息变更后刷新首页
+    afterChange: [revalidateSiteSettings],
   },
   fields: [
     {

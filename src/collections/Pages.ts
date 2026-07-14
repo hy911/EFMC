@@ -4,6 +4,7 @@ import { anyone, authenticated } from '@/access'
 import { pageBlocks } from '@/blocks'
 import { seoField } from '@/fields/seo'
 import { slugField } from '@/fields/slug'
+import { revalidatePage, revalidatePageDelete } from '@/hooks/revalidate'
 
 /**
  * 固定页（About、工厂实力、Contact 等）—— 用灵活 blocks 拼装布局，
@@ -22,6 +23,11 @@ export const Pages: CollectionConfig = {
     create: authenticated,
     update: authenticated,
     delete: authenticated,
+  },
+  hooks: {
+    // 发布即刷新对应固定页（ISR 按需 revalidate）
+    afterChange: [revalidatePage],
+    afterDelete: [revalidatePageDelete],
   },
   fields: [
     {

@@ -240,13 +240,18 @@ async function run() {
       },
       locale: 'en',
     })
+    // 中文翻译必须复用 en 创建时生成的行 id，否则数组会被重建、英文值丢失
     await payload.update({
       collection: 'products',
       id: doc.id,
       data: {
         title: p.zh.title,
         excerpt: p.zh.excerpt,
-        specs: p.specs.map((s) => ({ label: s.zh[0], value: s.zh[1] })),
+        specs: (doc.specs ?? []).map((row, i) => ({
+          ...row,
+          label: p.specs[i]?.zh[0] ?? row.label,
+          value: p.specs[i]?.zh[1] ?? row.value,
+        })),
       },
       locale: 'zh',
     })
@@ -352,6 +357,110 @@ async function run() {
     }
   }
   log(`授权证书就绪（${certificates.length} 张）`)
+
+  /* ---------- 8. 固定页示例（About Us：richText + statsGrid + ctaBanner + 证书墙） ---------- */
+  const { totalDocs: pageCount } = await payload.count({ collection: 'pages' })
+  if (pageCount === 0) {
+    /** 拼一个最小的 Lexical 富文本段落 */
+    const richTextOf = (text: string) => ({
+      root: {
+        type: 'root',
+        version: 1,
+        direction: null,
+        format: '' as const,
+        indent: 0,
+        children: [
+          {
+            type: 'paragraph',
+            version: 1,
+            children: [{ type: 'text', version: 1, text }],
+          },
+        ],
+      },
+    })
+
+    const aboutPage = await payload.create({
+      collection: 'pages',
+      data: {
+        title: 'About Us',
+        slug: 'about',
+        intro:
+          'An authorized ABB & Schneider Electric partner, engineering complete automation systems in Tianjin since 2016.',
+        layout: [
+          {
+            blockType: 'richText',
+            content: richTextOf(
+              'Tianjin Donglin Zhongkong Automation Technology Co., Ltd. designs, builds, and commissions industrial automation systems for customers worldwide. Our 30-engineer team covers software, electrical engineering, automation control, and industrial networking.',
+            ),
+          },
+          {
+            blockType: 'statsGrid',
+            stats: [
+              { value: '2016', label: 'Founded in Tianjin' },
+              { value: '30+', label: 'In-house engineers' },
+              { value: '4', label: 'Engineering divisions' },
+              { value: '5', label: 'Industries served' },
+            ],
+          },
+          { blockType: 'imageGallery', heading: 'Certificates & Authorizations', fromCertificates: true },
+          {
+            blockType: 'ctaBanner',
+            heading: 'Ready to start your project?',
+            body: 'Send us your requirements and an engineer will reply within one business day.',
+            buttonLabel: 'Request a Quote',
+          },
+          { blockType: 'contactForm', heading: 'Tell us about your project' },
+        ],
+      },
+      locale: 'en',
+    })
+    // 中文翻译：blocks 数组本身不做 localized（结构共享），只翻译内部 localized 字段。
+    // 必须带上 en 创建时生成的 block id / 行 id，否则会重建数组、丢失英文内容。
+    const layout = aboutPage.layout ?? []
+    const statsBlock = layout.find((b) => b.blockType === 'statsGrid')
+    const zhStats = ['创立于天津', '自有工程师', '工程事业部', '服务行业']
+    await payload.update({
+      collection: 'pages',
+      id: aboutPage.id,
+      data: {
+        title: '关于我们',
+        intro: 'ABB 与施耐德电气授权合作伙伴，自 2016 年起在天津交付成套自动化系统。',
+        layout: layout.map((block) => {
+          switch (block.blockType) {
+            case 'richText':
+              return {
+                ...block,
+                content: richTextOf(
+                  '天津东林众控自动化科技有限公司为全球客户设计、制造并调试工业自动化系统。30 余人的工程师团队覆盖软件开发、电气工程、自动化控制与工业网络四大方向。',
+                ),
+              }
+            case 'statsGrid':
+              return {
+                ...block,
+                stats: (statsBlock?.blockType === 'statsGrid' ? statsBlock.stats ?? [] : []).map(
+                  (stat, i) => ({ ...stat, label: zhStats[i] ?? stat.label }),
+                ),
+              }
+            case 'imageGallery':
+              return { ...block, heading: '资质与授权' }
+            case 'ctaBanner':
+              return {
+                ...block,
+                heading: '准备好启动您的项目了吗？',
+                body: '把需求发给我们，工程师将在一个工作日内回复。',
+                buttonLabel: '获取报价',
+              }
+            case 'contactForm':
+              return { ...block, heading: '告诉我们您的项目' }
+            default:
+              return block
+          }
+        }),
+      },
+      locale: 'zh',
+    })
+    log('固定页示例（about）已创建')
+  }
 
   log('全部完成 ✔')
   process.exit(0)

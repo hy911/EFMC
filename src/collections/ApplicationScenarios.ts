@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { anyone, authenticated } from '@/access'
 import { seoField } from '@/fields/seo'
 import { slugField } from '@/fields/slug'
+import { revalidateHome } from '@/hooks/revalidate'
 
 /**
  * 应用行业（智慧水务、先进制造、新能源、农业、传统工业……）。
@@ -24,6 +25,10 @@ export const ApplicationScenarios: CollectionConfig = {
     create: authenticated,
     update: authenticated,
     delete: authenticated,
+  },
+  hooks: {
+    // 行业变更刷新首页 Industries 区
+    afterChange: [revalidateHome],
   },
   fields: [
     {

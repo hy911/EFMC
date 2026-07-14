@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { anyone, authenticated } from '@/access'
 import { seoField } from '@/fields/seo'
 import { slugField } from '@/fields/slug'
+import { revalidateProduct, revalidateProductDelete } from '@/hooks/revalidate'
 
 /**
  * 产品 —— 面向海外 B2B 展示，不含价格与 MOQ，CTA 统一为 "Request a Quote"。
@@ -21,6 +22,11 @@ export const Products: CollectionConfig = {
     create: authenticated,
     update: authenticated,
     delete: authenticated,
+  },
+  hooks: {
+    // 发布即刷新：产品详情页 + 首页（ISR 按需 revalidate）
+    afterChange: [revalidateProduct],
+    afterDelete: [revalidateProductDelete],
   },
   fields: [
     {

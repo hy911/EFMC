@@ -14,7 +14,9 @@ import { Navbar } from '@/components/layout/Navbar'
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat'
 import { RevealInit } from '@/components/ui/RevealInit'
 import { routing, type Locale } from '@/i18n/routing'
+import { jsonLdScript, organizationJsonLd } from '@/lib/jsonld'
 import { getFeaturedProducts, getIndustries, getSiteSettings } from '@/lib/queries'
+import { localeAlternates, SITE_URL } from '@/lib/seo'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -23,13 +25,20 @@ type Props = {
 // ISR：运营改内容后最长 10 分钟自动生效；M5 的 revalidate hook 会做到发布即更新
 export const revalidate = 600
 
-/** 首页多语言 metadata（完整 hreflang 在 M5 统一补全） */
+/** 首页多语言 metadata：title/description + hreflang 串联 + OG */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await params
+  const { locale: raw } = await params
+  const locale: Locale = hasLocale(routing.locales, raw) ? raw : routing.defaultLocale
   const t = await getTranslations({ locale, namespace: 'meta.home' })
   return {
     title: t('title'),
     description: t('description'),
+    alternates: localeAlternates(locale, ''),
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      url: `${SITE_URL}/${locale}`,
+    },
   }
 }
 
@@ -51,6 +60,18 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
+      {/* Organization JSON-LD：B2B 信任信号 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript(
+            organizationJsonLd({
+              name: settings.companyName,
+              logoUrl: `${SITE_URL}/images/logo.png`,
+            }),
+          ),
+        }}
+      />
       <Navbar />
       <main>
         <Hero />
