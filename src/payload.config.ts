@@ -6,10 +6,12 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { ApplicationScenarios } from './collections/ApplicationScenarios'
+import { CaseStudies } from './collections/CaseStudies'
 import { Certificates } from './collections/Certificates'
 import { Inquiries } from './collections/Inquiries'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
+import { Posts } from './collections/Posts'
 import { ProductCategories } from './collections/ProductCategories'
 import { Products } from './collections/Products'
 import { Users } from './collections/Users'
@@ -35,6 +37,8 @@ export default buildConfig({
     ApplicationScenarios,
     // 内容
     Pages,
+    CaseStudies,
+    Posts,
     Certificates,
     // 线索
     Inquiries,

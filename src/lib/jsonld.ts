@@ -7,7 +7,8 @@ import { SITE_URL } from './seo'
  * 输出对象由页面用 <script type="application/ld+json"> 注入。
  */
 
-const mediaUrl = (m: (number | null | undefined) | Media): string | undefined =>
+/** media 关联 → 绝对 URL（未 populate 或无 URL 时返回 undefined） */
+export const mediaUrl = (m: (number | null | undefined) | Media): string | undefined =>
   m && typeof m === 'object' && m.url ? `${SITE_URL}${m.url}` : undefined
 
 /** 组织信息（首页）：B2B 信任信号 */
@@ -49,6 +50,37 @@ export function articleJsonLd(page: Page, locale: string) {
     url: `${SITE_URL}/${locale}/${page.slug}`,
     dateModified: page.updatedAt,
     datePublished: page.createdAt,
+  }
+}
+
+/** 通用 Article schema（案例 / 博客等任何"文章形"内容） */
+export function simpleArticleJsonLd({
+  headline,
+  description,
+  url,
+  image,
+  datePublished,
+  dateModified,
+  author,
+}: {
+  headline: string
+  description?: string | null
+  url: string
+  image?: string
+  datePublished?: string | null
+  dateModified?: string | null
+  author?: string | null
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline,
+    ...(description ? { description } : {}),
+    url,
+    ...(image ? { image: [image] } : {}),
+    ...(datePublished ? { datePublished } : {}),
+    ...(dateModified ? { dateModified } : {}),
+    ...(author ? { author: { '@type': 'Organization', name: author } } : {}),
   }
 }
 

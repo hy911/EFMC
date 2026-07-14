@@ -12,9 +12,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const payload = await getPayloadClient()
 
   // 只取 slug / 更新时间，控制查询开销
-  const [products, pages] = await Promise.all([
+  const [products, pages, cases, posts] = await Promise.all([
     payload.find({ collection: 'products', limit: 1000, select: { slug: true, updatedAt: true } }),
     payload.find({ collection: 'pages', limit: 1000, select: { slug: true, updatedAt: true } }),
+    payload.find({
+      collection: 'case-studies',
+      limit: 1000,
+      select: { slug: true, updatedAt: true },
+    }),
+    payload.find({ collection: 'posts', limit: 1000, select: { slug: true, updatedAt: true } }),
   ])
 
   /** 为同一路径生成全语种条目 + hreflang 互链 */
@@ -32,7 +38,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...entries(''),
+    ...entries('/products'),
+    ...entries('/cases'),
+    ...entries('/blog'),
     ...products.docs.flatMap((p) => entries(`/products/${p.slug}`, p.updatedAt)),
+    ...cases.docs.flatMap((c) => entries(`/cases/${c.slug}`, c.updatedAt)),
+    ...posts.docs.flatMap((p) => entries(`/blog/${p.slug}`, p.updatedAt)),
     ...pages.docs.flatMap((p) => entries(`/${p.slug}`, p.updatedAt)),
   ]
 }

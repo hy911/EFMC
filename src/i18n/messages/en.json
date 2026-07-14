@@ -9,6 +9,8 @@
   "nav": {
     "products": "Products",
     "solutions": "Solutions",
+    "cases": "Cases",
+    "blog": "Blog",
     "about": "About",
     "contact": "Contact"
   },
@@ -52,6 +54,35 @@
     "title": "Control systems built with ABB & Schneider components.",
     "talkToEngineer": "Talk to an engineer →",
     "requestQuote": "Request a Quote →"
+  },
+  "productsPage": {
+    "title": "Products",
+    "intro": "Control systems engineered with genuine ABB & Schneider Electric components — no prices, no minimums: tell us your specification and get an engineering quote.",
+    "metaTitle": "Products — PLC Cabinets, HMI, VFD, SCADA | Donglin Controls",
+    "metaDescription": "Browse PLC control cabinets, HMI panels, VFD drive systems, motor control centers and water-treatment automation built with ABB & Schneider components."
+  },
+  "casesPage": {
+    "title": "Case Studies",
+    "intro": "Delivered projects across water, manufacturing, energy and more — real specifications, real results.",
+    "metaTitle": "Case Studies — Delivered Automation Projects | Donglin Controls",
+    "metaDescription": "Industrial automation projects delivered by Donglin Controls: PLC systems, SCADA and water-treatment automation with measurable results.",
+    "industryLabel": "Industry",
+    "locationLabel": "Location",
+    "completedLabel": "Completed",
+    "relatedProducts": "Products used in this project",
+    "readCase": "Read case →"
+  },
+  "blogPage": {
+    "title": "Blog",
+    "intro": "Engineering notes on PLC systems, SCADA, drives and industrial automation practice.",
+    "metaTitle": "Blog — Industrial Automation Insights | Donglin Controls",
+    "metaDescription": "Technical articles from the Donglin Controls engineering team: PLC, HMI, VFD, SCADA and water-treatment automation.",
+    "readMore": "Read more →"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for doesn't exist or has been moved.",
+    "backHome": "Back to homepage"
   },
   "trust": {
     "eyebrow": "Why Donglin",

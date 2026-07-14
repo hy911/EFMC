@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 
+import { Link } from '@/i18n/navigation'
+
 type NavItem = { href: string; label: string }
 
 /**
  * 移动端汉堡菜单（<lg 显示）。
- * 首页导航是锚点链接，点击后自动收起。
+ * 链接经 i18n Link 保持语言前缀，点击后自动收起。
  */
 export function MobileMenu({ items, cta }: { items: NavItem[]; cta: NavItem }) {
   const [open, setOpen] = useState(false)
@@ -33,22 +35,22 @@ export function MobileMenu({ items, cta }: { items: NavItem[]; cta: NavItem }) {
       {open && (
         <nav className="absolute inset-x-0 top-[72px] flex flex-col border-b border-line bg-white px-6 py-4 shadow-lg">
           {items.map((item) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
               className="border-b border-line py-3 text-[15px] font-medium text-slate-nav last:border-0"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
-          <a
+          <Link
             href={cta.href}
             onClick={() => setOpen(false)}
             className="mt-3 bg-accent px-5 py-3 text-center text-[14.5px] font-semibold text-white"
           >
             {cta.label}
-          </a>
+          </Link>
         </nav>
       )}
     </div>

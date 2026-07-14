@@ -1,5 +1,5 @@
 import type { Locale } from '@/i18n/routing'
-import type { ApplicationScenario, Product, SiteSetting } from '@/payload-types'
+import type { ApplicationScenario, CaseStudy, Post, Product, SiteSetting } from '@/payload-types'
 
 import { getPayloadClient } from './payload'
 
@@ -39,6 +39,58 @@ export async function getIndustries(locale: Locale, limit = 5): Promise<Applicat
     depth: 1,
   })
   return docs
+}
+
+/** 客户案例列表（按交付时间倒序） */
+export async function getCaseStudies(locale: Locale, limit = 100): Promise<CaseStudy[]> {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'case-studies',
+    sort: '-completedAt',
+    limit,
+    locale,
+    depth: 1, // 带出封面图与行业
+  })
+  return docs
+}
+
+/** 按 slug 查询单个案例（含关联产品，供详情页内链） */
+export async function getCaseStudyBySlug(locale: Locale, slug: string): Promise<CaseStudy | null> {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'case-studies',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    locale,
+    depth: 2, // relatedProducts 里还要带出产品封面图
+  })
+  return docs[0] ?? null
+}
+
+/** 博客文章列表（按发布时间倒序） */
+export async function getPosts(locale: Locale, limit = 100): Promise<Post[]> {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'posts',
+    sort: '-publishedAt',
+    limit,
+    locale,
+    depth: 1,
+  })
+  return docs
+}
+
+/** 按 slug 查询单篇文章 */
+export async function getPostBySlug(locale: Locale, slug: string): Promise<Post | null> {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    locale,
+    depth: 1,
+  })
+  return docs[0] ?? null
 }
 
 /** 按 slug 查询单个产品（产品详情页用） */

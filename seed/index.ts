@@ -358,27 +358,27 @@ async function run() {
   }
   log(`授权证书就绪（${certificates.length} 张）`)
 
+  /** 拼一个最小的 Lexical 富文本段落 */
+  const richTextOf = (text: string) => ({
+    root: {
+      type: 'root',
+      version: 1,
+      direction: null,
+      format: '' as const,
+      indent: 0,
+      children: [
+        {
+          type: 'paragraph',
+          version: 1,
+          children: [{ type: 'text', version: 1, text }],
+        },
+      ],
+    },
+  })
+
   /* ---------- 8. 固定页示例（About Us：richText + statsGrid + ctaBanner + 证书墙） ---------- */
   const { totalDocs: pageCount } = await payload.count({ collection: 'pages' })
   if (pageCount === 0) {
-    /** 拼一个最小的 Lexical 富文本段落 */
-    const richTextOf = (text: string) => ({
-      root: {
-        type: 'root',
-        version: 1,
-        direction: null,
-        format: '' as const,
-        indent: 0,
-        children: [
-          {
-            type: 'paragraph',
-            version: 1,
-            children: [{ type: 'text', version: 1, text }],
-          },
-        ],
-      },
-    })
-
     const aboutPage = await payload.create({
       collection: 'pages',
       data: {
@@ -460,6 +460,182 @@ async function run() {
       locale: 'zh',
     })
     log('固定页示例（about）已创建')
+  }
+
+  /* ---------- 9. 客户案例示例（二期） ---------- */
+  const { totalDocs: caseCount } = await payload.count({ collection: 'case-studies' })
+  if (caseCount === 0) {
+    /** 按 slug 找已 seed 的行业 / 产品 id */
+    const findId = async (collection: 'application-scenarios' | 'products', slug: string) => {
+      const { docs } = await payload.find({ collection, where: { slug: { equals: slug } }, limit: 1 })
+      return docs[0]?.id
+    }
+
+    const caseSeeds = [
+      {
+        slug: 'municipal-wtp-scada-upgrade',
+        industry: 'smart-water',
+        products: ['plc-control-cabinets', 'scada-remote-monitoring'],
+        completedAt: '2025-11-01',
+        en: {
+          title: 'SCADA & PLC upgrade for a 50,000 m³/d municipal water treatment plant',
+          excerpt:
+            'Full control-system retrofit — 4 PLC cabinets, redundant SCADA and remote monitoring — commissioned without interrupting supply.',
+          location: 'Hebei, China',
+          metrics: [
+            ['50,000 m³/d', 'Plant capacity'],
+            ['4', 'PLC cabinets delivered'],
+            ['0 h', 'Supply interruption'],
+            ['30%', 'Fewer manual operations'],
+          ],
+          body: 'The plant operated on an aging control system with frequent failures and no remote visibility. We engineered and built four ABB PLC cabinets, deployed a redundant SCADA layer with historian and alarming, and migrated the plant section by section during live operation. The operator now supervises the full process remotely, with automatic dosing control and shift reports.',
+        },
+        zh: {
+          title: '5 万吨/日市政水厂 SCADA 与 PLC 控制系统升级',
+          excerpt: '整套控制系统改造——4 面 PLC 控制柜、冗余 SCADA 与远程监控，不停水完成切换调试。',
+          location: '中国·河北',
+          metrics: [
+            ['5 万吨/日', '水厂规模'],
+            ['4 面', '交付 PLC 柜'],
+            ['0 小时', '停水时间'],
+            ['30%', '人工操作减少'],
+          ],
+          body: '该水厂原控制系统老化、故障频发且无远程可视化。我们设计制造了 4 面基于 ABB PLC 的控制柜，部署带历史库与报警的冗余 SCADA 层，并在不停产状态下分段切换。现在运营方可远程监控全流程，加药自动控制并自动生成班报。',
+        },
+      },
+      {
+        slug: 'ev-battery-line-mcc',
+        industry: 'new-energy',
+        products: ['motor-control-centers', 'vfd-drive-panels'],
+        completedAt: '2026-03-01',
+        en: {
+          title: 'MCC and drive systems for an EV battery materials production line',
+          excerpt:
+            'Motor control centers and VFD panels for a new cathode-materials line — 120 motors, energy monitoring, delivered in 8 weeks.',
+          location: 'Tianjin, China',
+          metrics: [
+            ['120', 'Motors controlled'],
+            ['8 weeks', 'Design to delivery'],
+            ['12%', 'Energy savings measured'],
+          ],
+          body: 'For a new cathode-materials production line we delivered the complete motor-control scope: MCC sections with intelligent protection relays, VFD panels sized per load profile, and plant-wide energy monitoring integrated into the customer MES. The line started on schedule and measured double-digit energy savings against the design baseline.',
+        },
+        zh: {
+          title: '动力电池材料产线 MCC 与传动系统',
+          excerpt: '新建正极材料产线的电机控制中心与变频柜——120 台电机、能耗监测，8 周交付。',
+          location: '中国·天津',
+          metrics: [
+            ['120 台', '受控电机'],
+            ['8 周', '设计到交付'],
+            ['12%', '实测节能'],
+          ],
+          body: '为新建正极材料产线交付完整电控范围：带智能保护继电器的 MCC 柜列、按负载工况选型的变频柜，以及接入客户 MES 的全厂能耗监测。产线按期投产，实测能耗较设计基线节省两位数。',
+        },
+      },
+    ]
+
+    for (const c of caseSeeds) {
+      const coverId = await uploadMedia(`case-${c.slug}`, c.en.title, c.zh.title, 1280, 800)
+      const industryId = await findId('application-scenarios', c.industry)
+      const productIds = (
+        await Promise.all(c.products.map((p) => findId('products', p)))
+      ).filter((id): id is number => Boolean(id))
+
+      const doc = await payload.create({
+        collection: 'case-studies',
+        data: {
+          title: c.en.title,
+          slug: c.slug,
+          excerpt: c.en.excerpt,
+          coverImage: coverId,
+          industry: industryId,
+          relatedProducts: productIds,
+          location: c.en.location,
+          completedAt: c.completedAt,
+          metrics: c.en.metrics.map(([value, label]) => ({ value, label })),
+          body: richTextOf(c.en.body),
+        },
+        locale: 'en',
+      })
+      // 中文翻译：localized 数组必须复用 en 行 id
+      await payload.update({
+        collection: 'case-studies',
+        id: doc.id,
+        data: {
+          title: c.zh.title,
+          excerpt: c.zh.excerpt,
+          location: c.zh.location,
+          metrics: (doc.metrics ?? []).map((row, i) => ({
+            ...row,
+            value: c.zh.metrics[i]?.[0] ?? row.value,
+            label: c.zh.metrics[i]?.[1] ?? row.label,
+          })),
+          body: richTextOf(c.zh.body),
+        },
+        locale: 'zh',
+      })
+    }
+    log(`客户案例就绪（${caseSeeds.length} 个）`)
+  }
+
+  /* ---------- 10. 博客文章示例（二期） ---------- */
+  const { totalDocs: postCount } = await payload.count({ collection: 'posts' })
+  if (postCount === 0) {
+    const postSeeds = [
+      {
+        slug: 'how-to-spec-plc-control-cabinet',
+        publishedAt: '2026-05-12T08:00:00.000Z',
+        en: {
+          title: 'How to specify a PLC control cabinet: a practical checklist',
+          excerpt:
+            'I/O count, enclosure rating, thermal design, spare capacity — the eight questions we ask before quoting any cabinet.',
+          body: 'A good cabinet specification starts long before panel layout. This checklist covers the eight questions our engineers ask on every project: process I/O count and reserve, PLC brand and series constraints, enclosure rating for the installation environment, thermal load and cooling strategy, incoming power and distribution, network architecture, documentation language, and applicable standards. Answering them up front shortens quotation from weeks to days.',
+        },
+        zh: {
+          title: 'PLC 控制柜怎么提需求：一份实用清单',
+          excerpt: 'I/O 点数、防护等级、散热设计、预留容量——我们报价前必问的八个问题。',
+          body: '一份好的控制柜规格书早在柜内布局之前就开始了。本清单覆盖我们的工程师在每个项目上必问的八个问题：工艺 I/O 点数与预留、PLC 品牌与系列约束、安装环境对应的防护等级、热负荷与散热策略、进线电源与配电、网络架构、文档语言以及适用标准。提前回答这些问题，报价周期能从数周缩短到数天。',
+        },
+      },
+      {
+        slug: 'abb-vs-schneider-plc-selection',
+        publishedAt: '2026-06-20T08:00:00.000Z',
+        en: {
+          title: 'ABB or Schneider for your next PLC project? An integrator’s view',
+          excerpt:
+            'Both ecosystems are excellent — the right choice depends on your installed base, regional support and application profile.',
+          body: 'As an authorized partner of both brands we are often asked which PLC to standardize on. The honest answer: both platforms cover the vast majority of industrial applications well. The decision usually comes down to your existing installed base and spare-parts stock, the regional service network at your plant locations, engineering-tool licensing, and specific application requirements such as motion, redundancy or safety integration. This article walks through each factor with examples from delivered projects.',
+        },
+        zh: {
+          title: '下个 PLC 项目选 ABB 还是施耐德？集成商视角',
+          excerpt: '两个生态都很优秀——正确选择取决于你的存量设备、区域服务与应用场景。',
+          body: '作为两个品牌的授权合作伙伴，我们经常被问到应该以哪家 PLC 为标准。诚实的回答是：两个平台都能很好地覆盖绝大多数工业应用。决策通常取决于存量设备与备件库存、工厂所在地的区域服务网络、工程软件授权成本，以及运动控制、冗余或安全集成等具体应用需求。本文结合已交付项目逐项分析。',
+        },
+      },
+    ]
+
+    for (const p of postSeeds) {
+      const coverId = await uploadMedia(`post-${p.slug}`, p.en.title, p.zh.title, 1280, 720)
+      const doc = await payload.create({
+        collection: 'posts',
+        data: {
+          title: p.en.title,
+          slug: p.slug,
+          excerpt: p.en.excerpt,
+          coverImage: coverId,
+          publishedAt: p.publishedAt,
+          body: richTextOf(p.en.body),
+        },
+        locale: 'en',
+      })
+      await payload.update({
+        collection: 'posts',
+        id: doc.id,
+        data: { title: p.zh.title, excerpt: p.zh.excerpt, body: richTextOf(p.zh.body) },
+        locale: 'zh',
+      })
+    }
+    log(`博客文章就绪（${postSeeds.length} 篇）`)
   }
 
   log('全部完成 ✔')
