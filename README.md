@@ -86,5 +86,11 @@ seed/                               # 演示数据种子（pnpm seed，幂等）
 
 - ✅ CaseStudies（客户案例）：行业/地点/成果指标/关联产品，路由 `/cases` `/cases/[slug]`
 - ✅ Posts（技术博客）：路由 `/blog` `/blog/[slug]`，Article JSON-LD
-- ⬜ 更多语种（西/俄/阿）：`src/i18n/routing.ts` 与 `payload.config.ts` localization 同步追加；RTL 语种在 Payload locale 配置加 `rtl: true`，前端 `<html dir>` 按语种输出
-- ⬜ 图片迁移对象存储：换 `@payloadcms/storage-s3` 插件，Media collection 无需改动
+
+### 已决策暂不做（扩展锚点保留）
+
+- **更多语种**：当前只做中英（已确认）。未来扩展时同步修改 `src/i18n/routing.ts`
+  与 `payload.config.ts` 的 localization.locales，并补 `src/i18n/messages/<locale>.json`；
+  RTL 语种在 Payload locale 配置加 `rtl: true`，前端 `<html dir>` 按语种输出
+- **图片对象存储**：暂用 Payload 本地存储（uploads 卷）。需要时换
+  `@payloadcms/storage-s3` 插件，Media collection 无需改动
