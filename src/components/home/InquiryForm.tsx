@@ -1,5 +1,6 @@
 'use client'
 
+import Script from 'next/script'
 import { useState, type FormEvent } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 
@@ -8,9 +9,12 @@ type Status = 'idle' | 'submitting' | 'success' | 'error'
 const inputClass =
   'border border-input px-3.5 py-[13px] text-[15px] font-sans text-ink outline-accent placeholder:text-steel/70'
 
+// Turnstile site key：未配置时不渲染人机校验组件（服务端也会相应放行）
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
 /**
  * 询盘表单（设计稿 1:1：白卡，Name/Company 双列 + Email + Message + 提交按钮）。
- * 提交 → POST /api/inquiries（服务端校验 + Turnstile + 写库 + 邮件通知）。
+ * 提交 → POST /api/inquiries（Zod 校验 + 蜜罐 + Turnstile + 写库 + 邮件通知）。
  * sourceProductId：产品页复用本表单时传入，询盘会关联来源产品。
  */
 export function InquiryForm({ sourceProductId }: { sourceProductId?: number }) {
@@ -24,14 +28,21 @@ export function InquiryForm({ sourceProductId }: { sourceProductId?: number }) {
     setStatus('submitting')
 
     const form = e.currentTarget
-    const data = Object.fromEntries(new FormData(form).entries())
+    const fd = new FormData(form)
 
     try {
       const res = await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...data,
+          name: fd.get('name'),
+          company: fd.get('company') || undefined,
+          email: fd.get('email'),
+          message: fd.get('message'),
+          // 蜜罐（正常用户为空）
+          website: fd.get('website') || undefined,
+          // Turnstile 隐式渲染注入的令牌
+          turnstileToken: fd.get('cf-turnstile-response') || undefined,
           sourceProduct: sourceProductId,
           locale,
         }),
@@ -89,6 +100,27 @@ export function InquiryForm({ sourceProductId }: { sourceProductId?: number }) {
         className={`${inputClass} resize-y`}
         aria-label={t('message')}
       />
+
+      {/* 蜜罐字段：视觉隐藏 + 跳过 Tab，机器人填了就会被服务端丢弃 */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+      />
+
+      {/* Cloudflare Turnstile（隐式渲染）：仅在配置了 site key 时启用 */}
+      {TURNSTILE_SITE_KEY && (
+        <>
+          <Script
+            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+            strategy="lazyOnload"
+          />
+          <div className="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="flexible" />
+        </>
+      )}
 
       <button
         type="submit"
