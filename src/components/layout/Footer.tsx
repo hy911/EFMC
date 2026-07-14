@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 
+import { Link } from '@/i18n/navigation'
 import type { Product, SiteSetting } from '@/payload-types'
 
 /**
@@ -18,10 +19,10 @@ export async function Footer({
   const year = new Date().getFullYear()
 
   const companyLinks = [
-    { href: '#products', label: t('nav.products') },
-    { href: '#solutions', label: t('nav.solutions') },
-    { href: '#about', label: t('nav.about') },
-    { href: '#contact', label: t('nav.contact') },
+    { href: '/products', label: t('nav.products') },
+    { href: '/#solutions', label: t('nav.solutions') },
+    { href: '/about', label: t('nav.about') },
+    { href: '/#contact', label: t('nav.contact') },
   ]
 
   return (
@@ -53,9 +54,13 @@ export async function Footer({
           </div>
           <div className="flex flex-col gap-2.5">
             {companyLinks.map((link) => (
-              <a key={link.href} href={link.href} className="text-fog transition-colors hover:text-white">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-fog transition-colors hover:text-white"
+              >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -67,9 +72,13 @@ export async function Footer({
           </div>
           <div className="flex flex-col gap-2.5">
             {products.slice(0, 4).map((p) => (
-              <a key={p.id} href="#products" className="text-fog transition-colors hover:text-white">
+              <Link
+                key={p.id}
+                href={`/products/${p.slug}`}
+                className="text-fog transition-colors hover:text-white"
+              >
                 {p.title}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

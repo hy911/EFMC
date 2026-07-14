@@ -53,6 +53,17 @@
     "talkToEngineer": "与工程师沟通 →",
     "requestQuote": "获取报价 →"
   },
+  "productsPage": {
+    "title": "产品中心",
+    "intro": "基于 ABB 与施耐德电气正品元器件的控制系统——不标价格、不设起订量：告诉我们您的技术规格，获取工程报价。",
+    "metaTitle": "产品中心——PLC 控制柜、HMI、变频、SCADA | 东林众控",
+    "metaDescription": "浏览基于 ABB 与施耐德元器件的 PLC 控制柜、HMI 人机界面、变频驱动系统、电机控制中心与水处理自动化产品。"
+  },
+  "notFound": {
+    "title": "页面不存在",
+    "body": "您访问的页面不存在或已被移动。",
+    "backHome": "返回首页"
+  },
   "trust": {
     "eyebrow": "为什么选择东林",
     "title": "官方授权 · 经验丰富 · 全程负责",

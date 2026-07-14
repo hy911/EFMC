@@ -30,7 +30,14 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
+      use: {
+        ...devices['Desktop Chrome'],
+        // 允许用环境变量指向系统已装的 Chromium（如 CI/沙箱环境禁止 playwright install 时）；
+        // 未设置时走默认的 playwright 托管浏览器
+        ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
+          ? { launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } }
+          : { channel: 'chromium' }),
+      },
     },
   ],
   webServer: {

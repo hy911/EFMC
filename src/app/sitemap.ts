@@ -32,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...entries(''),
+    ...entries('/products'),
     ...products.docs.flatMap((p) => entries(`/products/${p.slug}`, p.updatedAt)),
     ...pages.docs.flatMap((p) => entries(`/${p.slug}`, p.updatedAt)),
   ]

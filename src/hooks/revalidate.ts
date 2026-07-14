@@ -1,4 +1,6 @@
-import { revalidatePath } from 'next/cache'
+// 用带扩展名的 'next/cache.js'：next 包没有 exports map，
+// 纯 Node/tsx 环境（seed、Playwright 加载 payload 配置）解析不了裸子路径 'next/cache'
+import { revalidatePath } from 'next/cache.js'
 import type {
   CollectionAfterChangeHook,
   CollectionAfterDeleteHook,
@@ -26,17 +28,28 @@ const safeRevalidate = (paths: string[]) => {
 /** 所有语种的同一路径（path 不带语言前缀，'' 表示首页） */
 const allLocales = (path: string) => routing.locales.map((l) => `/${l}${path}`)
 
-/** 产品：产品详情页 + 首页（精选区/页脚） */
+/** 产品：产品详情页 + 列表页 + 首页（精选区/页脚） */
 export const revalidateProduct: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
   const slugs = new Set([doc?.slug, previousDoc?.slug].filter(Boolean) as string[])
   safeRevalidate([
     ...allLocales(''),
+    ...allLocales('/products'),
     ...[...slugs].flatMap((s) => allLocales(`/products/${s}`)),
   ])
   return doc
 }
 export const revalidateProductDelete: CollectionAfterDeleteHook = ({ doc }) => {
-  safeRevalidate([...allLocales(''), ...allLocales(`/products/${doc?.slug}`)])
+  safeRevalidate([
+    ...allLocales(''),
+    ...allLocales('/products'),
+    ...allLocales(`/products/${doc?.slug}`),
+  ])
+  return doc
+}
+
+/** 产品分类：影响列表页分组 */
+export const revalidateProductsIndex: CollectionAfterChangeHook = ({ doc }) => {
+  safeRevalidate(allLocales('/products'))
   return doc
 }
 

@@ -36,3 +36,7 @@ yarn-error.log*
 next-env.d.ts
 uploads/
 seed/.assets/
+
+# playwright
+/test-results/
+/playwright-report/

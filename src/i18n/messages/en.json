@@ -53,6 +53,17 @@
     "talkToEngineer": "Talk to an engineer →",
     "requestQuote": "Request a Quote →"
   },
+  "productsPage": {
+    "title": "Products",
+    "intro": "Control systems engineered with genuine ABB & Schneider Electric components — no prices, no minimums: tell us your specification and get an engineering quote.",
+    "metaTitle": "Products — PLC Cabinets, HMI, VFD, SCADA | Donglin Controls",
+    "metaDescription": "Browse PLC control cabinets, HMI panels, VFD drive systems, motor control centers and water-treatment automation built with ABB & Schneider components."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for doesn't exist or has been moved.",
+    "backHome": "Back to homepage"
+  },
   "trust": {
     "eyebrow": "Why Donglin",
     "title": "Authorized. Experienced. Accountable.",

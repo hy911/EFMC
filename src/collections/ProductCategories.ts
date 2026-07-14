@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone, authenticated } from '@/access'
 import { slugField } from '@/fields/slug'
+import { revalidateProductsIndex } from '@/hooks/revalidate'
 
 /** 产品分类（如：控制柜、HMI、变频与传动、水处理自动化） */
 export const ProductCategories: CollectionConfig = {
@@ -19,6 +20,10 @@ export const ProductCategories: CollectionConfig = {
     create: authenticated,
     update: authenticated,
     delete: authenticated,
+  },
+  hooks: {
+    // 分类变更刷新产品列表页分组
+    afterChange: [revalidateProductsIndex],
   },
   fields: [
     {
