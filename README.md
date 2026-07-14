@@ -82,8 +82,9 @@ src/
 seed/                               # 演示数据种子（pnpm seed，幂等）
 ```
 
-## 二期规划锚点
+## 二期进度
 
-- CaseStudies / Posts collection：按 Products 的模式加 collection + 路由 + sitemap 即可
-- 更多语种（西/俄/阿）：`src/i18n/routing.ts` 与 `payload.config.ts` localization 同步追加；RTL 语种在 Payload locale 配置加 `rtl: true`，前端 `<html dir>` 按语种输出
-- 图片迁移对象存储：换 `@payloadcms/storage-s3` 插件，Media collection 无需改动
+- ✅ CaseStudies（客户案例）：行业/地点/成果指标/关联产品，路由 `/cases` `/cases/[slug]`
+- ✅ Posts（技术博客）：路由 `/blog` `/blog/[slug]`，Article JSON-LD
+- ⬜ 更多语种（西/俄/阿）：`src/i18n/routing.ts` 与 `payload.config.ts` localization 同步追加；RTL 语种在 Payload locale 配置加 `rtl: true`，前端 `<html dir>` 按语种输出
+- ⬜ 图片迁移对象存储：换 `@payloadcms/storage-s3` 插件，Media collection 无需改动

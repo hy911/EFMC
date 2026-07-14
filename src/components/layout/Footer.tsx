@@ -20,7 +20,8 @@ export async function Footer({
 
   const companyLinks = [
     { href: '/products', label: t('nav.products') },
-    { href: '/#solutions', label: t('nav.solutions') },
+    { href: '/cases', label: t('nav.cases') },
+    { href: '/blog', label: t('nav.blog') },
     { href: '/about', label: t('nav.about') },
     { href: '/#contact', label: t('nav.contact') },
   ]

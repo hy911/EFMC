@@ -18,6 +18,8 @@ export async function Navbar() {
   const items = [
     { href: '/products', label: t('nav.products') },
     { href: '/#solutions', label: t('nav.solutions') },
+    { href: '/cases', label: t('nav.cases') },
+    { href: '/blog', label: t('nav.blog') },
     { href: '/about', label: t('nav.about') },
     { href: '/#contact', label: t('nav.contact') },
   ]
@@ -46,8 +48,8 @@ export async function Navbar() {
           </span>
         </Link>
 
-        {/* 桌面端导航 */}
-        <nav className="hidden items-center gap-9 text-[15px] font-medium lg:flex">
+        {/* 桌面端导航（6 项 + CTA，间距略收窄以适配 1240 容器） */}
+        <nav className="hidden items-center gap-7 text-[15px] font-medium lg:flex">
           {items.map((item) => (
             <Link
               key={item.href}

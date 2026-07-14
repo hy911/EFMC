@@ -64,6 +64,34 @@ export const revalidatePageDelete: CollectionAfterDeleteHook = ({ doc }) => {
   return doc
 }
 
+/** 客户案例：详情页 + 列表页 */
+export const revalidateCaseStudy: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
+  const slugs = new Set([doc?.slug, previousDoc?.slug].filter(Boolean) as string[])
+  safeRevalidate([
+    ...allLocales('/cases'),
+    ...[...slugs].flatMap((s) => allLocales(`/cases/${s}`)),
+  ])
+  return doc
+}
+export const revalidateCaseStudyDelete: CollectionAfterDeleteHook = ({ doc }) => {
+  safeRevalidate([...allLocales('/cases'), ...allLocales(`/cases/${doc?.slug}`)])
+  return doc
+}
+
+/** 博客文章：详情页 + 列表页 */
+export const revalidatePost: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
+  const slugs = new Set([doc?.slug, previousDoc?.slug].filter(Boolean) as string[])
+  safeRevalidate([
+    ...allLocales('/blog'),
+    ...[...slugs].flatMap((s) => allLocales(`/blog/${s}`)),
+  ])
+  return doc
+}
+export const revalidatePostDelete: CollectionAfterDeleteHook = ({ doc }) => {
+  safeRevalidate([...allLocales('/blog'), ...allLocales(`/blog/${doc?.slug}`)])
+  return doc
+}
+
 /** 应用行业 / 证书：影响首页与固定页（证书墙） */
 export const revalidateHome: CollectionAfterChangeHook = ({ doc }) => {
   safeRevalidate(allLocales(''))

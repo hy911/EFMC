@@ -55,6 +55,23 @@ test.describe('Frontend', () => {
     await expect(form.getByRole('button')).toHaveText(/we'll reply within 1 business day/)
   })
 
+  test('案例列表可进入详情页并含成果指标', async ({ page }) => {
+    await page.goto('http://localhost:3000/en/cases')
+    await expect(page.locator('h1')).toHaveText('Case Studies')
+    await page.locator('main a[href^="/en/cases/"]').first().click()
+    await expect(page).toHaveURL(/\/en\/cases\/[a-z-]+$/)
+    const jsonLd = await page.locator('script[type="application/ld+json"]').first().textContent()
+    expect(jsonLd).toContain('"@type":"Article"')
+  })
+
+  test('博客列表可进入文章页', async ({ page }) => {
+    await page.goto('http://localhost:3000/zh/blog')
+    await expect(page.locator('h1')).toHaveText('技术博客')
+    await page.locator('main a[href^="/zh/blog/"]').first().click()
+    await expect(page).toHaveURL(/\/zh\/blog\/[a-z-]+$/)
+    await expect(page.locator('main .prose p').first()).toBeVisible()
+  })
+
   test('未知路径返回本地化 404', async ({ page }) => {
     const response = await page.goto('http://localhost:3000/en/no-such-page')
     expect(response?.status()).toBe(404)

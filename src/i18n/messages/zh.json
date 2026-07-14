@@ -9,6 +9,8 @@
   "nav": {
     "products": "产品中心",
     "solutions": "解决方案",
+    "cases": "客户案例",
+    "blog": "技术博客",
     "about": "关于我们",
     "contact": "联系我们"
   },
@@ -58,6 +60,24 @@
     "intro": "基于 ABB 与施耐德电气正品元器件的控制系统——不标价格、不设起订量：告诉我们您的技术规格，获取工程报价。",
     "metaTitle": "产品中心——PLC 控制柜、HMI、变频、SCADA | 东林众控",
     "metaDescription": "浏览基于 ABB 与施耐德元器件的 PLC 控制柜、HMI 人机界面、变频驱动系统、电机控制中心与水处理自动化产品。"
+  },
+  "casesPage": {
+    "title": "客户案例",
+    "intro": "覆盖水务、制造、能源等行业的已交付项目——真实规格，可量化的成果。",
+    "metaTitle": "客户案例——已交付自动化项目 | 东林众控",
+    "metaDescription": "东林众控交付的工业自动化项目：PLC 系统、SCADA 与水处理自动化，成果可量化。",
+    "industryLabel": "行业",
+    "locationLabel": "地点",
+    "completedLabel": "交付时间",
+    "relatedProducts": "本项目使用的产品",
+    "readCase": "查看案例 →"
+  },
+  "blogPage": {
+    "title": "技术博客",
+    "intro": "来自工程团队的技术笔记：PLC 系统、SCADA、变频与工业自动化实践。",
+    "metaTitle": "技术博客——工业自动化洞见 | 东林众控",
+    "metaDescription": "东林众控工程团队的技术文章：PLC、HMI、变频、SCADA 与水处理自动化。",
+    "readMore": "阅读全文 →"
   },
   "notFound": {
     "title": "页面不存在",
