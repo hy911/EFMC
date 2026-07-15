@@ -17,7 +17,7 @@
 ```bash
 # 1. 数据库（本机 Docker 起一个 Postgres 即可）
 docker run -d --name efmc-pg -e POSTGRES_USER=payload -e POSTGRES_PASSWORD=payload \
-  -e POSTGRES_DB=efmc -p 5432:5432 postgres:16-alpine
+  -e POSTGRES_DB=efmc -p 5432:5432 postgres:18-alpine
 
 # 2. 环境变量
 cp .env.example .env   # 按需修改；本地开发 Resend/Turnstile 留空即可
