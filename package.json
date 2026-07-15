@@ -22,6 +22,7 @@
     "@fontsource/archivo": "^5.2.8",
     "@fontsource/ibm-plex-sans": "^5.2.8",
     "@payloadcms/db-postgres": "3.86.0",
+    "@payloadcms/email-resend": "3.86.0",
     "@payloadcms/next": "3.86.0",
     "@payloadcms/richtext-lexical": "3.86.0",
     "@payloadcms/ui": "3.86.0",
