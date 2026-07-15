@@ -12,7 +12,7 @@ import { RevealInit } from '@/components/ui/RevealInit'
 import { routing, type Locale } from '@/i18n/routing'
 import { getPayloadClient } from '@/lib/payload'
 import { getFeaturedProducts, getSiteSettings } from '@/lib/queries'
-import { localeAlternates, SITE_URL } from '@/lib/seo'
+import { DEFAULT_OG_IMAGE, localeAlternates, SITE_URL } from '@/lib/seo'
 import type { Product, ProductCategory } from '@/payload-types'
 
 type Props = {
@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: t('metaTitle'),
       description: t('metaDescription'),
       url: `${SITE_URL}/${locale}/products`,
+      images: [{ url: DEFAULT_OG_IMAGE }],
     },
   }
 }
