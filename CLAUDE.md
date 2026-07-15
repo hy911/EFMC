@@ -52,6 +52,10 @@ pnpm test:e2e                   # Playwright；e2e 依赖已 seed 的数据库
 
 写入唯一入口是 `src/app/api/inquiries/route.ts`（Zod 校验 → 蜜罐 `website` 字段 → Turnstile → Local API 写库 → Resend 通知）。collection 本身 `create: noOne`、`read: authenticated`——Local API 默认 `overrideAccess` 所以服务端能写，公开 REST/GraphQL 完全关死。后台字段全部 `admin.readOnly`，只有 `status` 可改。改这条链路时不要打破这个模型（例如不要给 Inquiries 开公开 access）。Turnstile/Resend 环境变量留空 = 功能自动关闭（本地开发态）。
 
+限流不在应用层做：靠 Cloudflare Rate Limiting 规则（README Cloudflare 小节有具体规则），不要在 route handler 里加内存限流（多实例/重启即失效，且与既定架构重复）。
+
+邮件分两路：询盘通知走 `src/lib/notify.ts` 直发；Payload 系统邮件（后台忘记密码等）走 `payload.config.ts` 里按 `RESEND_API_KEY` 条件挂载的 `resendAdapter`，共用同一 key。
+
 ### 数据流与 ISR
 
 前端页面（RSC）通过 `src/lib/queries.ts` 的 Local API 查数（无 HTTP），locale 透传。页面 SSG + `revalidate = 600` 兜底；真正的"发布即生效"靠 `src/hooks/revalidate.ts`——collection/global 的 afterChange 钩子调 `revalidatePath`（Payload 与 Next 同进程才可行）。钩子内部 try/catch：seed 等非 Next 运行时会抛错，安全降级。新增内容 collection 时照 Products（或二期 CaseStudies/Posts）的模式挂 revalidate 钩子，并在 `src/app/sitemap.ts` 补收录。

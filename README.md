@@ -33,6 +33,8 @@ pnpm dev               # 前台 http://localhost:3000/en  后台 /admin
 
 常用命令：`pnpm generate:types`（改 collection 后重新生成 payload-types.ts）、`pnpm payload migrate:create <name>`（改 schema 后生成迁移，迁移文件必须进 git）、`pnpm lint`、`pnpm build`。
 
+**CI**：`.github/workflows/ci.yml` 在 PR 和 main 推送时自动跑 lint → 类型检查 → 迁移 → 构建 → vitest → Playwright e2e（真实 Postgres service container），e2e 失败会上传现场报告 artifact。
+
 ## 生产部署（VPS + Docker Compose + Cloudflare）
 
 ```bash
@@ -58,6 +60,30 @@ cp .env.example .env
 2. Cache Rules：`/admin*` 与 `/api/*` **Bypass cache**（后台与询盘接口绝不能缓存）
 3. 询盘接口已优先读取 `CF-Connecting-IP` 获取真实客户端 IP（Turnstile 校验用）
 4. Turnstile 在 Cloudflare 控制台创建 widget，把 site key / secret 填入 `.env`
+5. **Rate Limiting 规则（上线必配）**——应用层没有做限流，垃圾/滥用防护分两层：
+   Turnstile 挡机器人 + Cloudflare 限流挡高频。建议两条规则：
+   - 询盘接口：`http.request.uri.path eq "/api/inquiries" and http.request.method eq "POST"`
+     → 同 IP **5 次 / 1 分钟**，超出 Block 10 分钟
+   - 后台登录：`http.request.uri.path eq "/api/users/login"`
+     → 同 IP **5 次 / 5 分钟**，超出 Block 15 分钟（防暴力破解）
+
+### 备份（上线必配）
+
+`scripts/backup-db.sh` 一次备份 **数据库 dump + uploads 媒体卷**，自动清理过期备份。
+在 VPS 项目目录配 cron（每天凌晨 3 点）：
+
+```
+0 3 * * * cd /opt/efmc && ./scripts/backup-db.sh >> /var/backups/efmc/backup.log 2>&1
+```
+
+恢复方法写在脚本头部注释里。本机备份挡不住整机故障——建议再用 rclone 把
+`/var/backups/efmc` 同步到异地（对象存储或另一台机器）。
+
+### 系统邮件
+
+配置了 `RESEND_API_KEY` 后，Payload 后台的**忘记密码/用户验证邮件**自动走 Resend
+（`@payloadcms/email-resend`，与询盘通知共用同一个 key 和发件地址）；
+未配置时邮件内容输出到控制台（仅限本地开发）。
 
 ## 目录结构
 

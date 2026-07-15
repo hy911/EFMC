@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -62,6 +63,21 @@ export default buildConfig({
     defaultLocale: 'en',
     fallback: true,
   },
+  /**
+   * Payload 系统邮件（后台用户忘记密码/验证等）：
+   * 配了 RESEND_API_KEY 就走 Resend（与询盘通知共用一个 key），
+   * 未配置时回落到控制台输出（本地开发态，启动时会有 WARN 提示属正常）。
+   * 注意与 src/lib/notify.ts 的区别：询盘通知是业务邮件，独立直发，不走这里。
+   */
+  ...(process.env.RESEND_API_KEY
+    ? {
+        email: resendAdapter({
+          apiKey: process.env.RESEND_API_KEY,
+          defaultFromAddress: process.env.INQUIRY_NOTIFY_FROM || 'noreply@example.com',
+          defaultFromName: 'Donglin Controls',
+        }),
+      }
+    : {}),
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
