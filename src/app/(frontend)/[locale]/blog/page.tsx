@@ -13,7 +13,7 @@ import { Link } from '@/i18n/navigation'
 import { routing, type Locale } from '@/i18n/routing'
 import { formatDate } from '@/lib/format'
 import { getFeaturedProducts, getPosts, getSiteSettings } from '@/lib/queries'
-import { localeAlternates, SITE_URL } from '@/lib/seo'
+import { DEFAULT_OG_IMAGE, localeAlternates, SITE_URL } from '@/lib/seo'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: t('metaTitle'),
       description: t('metaDescription'),
       url: `${SITE_URL}/${locale}/blog`,
+      images: [{ url: DEFAULT_OG_IMAGE }],
     },
   }
 }

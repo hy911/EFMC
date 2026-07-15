@@ -9,6 +9,9 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3
   '',
 )
 
+/** 全站默认 OG 分享图（品牌图，无专属配图的页面兜底） */
+export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-default.png`
+
 /**
  * 生成 hreflang 串联：canonical 指向当前语种，
  * languages 列出全部语种 + x-default（指向默认语种 en）。
@@ -67,7 +70,8 @@ export function buildMeta({
       title,
       description,
       url: `${SITE_URL}/${locale}${path}`,
-      ...(ogUrl ? { images: [{ url: `${SITE_URL}${ogUrl}` }] } : {}),
+      // 无专属配图时回落到品牌默认 OG 图
+      images: [{ url: ogUrl ? `${SITE_URL}${ogUrl}` : DEFAULT_OG_IMAGE }],
     },
   }
 }
