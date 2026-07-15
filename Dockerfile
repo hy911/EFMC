@@ -7,7 +7,7 @@
 # 因此构建命令要用 host 网络并传入 DATABASE_URL（见 docker-compose.yml 与 deploy.sh）
 # =============================================================================
 
-FROM node:22-alpine AS base
+FROM node:24-alpine AS base
 
 # ---------- 依赖层 ----------
 FROM base AS deps

@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 常用命令
 
 ```bash
-# 前置：本地 Postgres（docker run … postgres:16-alpine，端口 5432，见 README）
+# 前置：本地 Postgres（docker run … postgres:18-alpine，端口 5432，见 README）
 pnpm install
 pnpm payload migrate            # 应用数据库迁移
 pnpm seed                       # 演示数据（幂等）；创建管理员 admin@example.com / changeme-123456
