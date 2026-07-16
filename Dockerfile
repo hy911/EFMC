@@ -25,13 +25,18 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# 构建期注入（compose 的 build.args 提供；PAYLOAD_SECRET 仅用于加载配置）
+# 构建期注入（compose 的 build.args 提供；PAYLOAD_SECRET 仅用于加载配置）。
+# NEXT_PUBLIC_* 是 Next.js 构建期变量，必须在 next build 时存在才能编进前端 bundle，
+# 只放运行时 env_file 不够——漏了 Turnstile site key 会导致前端 widget 不渲染、
+# 表单提交无 token，而服务端有 secret 要求校验 → 403 Turnstile verification failed。
 ARG DATABASE_URL
 ARG PAYLOAD_SECRET
 ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
 ENV DATABASE_URL=$DATABASE_URL \
     PAYLOAD_SECRET=$PAYLOAD_SECRET \
     NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY \
     NEXT_TELEMETRY_DISABLED=1
 
 # 先跑数据库迁移（首次部署建表），再构建（预渲染需要查库）

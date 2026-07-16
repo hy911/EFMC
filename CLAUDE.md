@@ -73,6 +73,7 @@ pnpm test:e2e                   # Playwright；e2e 依赖已 seed 的数据库
 两个部署踩过的坑（别回退）：
 - **postgres:18 卷挂载点是 `/var/lib/postgresql`（不带 `/data`）**——18+ 镜像改了约定，挂旧的 `/var/lib/postgresql/data` 容器直接拒绝启动，表现为构建期迁移 ECONNREFUSED（其实是库没起来）。见 `docker-compose.yml` 注释
 - **Docker 的 pnpm 版本钉死 10.33.0**（Dockerfile base 层 `corepack prepare`）+ `package.json` 的 `pnpm.ignoredBuiltDependencies` 声明 `@parcel/watcher`/`@swc/core`——否则 corepack 拉到更严格的默认版本会把 `ERR_PNPM_IGNORED_BUILDS` 当致命错误
+- **`NEXT_PUBLIC_*` 变量必须进 Dockerfile ARG + compose build.args**（不能只放运行时 `env_file`）——Next.js 构建期把它们编进前端 bundle。漏了 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` 会让前端 widget 不渲染、表单无 token，而服务端有 secret 要校验 → 403 `Turnstile verification failed`
 
 Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env` 设了 `CLOUDFLARE_TUNNEL_TOKEN` 则 `deploy.sh` 自动带起；Tunnel 的 Public Hostname 里 Service 填 `http://app:3000`（同 Docker 网络的服务名，不是 localhost）。限流靠 Cloudflare Rate Limiting（免费版仅 1 条规则，优先给后台登录防爆破；询盘接口有 Turnstile 兜底）。
 

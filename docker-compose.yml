@@ -20,6 +20,8 @@ services:
         DATABASE_URL: postgres://${POSTGRES_USER:-payload}:${POSTGRES_PASSWORD:?set in .env}@127.0.0.1:5432/${POSTGRES_DB:-efmc}
         PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set in .env}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        # NEXT_PUBLIC_* 构建期就要，必须传进 build args（不能只靠运行时 env_file）
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
     restart: unless-stopped
     ports:
       # 只暴露给本机反代/Cloudflared；如直接用 Cloudflare 回源可改为 "3000:3000"
