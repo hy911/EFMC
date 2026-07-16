@@ -44,6 +44,7 @@ cp .env.example .env
 #       NEXT_PUBLIC_SITE_URL=https://你的域名、
 #       DATABASE_URL=postgres://payload:<密码>@postgres:5432/efmc（主机名用服务名）
 #       RESEND_API_KEY / INQUIRY_NOTIFY_TO / TURNSTILE 两个 key
+#       CLOUDFLARE_TUNNEL_TOKEN（用 Cloudflare Tunnel 接入公网时）
 
 ./deploy.sh   # = up postgres → build app（host 网络：迁移+预渲染需连库）→ up -d
 ```
@@ -54,9 +55,21 @@ cp .env.example .env
 - **uploads 卷**：媒体文件在 `uploads` named volume，删容器不丢图
 - **应用端口**只绑 `127.0.0.1:3000`，由 Cloudflare Tunnel 或本机 Nginx/Caddy 回源
 
-### Cloudflare 侧配置
+### Cloudflare Tunnel 接入公网（推荐，VPS 无需开放端口）
 
-1. DNS 橙云代理，SSL/TLS 模式 **Full (strict)**（本机反代配源站证书）或使用 Cloudflare Tunnel
+1. Cloudflare 控制台 → **Zero Trust → Networks → Tunnels → Create a tunnel**（Cloudflared 类型）
+2. 拿到连接 **token**，填入 `.env` 的 `CLOUDFLARE_TUNNEL_TOKEN`——`deploy.sh` 会自动随部署启动 `cloudflared` 容器（compose 的 `tunnel` profile）
+3. 在 tunnel 的 **Public Hostname** 里加：
+   - Subdomain 空 / Domain `你的域名` → Service **`http://app:3000`**
+     （`cloudflared` 与 `app` 同一 Docker 网络，用服务名 `app`，**不要用 localhost**）
+   - 可再加一条 `www` 指向同一 service
+4. DNS 记录 Tunnel 会自动创建，橙云代理默认开启
+
+> 不用 Tunnel（改用源站 443 + Caddy/Nginx 自动证书）时，`CLOUDFLARE_TUNNEL_TOKEN` 留空即可，`deploy.sh` 会跳过 cloudflared，只起 app + postgres。
+
+### Cloudflare 其他配置
+
+1. SSL/TLS 模式设 **Full**（Tunnel 到源已加密；用源站证书的反代则设 Full strict）
 2. Cache Rules：`/admin*` 与 `/api/*` **Bypass cache**（后台与询盘接口绝不能缓存）
 3. 询盘接口已优先读取 `CF-Connecting-IP` 获取真实客户端 IP（Turnstile 校验用）
 4. Turnstile 在 Cloudflare 控制台创建 widget，把 site key / secret 填入 `.env`
