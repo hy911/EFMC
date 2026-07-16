@@ -37,6 +37,9 @@ pnpm dev               # 前台 http://localhost:3000/en  后台 /admin
 
 ## 生产部署（VPS + Docker Compose + Cloudflare）
 
+> 📘 **完整分步教程见 [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)**（从买域名/VPS 到上线的每一步）。
+> 日常运维见 [`docs/MAINTENANCE.md`](docs/MAINTENANCE.md)，运营后台使用见 [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md)。下面是速查版。
+
 ```bash
 # VPS 上
 cp .env.example .env
@@ -46,12 +49,13 @@ cp .env.example .env
 #       RESEND_API_KEY / INQUIRY_NOTIFY_TO / TURNSTILE 两个 key
 #       CLOUDFLARE_TUNNEL_TOKEN（用 Cloudflare Tunnel 接入公网时）
 
-./deploy.sh   # = up postgres → build app（host 网络：迁移+预渲染需连库）→ up -d
+./deploy.sh   # = up postgres → 等 pg_isready → build app（迁移+预渲染）→ up -d
 ```
 
 要点：
 
-- **迁移在镜像构建阶段执行**（standalone 运行时不含 Payload CLI），所以 build 必须能连到数据库 —— compose 已配置 `build.network: host` + 仅绑定 `127.0.0.1` 的 5432 端口
+- **迁移在镜像构建阶段执行**（standalone 运行时不含 Payload CLI），所以 build 必须能连到数据库 —— compose 已配置 `build.network: host` + 仅绑定 `127.0.0.1` 的 5432 端口；`deploy.sh` 会先等 `pg_isready` 再 build
+- **PostgreSQL 18 卷挂载点**：`pgdata` 挂在 `/var/lib/postgresql`（**不带 `/data`**）——18+ 镜像的新约定，挂旧路径容器拒绝启动
 - **uploads 卷**：媒体文件在 `uploads` named volume，删容器不丢图
 - **应用端口**只绑 `127.0.0.1:3000`，由 Cloudflare Tunnel 或本机 Nginx/Caddy 回源
 
@@ -74,11 +78,11 @@ cp .env.example .env
 3. 询盘接口已优先读取 `CF-Connecting-IP` 获取真实客户端 IP（Turnstile 校验用）
 4. Turnstile 在 Cloudflare 控制台创建 widget，把 site key / secret 填入 `.env`
 5. **Rate Limiting 规则（上线必配）**——应用层没有做限流，垃圾/滥用防护分两层：
-   Turnstile 挡机器人 + Cloudflare 限流挡高频。建议两条规则：
-   - 询盘接口：`http.request.uri.path eq "/api/inquiries" and http.request.method eq "POST"`
-     → 同 IP **5 次 / 1 分钟**，超出 Block 10 分钟
-   - 后台登录：`http.request.uri.path eq "/api/users/login"`
-     → 同 IP **5 次 / 5 分钟**，超出 Block 15 分钟（防暴力破解）
+   Turnstile 挡机器人 + Cloudflare 限流挡高频。
+   - 后台登录（**免费版仅 1 条规则时优先建这条**）：`http.request.uri.path eq "/api/users/login"`
+     → 同 IP **5 次 / 1 分钟**，超出 Block（防暴力破解）
+   - 询盘接口（有余额再建）：`http.request.uri.path eq "/api/inquiries" and http.request.method eq "POST"`
+     → 同 IP **5 次 / 1 分钟**，超出 Block；此接口已有 Turnstile 兜底，优先级低于登录
 
 ### 备份（上线必配）
 

@@ -68,7 +68,13 @@ pnpm test:e2e                   # Playwright；e2e 依赖已 seed 的数据库
 
 ### 部署的特殊约束
 
-`next build` 预渲染要连库，且 standalone 运行时**不含 Payload CLI**，所以 **`payload migrate` 在 Docker builder 阶段执行**（Dockerfile 里 `pnpm payload migrate && pnpm build`），compose 用 `build.network: host` + 仅绑 127.0.0.1 的 5432 让构建期能连上 postgres 容器。部署顺序固定：先 `up -d postgres`，再 `build app`，再 `up -d`（`deploy.sh` 封装了这三步）。Media 的 `staticDir` 锚定 `process.cwd()`（容器内 `/app/uploads` 挂持久卷），不要改成相对路径或 import.meta 推导。
+`next build` 预渲染要连库，且 standalone 运行时**不含 Payload CLI**，所以 **`payload migrate` 在 Docker builder 阶段执行**（Dockerfile 里 `pnpm payload migrate && pnpm build`），compose 用 `build.network: host` + 仅绑 127.0.0.1 的 5432 让构建期能连上 postgres 容器。部署顺序固定：先 `up -d postgres`，等 `pg_isready` 就绪，再 `build app`，再 `up -d`（`deploy.sh` 封装了这四步；不等就绪直接 build 会 ECONNREFUSED）。Media 的 `staticDir` 锚定 `process.cwd()`（容器内 `/app/uploads` 挂持久卷），不要改成相对路径或 import.meta 推导。
+
+两个部署踩过的坑（别回退）：
+- **postgres:18 卷挂载点是 `/var/lib/postgresql`（不带 `/data`）**——18+ 镜像改了约定，挂旧的 `/var/lib/postgresql/data` 容器直接拒绝启动，表现为构建期迁移 ECONNREFUSED（其实是库没起来）。见 `docker-compose.yml` 注释
+- **Docker 的 pnpm 版本钉死 10.33.0**（Dockerfile base 层 `corepack prepare`）+ `package.json` 的 `pnpm.ignoredBuiltDependencies` 声明 `@parcel/watcher`/`@swc/core`——否则 corepack 拉到更严格的默认版本会把 `ERR_PNPM_IGNORED_BUILDS` 当致命错误
+
+Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env` 设了 `CLOUDFLARE_TUNNEL_TOKEN` 则 `deploy.sh` 自动带起；Tunnel 的 Public Hostname 里 Service 填 `http://app:3000`（同 Docker 网络的服务名，不是 localhost）。限流靠 Cloudflare Rate Limiting（免费版仅 1 条规则，优先给后台登录防爆破；询盘接口有 Turnstile 兜底）。
 
 ### 前端约定
 
