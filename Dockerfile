@@ -8,13 +8,16 @@
 # =============================================================================
 
 FROM node:24-alpine AS base
+# 钉死 pnpm 版本（与本地/CI/lockfile 一致），杜绝 corepack 拉到更严格的默认版本
+# 导致 ERR_PNPM_IGNORED_BUILDS 之类的行为漂移
+RUN corepack enable pnpm && corepack prepare pnpm@10.33.0 --activate
 
 # ---------- 依赖层 ----------
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN corepack enable pnpm && pnpm i --frozen-lockfile
+RUN pnpm i --frozen-lockfile
 
 # ---------- 构建层：迁移 + 构建 ----------
 FROM base AS builder
@@ -32,7 +35,7 @@ ENV DATABASE_URL=$DATABASE_URL \
     NEXT_TELEMETRY_DISABLED=1
 
 # 先跑数据库迁移（首次部署建表），再构建（预渲染需要查库）
-RUN corepack enable pnpm && pnpm payload migrate && pnpm build
+RUN pnpm payload migrate && pnpm build
 
 # ---------- 运行层：仅 standalone 产物 ----------
 FROM base AS runner
