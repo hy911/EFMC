@@ -51,6 +51,23 @@ services:
       timeout: 5s
       retries: 10
 
+  # Cloudflare Tunnel：把公网流量安全地接到 app，VPS 无需开放 80/443 端口。
+  # 仅在 .env 设了 CLOUDFLARE_TUNNEL_TOKEN 时启动（deploy.sh 自动带上 tunnel profile）。
+  # 在 Cloudflare 控制台 Zero Trust → Tunnels 里创建 tunnel、拿 token，
+  # Public Hostname 的 Service 填 http://app:3000（cloudflared 与 app 同一 Docker 网络，
+  # 用服务名 app 互通，不要用 localhost）。
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    profiles: ['tunnel']
+    command: tunnel --no-autoupdate run
+    environment:
+      # 用 :- 默认空值：cloudflared 只在 tunnel profile 启用时才起（deploy.sh 控制），
+      # 避免未用 tunnel 时 compose 解析整个文件就因必填校验报错
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      - app
+
 volumes:
   pgdata:
   uploads:
