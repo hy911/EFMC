@@ -66,6 +66,10 @@
       "sharp",
       "esbuild",
       "unrs-resolver"
+    ],
+    "ignoredBuiltDependencies": [
+      "@parcel/watcher",
+      "@swc/core"
     ]
   }
 }
