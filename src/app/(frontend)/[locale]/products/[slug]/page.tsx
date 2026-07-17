@@ -154,7 +154,7 @@ export default async function ProductPage({ params }: Props) {
         )}
       </main>
       <Footer settings={settings} products={footerProducts} />
-      <WhatsAppFloat number={wa} />
+      <WhatsAppFloat contact={settings.contact} />
       <RevealInit />
     </>
   )

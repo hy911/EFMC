@@ -106,6 +106,8 @@
     "emailLabel": "Email",
     "phoneLabel": "Phone",
     "locationLabel": "Location",
+    "wechatQrLabel": "WeChat",
+    "whatsAppQrLabel": "WhatsApp",
     "form": {
       "title": "Request a Quote",
       "name": "Name",

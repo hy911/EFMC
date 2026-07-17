@@ -105,7 +105,7 @@ export default async function CasesPage({ params }: Props) {
         </Container>
       </main>
       <Footer settings={settings} products={footerProducts} />
-      <WhatsAppFloat number={settings.contact.whatsAppNumber} />
+      <WhatsAppFloat contact={settings.contact} />
       <RevealInit />
     </>
   )

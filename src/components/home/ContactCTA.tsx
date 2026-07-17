@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 
+import { ContactQrCodes } from '@/components/ui/ContactQrCodes'
 import { Container } from '@/components/ui/Container'
 import { buildWaLink } from '@/lib/whatsapp'
 import type { SiteSetting } from '@/payload-types'
@@ -43,6 +44,9 @@ export async function ContactCTA({ settings }: { settings: SiteSetting }) {
               {t('whatsapp')}
             </a>
           )}
+
+          {/* 二维码（未上传时自动不渲染） */}
+          <ContactQrCodes contact={settings.contact} className="mt-9 flex flex-wrap gap-6" />
 
           {/* 联系方式列表 */}
           <div className="mt-11 flex flex-col gap-2.5 text-[15px] text-cloud">

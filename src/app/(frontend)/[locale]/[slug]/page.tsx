@@ -98,7 +98,7 @@ export default async function StaticPage({ params }: Props) {
         </div>
       </main>
       <Footer settings={settings} products={footerProducts} />
-      <WhatsAppFloat number={settings.contact.whatsAppNumber} />
+      <WhatsAppFloat contact={settings.contact} />
       <RevealInit />
     </>
   )

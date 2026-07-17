@@ -107,7 +107,7 @@ export default async function BlogPage({ params }: Props) {
         </Container>
       </main>
       <Footer settings={settings} products={footerProducts} />
-      <WhatsAppFloat number={settings.contact.whatsAppNumber} />
+      <WhatsAppFloat contact={settings.contact} />
       <RevealInit />
     </>
   )
