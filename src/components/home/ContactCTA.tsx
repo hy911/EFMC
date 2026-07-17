@@ -46,7 +46,8 @@ export async function ContactCTA({ settings }: { settings: SiteSetting }) {
           )}
 
           {/* 二维码（未上传时自动不渲染） */}
-          <ContactQrCodes contact={settings.contact} className="mt-9 flex flex-wrap gap-6" />
+          {/* 140px：微信码格子密，104px 下每个模块不到 2px，手机不易扫 */}
+          <ContactQrCodes contact={settings.contact} size={140} className="mt-9 flex flex-wrap gap-6" />
 
           {/* 联系方式列表 */}
           <div className="mt-11 flex flex-col gap-2.5 text-[15px] text-cloud">
