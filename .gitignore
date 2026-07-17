@@ -45,3 +45,6 @@ seed/.assets/
 wechat.jpg
 whatsapp.jpg
 qr-*.png
+
+# 厂房/车间照片的裁切中转目录：走 CMS 上传（Pages → about → 图片画廊），不进仓库
+photos-out/
