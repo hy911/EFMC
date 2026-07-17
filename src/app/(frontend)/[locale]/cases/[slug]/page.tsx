@@ -163,7 +163,7 @@ export default async function CaseStudyPage({ params }: Props) {
         )}
       </main>
       <Footer settings={settings} products={footerProducts} />
-      <WhatsAppFloat number={settings.contact.whatsAppNumber} />
+      <WhatsAppFloat contact={settings.contact} />
       <RevealInit />
     </>
   )

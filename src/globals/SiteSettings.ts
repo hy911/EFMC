@@ -76,6 +76,30 @@ export const SiteSettings: GlobalConfig = {
             return true
           },
         },
+        {
+          name: 'wechatQr',
+          label: { en: 'WeChat QR Code', zh: '微信二维码' },
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: {
+              en: 'Square image. Leave empty to hide the WeChat QR everywhere.',
+              zh: '方形图片；留空则全站不显示微信二维码。',
+            },
+          },
+        },
+        {
+          name: 'whatsAppQr',
+          label: { en: 'WhatsApp QR Code', zh: 'WhatsApp 二维码' },
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: {
+              en: 'Square image. Leave empty to hide the WhatsApp QR everywhere.',
+              zh: '方形图片；留空则全站不显示 WhatsApp 二维码。',
+            },
+          },
+        },
       ],
     },
   ],

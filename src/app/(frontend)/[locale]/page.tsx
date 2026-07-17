@@ -83,7 +83,7 @@ export default async function HomePage({ params }: Props) {
         <ContactCTA settings={settings} />
       </main>
       <Footer settings={settings} products={products} />
-      <WhatsAppFloat number={settings.contact.whatsAppNumber} />
+      <WhatsAppFloat contact={settings.contact} />
       <RevealInit />
     </>
   )

@@ -108,7 +108,7 @@ export default async function PostPage({ params }: Props) {
         </Container>
       </main>
       <Footer settings={settings} products={footerProducts} />
-      <WhatsAppFloat number={settings.contact.whatsAppNumber} />
+      <WhatsAppFloat contact={settings.contact} />
       <RevealInit />
     </>
   )

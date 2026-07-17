@@ -1,5 +1,6 @@
 import * as migration_20260714_113009_initial from './20260714_113009_initial';
 import * as migration_20260714_122741_phase2_cases_posts from './20260714_122741_phase2_cases_posts';
+import * as migration_20260717_025355_qr_codes from './20260717_025355_qr_codes';
 
 export const migrations = [
   {
@@ -10,6 +11,11 @@ export const migrations = [
   {
     up: migration_20260714_122741_phase2_cases_posts.up,
     down: migration_20260714_122741_phase2_cases_posts.down,
-    name: '20260714_122741_phase2_cases_posts'
+    name: '20260714_122741_phase2_cases_posts',
+  },
+  {
+    up: migration_20260717_025355_qr_codes.up,
+    down: migration_20260717_025355_qr_codes.down,
+    name: '20260717_025355_qr_codes'
   },
 ];

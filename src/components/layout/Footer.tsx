@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 
+import { ContactQrCodes } from '@/components/ui/ContactQrCodes'
 import { Link } from '@/i18n/navigation'
 import type { Product, SiteSetting } from '@/payload-types'
 
@@ -94,6 +95,7 @@ export async function Footer({
             <span>{settings.contact.phone}</span>
             <span>{settings.contact.location}</span>
           </div>
+          <ContactQrCodes contact={settings.contact} size={88} className="mt-5 flex flex-wrap gap-5" />
         </div>
       </div>
 

@@ -1005,6 +1005,14 @@ export interface SiteSetting {
      * International format, digits only (e.g. 8613800000000). Leave empty to hide WhatsApp buttons.
      */
     whatsAppNumber?: string | null;
+    /**
+     * Square image. Leave empty to hide the WeChat QR everywhere.
+     */
+    wechatQr?: (number | null) | Media;
+    /**
+     * Square image. Leave empty to hide the WhatsApp QR everywhere.
+     */
+    whatsAppQr?: (number | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1022,6 +1030,8 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         phone?: T;
         location?: T;
         whatsAppNumber?: T;
+        wechatQr?: T;
+        whatsAppQr?: T;
       };
   updatedAt?: T;
   createdAt?: T;

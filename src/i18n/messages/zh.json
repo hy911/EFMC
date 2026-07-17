@@ -106,6 +106,8 @@
     "emailLabel": "邮箱",
     "phoneLabel": "电话",
     "locationLabel": "地址",
+    "wechatQrLabel": "微信",
+    "whatsAppQrLabel": "WhatsApp",
     "form": {
       "title": "获取报价",
       "name": "姓名",

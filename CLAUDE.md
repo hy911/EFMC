@@ -92,3 +92,5 @@ Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env
 - 代码注释用中文；后台 label 用 `{ en, zh }` 双语对象
 - `src/payload-types.ts` 是生成物（已在 eslint ignore），改 schema 后跑 `pnpm generate:types`，不要手改
 - eslint.config.mjs 用 eslint-config-next 16 的原生 flat 导出，不要退回 FlatCompat 写法（会崩）
+- CI（`.github/workflows/ci.yml`）跑真实 postgres:18 service，顺序与生产一致：lint → tsc → migrate → build → test:int → test:e2e。本地想复现 CI 失败就按这个顺序跑
+- 深入文档在 `docs/`：`DEPLOYMENT.md`（VPS/Docker/Cloudflare 全流程）、`MAINTENANCE.md`（备份/升级/排障）、`ADMIN_GUIDE.md`（给运营的后台使用说明）；`README.md` 有本地起步与二期进度
