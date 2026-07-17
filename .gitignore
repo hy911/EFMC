@@ -40,3 +40,8 @@ seed/.assets/
 # playwright
 /test-results/
 /playwright-report/
+
+# 二维码原图与裁切产物：走 CMS 上传（站点设置 → 微信/WhatsApp 二维码），不进仓库
+wechat.jpg
+whatsapp.jpg
+qr-*.png
