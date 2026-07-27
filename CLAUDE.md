@@ -32,6 +32,8 @@ pnpm test:int                   # vitest 集成测试；单个测试：pnpm exec
 pnpm test:e2e                   # Playwright；e2e 依赖已 seed 的数据库
 ```
 
+e2e 的 `webServer` 会自己 `pnpm dev` 起服务（`reuseExistingServer: true`，本地已开着 dev 就复用），但**不会**自己 seed——库里得先有 `pnpm seed` 的数据和管理员账号（`tests/helpers/login.ts`、`seedUser.ts` 依赖它）。
+
 沙箱/CI 环境禁止 `playwright install` 时，用环境变量指向系统 Chromium：
 `CI=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium pnpm exec playwright test --reporter=list`
 
@@ -62,6 +64,14 @@ pnpm test:e2e                   # Playwright；e2e 依赖已 seed 的数据库
 
 注意 import 写法：`revalidatePath` 必须从 **`next/cache.js`**（带扩展名）导入——next 包没有 exports map，裸子路径 `next/cache` 在纯 Node/tsx 环境（seed、Playwright 加载 payload 配置）解析不了。
 
+### 新增内容 collection 的固定清单
+
+照 `src/collections/Products.ts` 抄，别从零写字段：
+1. slug 用 `src/fields/slug.ts` 的 `slugField()`（自带 beforeValidate 自动生成、非 localized）；SEO 用 `src/fields/seo.ts` 的 `seoField`（metaTitle/metaDescription/ogImage，前端在 `generateMetadata()` 消费）
+2. access 用 `src/access/index.ts` 的 `anyone`/`authenticated`/`noOne`，不要在 collection 里内联匿名函数
+3. 挂 `src/hooks/revalidate.ts` 的 afterChange 钩子 → 补 `src/app/sitemap.ts` → 补 `src/lib/queries.ts` 查询函数
+4. `pnpm payload migrate:create <name>` + `pnpm generate:types`（两个都要，迁移文件进 git）
+
 ### Payload localized 数组/blocks 的一个坑
 
 数组（`specs`、`images`）和 blocks（`Pages.layout`）**结构本身不是 localized**，只有内部叶子字段是。用 Local API 更新另一语种时必须带上原有的行 id / block id（先读回 en 文档再 map），否则数组被重建、原语种的值全丢。`seed/index.ts` 里有正确写法示例（产品 specs 和 about 页 layout）。
@@ -72,7 +82,8 @@ pnpm test:e2e                   # Playwright；e2e 依赖已 seed 的数据库
 
 两个部署踩过的坑（别回退）：
 - **postgres:18 卷挂载点是 `/var/lib/postgresql`（不带 `/data`）**——18+ 镜像改了约定，挂旧的 `/var/lib/postgresql/data` 容器直接拒绝启动，表现为构建期迁移 ECONNREFUSED（其实是库没起来）。见 `docker-compose.yml` 注释
-- **Docker 的 pnpm 版本钉死 10.33.0**（Dockerfile base 层 `corepack prepare`）+ `package.json` 的 `pnpm.ignoredBuiltDependencies` 声明 `@parcel/watcher`/`@swc/core`——否则 corepack 拉到更严格的默认版本会把 `ERR_PNPM_IGNORED_BUILDS` 当致命错误
+- **Docker 的 pnpm 版本钉死 10.33.0**（Dockerfile base 层 `corepack prepare`，CI 的 `pnpm/action-setup` 也钉 10）+ `package.json` 的 `pnpm.ignoredBuiltDependencies` 声明 `@parcel/watcher`/`@swc/core`——否则 corepack 拉到更严格的默认版本会把 `ERR_PNPM_IGNORED_BUILDS` 当致命错误
+- **构建脚本白名单要在两处各写一遍，别删任何一处**：pnpm 11（本地开发）**完全不读 `package.json` 的 `pnpm` 字段**了（会 WARN `no longer read by pnpm`），改读 `pnpm-workspace.yaml` 的 `allowBuilds`；而 Docker/CI 钉的 pnpm 10 不认 `allowBuilds`、只认 `package.json`。所以 `sharp`/`esbuild`/`unrs-resolver` 放行、`@parcel/watcher`/`@swc/core` 拒绝这套声明在两个文件里冗余存在，是刻意的——删掉 `package.json` 那份会让 Docker 构建挂，删掉 yaml 那份会让本地 `pnpm install` 不编译 sharp
 - **`NEXT_PUBLIC_*` 变量必须进 Dockerfile ARG + compose build.args**（不能只放运行时 `env_file`）——Next.js 构建期把它们编进前端 bundle。漏了 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` 会让前端 widget 不渲染、表单无 token，而服务端有 secret 要校验 → 403 `Turnstile verification failed`
 
 Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env` 设了 `CLOUDFLARE_TUNNEL_TOKEN` 则 `deploy.sh` 自动带起；Tunnel 的 Public Hostname 里 Service 填 `http://app:3000`（同 Docker 网络的服务名，不是 localhost）。限流靠 Cloudflare Rate Limiting（免费版仅 1 条规则，优先给后台登录防爆破；询盘接口有 Turnstile 兜底）。
