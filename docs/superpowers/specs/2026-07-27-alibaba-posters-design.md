@@ -120,6 +120,7 @@ featureColumnsField: ArrayField  // name: 'columns'
   type: 'group'
   label: { en: 'Homepage Advantage Section', zh: '首页优势区' }
   fields: [
+    eyebrow?: text (localized)             // 区块小标（SectionHeader 需要）
     heading?: text (localized)
     ...featureColumnsField
   ]
