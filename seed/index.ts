@@ -62,6 +62,58 @@ async function run() {
   }
 
   /* ---------- 2. 站点设置 ---------- */
+  // homeAdvantage（首页优势区四栏）由运营在后台维护，seed 只在其为空时写入演示数据，
+  // 避免误跑 pnpm seed 冲掉已编辑的营销文案。companyName/contact 是固定信息，
+  // 覆盖无害且现有行为依赖其幂等重置，两语种都保持无条件写入。
+  const existingSettings = await payload.findGlobal({ slug: 'site-settings', locale: 'en' })
+  const hasHomeAdvantage = (existingSettings.homeAdvantage?.columns?.length ?? 0) > 0
+
+  const homeAdvantageEn = {
+    eyebrow: 'Company Advantage',
+    heading: 'Why customers specify Donglin',
+    columns: [
+      {
+        kicker: 'INTEGRATED SOLUTIONS',
+        title: 'Software-Hardware Synergy',
+        items: [
+          { text: 'PLC/HMI/SCADA programming & commissioning' },
+          { text: 'AI-enabled edge computing (NVIDIA Jetson)' },
+          { text: 'Industrial cloud integration (OPC UA/MQTT)' },
+        ],
+        footnote: 'Achieves 30% communication load reduction via AI optimization',
+      },
+      {
+        kicker: 'OEM/ODM SERVICES',
+        title: 'End-to-End Customization',
+        items: [
+          { label: 'HARDWARE', text: 'IP66-rated control cabinets & modular layouts' },
+          { label: 'SOFTWARE', text: 'White-label HMI interfaces & IIoT expansions' },
+        ],
+        footnote: 'Global logistics supported by 160+ patents',
+      },
+      {
+        kicker: 'MIL-SPEC QC',
+        title: 'Rigorous Quality Fortress',
+        items: [
+          { text: 'Component aging tests (MIL-STD-883G)' },
+          { text: 'Control cabinet IP validation (IEC 60529)' },
+          { text: '72hr load simulation (GB/T 2423.1)' },
+        ],
+        footnote: '±0.01mm precision machining records',
+      },
+      {
+        kicker: '24/7 GLOBAL SUPPORT',
+        title: 'Uninterrupted Service Commitment',
+        items: [
+          { text: 'Remote diagnostics & firmware updates' },
+          { text: 'On-site engineers (APAC/EU/NA)' },
+          { text: 'Air-shipped replacements ≤24hr' },
+        ],
+        footnote: 'Shared fault code database (300+ cases)',
+      },
+    ],
+  }
+
   await payload.updateGlobal({
     slug: 'site-settings',
     data: {
@@ -72,55 +124,18 @@ async function run() {
         location: 'Tianjin, China',
         whatsAppNumber: '8613800000000',
       },
-      homeAdvantage: {
-        eyebrow: 'Company Advantage',
-        heading: 'Why customers specify Donglin',
-        columns: [
-          {
-            kicker: 'INTEGRATED SOLUTIONS',
-            title: 'Software-Hardware Synergy',
-            items: [
-              { text: 'PLC/HMI/SCADA programming & commissioning' },
-              { text: 'AI-enabled edge computing (NVIDIA Jetson)' },
-              { text: 'Industrial cloud integration (OPC UA/MQTT)' },
-            ],
-            footnote: 'Achieves 30% communication load reduction via AI optimization',
-          },
-          {
-            kicker: 'OEM/ODM SERVICES',
-            title: 'End-to-End Customization',
-            items: [
-              { label: 'HARDWARE', text: 'IP66-rated control cabinets & modular layouts' },
-              { label: 'SOFTWARE', text: 'White-label HMI interfaces & IIoT expansions' },
-            ],
-            footnote: 'Global logistics supported by 160+ patents',
-          },
-          {
-            kicker: 'MIL-SPEC QC',
-            title: 'Rigorous Quality Fortress',
-            items: [
-              { text: 'Component aging tests (MIL-STD-883G)' },
-              { text: 'Control cabinet IP validation (IEC 60529)' },
-              { text: '72hr load simulation (GB/T 2423.1)' },
-            ],
-            footnote: '±0.01mm precision machining records',
-          },
-          {
-            kicker: '24/7 GLOBAL SUPPORT',
-            title: 'Uninterrupted Service Commitment',
-            items: [
-              { text: 'Remote diagnostics & firmware updates' },
-              { text: 'On-site engineers (APAC/EU/NA)' },
-              { text: 'Air-shipped replacements ≤24hr' },
-            ],
-            footnote: 'Shared fault code database (300+ cases)',
-          },
-        ],
-      },
+      ...(hasHomeAdvantage ? {} : { homeAdvantage: homeAdvantageEn }),
     },
     locale: 'en',
   })
+
+  if (hasHomeAdvantage) {
+    log('homeAdvantage 已有运营维护内容，跳过演示数据写入')
+  }
+
   // 先读回 en 拿到数组行 id —— localized 数组不带 id 写入会重建、冲掉 en
+  // （即便跳过了 homeAdvantage 的演示数据，这里读回的仍是运营已维护的内容，
+  //  下面在 hasHomeAdvantage 为真时不会用它构造写入，只是顺便复用同一次读取）
   const settingsEn = await payload.findGlobal({ slug: 'site-settings', locale: 'en' })
   const advantageEn = settingsEn.homeAdvantage
   const zhTitles = ['软硬件协同', '端到端定制', '严苛质量管控', '7×24 全球支持']
@@ -130,17 +145,21 @@ async function run() {
     data: {
       companyName: '天津东林众控自动化科技有限公司',
       contact: { location: '中国·天津' },
-      homeAdvantage: {
-        eyebrow: '公司优势',
-        heading: '客户为何指定东林众控',
-        columns: (advantageEn?.columns ?? []).map((col, i) => ({
-          ...col,
-          kicker: zhKickers[i] ?? col.kicker,
-          title: zhTitles[i] ?? col.title,
-          // 要点含 MIL-STD-883G / IEC 60529 等术语，保持原文不译
-          items: (col.items ?? []).map((item) => ({ ...item })),
-        })),
-      },
+      ...(hasHomeAdvantage
+        ? {}
+        : {
+            homeAdvantage: {
+              eyebrow: '公司优势',
+              heading: '客户为何指定东林众控',
+              columns: (advantageEn?.columns ?? []).map((col, i) => ({
+                ...col,
+                kicker: zhKickers[i] ?? col.kicker,
+                title: zhTitles[i] ?? col.title,
+                // 要点含 MIL-STD-883G / IEC 60529 等术语，保持原文不译
+                items: (col.items ?? []).map((item) => ({ ...item })),
+              })),
+            },
+          }),
     },
     locale: 'zh',
   })
@@ -440,7 +459,7 @@ async function run() {
     },
   })
 
-  /* ---------- 8. 固定页示例（About Us：richText + statsGrid + ctaBanner + 证书墙） ---------- */
+  /* ---------- 8. 固定页示例（About Us：richText + statsGrid + featureColumns + logoStrip + imageGallery（证书墙）+ ctaBanner + contactForm） ---------- */
   const { totalDocs: pageCount } = await payload.count({ collection: 'pages' })
   if (pageCount === 0) {
     const aboutPage = await payload.create({
