@@ -481,16 +481,16 @@ async function run() {
                 ...block,
                 heading: '我们交付什么',
                 columns: (block.columns ?? []).map((col, i) => ({
-                  id: col.id, // 关键：带上原有行 id
+                  ...col,
                   title: ['工业级电气控制设备', '数字化软件服务', '集成创新解决方案'][i] ?? col.title,
-                  items: (col.items ?? []).map((item) => ({ id: item.id, text: item.text })),
+                  items: (col.items ?? []).map((item) => ({ ...item })),
                 })),
               }
             case 'logoStrip':
               return {
                 ...block,
                 heading: '合作供应商',
-                logos: (block.logos ?? []).map((logo) => ({ id: logo.id, name: logo.name })),
+                logos: (block.logos ?? []).map((logo) => ({ ...logo })),
               }
             case 'imageGallery':
               return { ...block, heading: '资质与授权' }

@@ -141,7 +141,9 @@ export async function RenderBlocks({ blocks, locale }: { blocks: PageBlock[]; lo
             )
 
           /* 多栏要点 */
-          case 'featureColumns':
+          case 'featureColumns': {
+            const columns = (block.columns ?? []) as FeatureColumn[]
+            if (columns.length === 0) return null
             return (
               <Container key={block.id} className="py-10">
                 {block.heading && (
@@ -149,17 +151,21 @@ export async function RenderBlocks({ blocks, locale }: { blocks: PageBlock[]; lo
                     {block.heading}
                   </h2>
                 )}
-                <FeatureColumns columns={(block.columns ?? []) as FeatureColumn[]} />
+                <FeatureColumns columns={columns} />
               </Container>
             )
+          }
 
           /* 合作供应商 logo 横条 */
-          case 'logoStrip':
+          case 'logoStrip': {
+            const logos = (block.logos ?? []) as LogoItem[]
+            if (logos.length === 0) return null
             return (
               <Container key={block.id} className="py-10">
-                <LogoStrip heading={block.heading} logos={(block.logos ?? []) as LogoItem[]} />
+                <LogoStrip heading={block.heading} logos={logos} />
               </Container>
             )
+          }
 
           default:
             return null
