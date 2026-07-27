@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 
 import config from '@/payload.config'
 import { FeatureColumns } from '@/components/ui/FeatureColumns'
+import { LogoStrip } from '@/components/ui/LogoStrip'
 
 // vitest 未开 test.globals，RTL 的自动 cleanup 探测不到全局 afterEach，需手动挂
 afterEach(cleanup)
@@ -112,6 +113,41 @@ describe('FeatureColumns 组件', () => {
 
   it('栏目为空时整体不渲染', () => {
     const { container } = render(<FeatureColumns columns={[]} />)
+    expect(container.firstChild).toBeNull()
+  })
+})
+
+describe('LogoStrip 组件', () => {
+  const logos = [
+    {
+      id: 'l1',
+      name: 'Siemens',
+      image: { id: 1, alt: 'Siemens logo', url: '/uploads/logo-siemens.webp', width: 200, height: 60 },
+    },
+    {
+      id: 'l2',
+      name: 'ABB',
+      image: { id: 2, alt: 'ABB logo', url: '/uploads/logo-abb.webp', width: 200, height: 60 },
+    },
+  ]
+
+  it('渲染标题与全部 logo', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    render(<LogoStrip heading="Cooperative Suppliers" logos={logos as any} />)
+    expect(screen.getByText('Cooperative Suppliers')).toBeDefined()
+    expect(screen.getByTitle('Siemens')).toBeDefined()
+    expect(screen.getByTitle('ABB')).toBeDefined()
+  })
+
+  it('logo 用 object-contain，不被裁切', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { container } = render(<LogoStrip logos={logos as any} />)
+    const img = container.querySelector('img')
+    expect(img?.className).toContain('object-contain')
+  })
+
+  it('logos 为空时整体不渲染', () => {
+    const { container } = render(<LogoStrip logos={[]} />)
     expect(container.firstChild).toBeNull()
   })
 })
