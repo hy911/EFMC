@@ -37,7 +37,7 @@ e2e 的 `webServer` 会自己 `pnpm dev` 起服务（`reuseExistingServer: true`
 沙箱/CI 环境禁止 `playwright install` 时，用环境变量指向系统 Chromium：
 `CI=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium pnpm exec playwright test --reporter=list`
 
-注意：dev 模式 Drizzle 会交互式询问 schema 变更（列改名 vs 新建），无人值守环境下会卡住——schema 变更一律走 `migrate:create` + `migrate`，别依赖 dev push。
+注意：dev 模式 Drizzle 会交互式询问 schema 变更（列改名 vs 新建），无人值守环境下会卡住——schema 变更一律走 `migrate:create` + `migrate`，别依赖 dev push。已被 dev push 污染过的库还有第二道坎：`payload migrate` 自己也会弹一次 `data loss will occur … (y/N)` 确认，而输出被 pipe 时看不到提示符，表现为**命令永久挂起、零输出**。无人值守用 `yes y | pnpm payload migrate`（确认接受丢数据，跑完补 `pnpm seed`）。
 
 ## 架构要点（跨文件才能看懂的部分）
 
