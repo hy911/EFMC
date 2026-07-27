@@ -72,12 +72,76 @@ async function run() {
         location: 'Tianjin, China',
         whatsAppNumber: '8613800000000',
       },
+      homeAdvantage: {
+        eyebrow: 'Company Advantage',
+        heading: 'Why customers specify Donglin',
+        columns: [
+          {
+            kicker: 'INTEGRATED SOLUTIONS',
+            title: 'Software-Hardware Synergy',
+            items: [
+              { text: 'PLC/HMI/SCADA programming & commissioning' },
+              { text: 'AI-enabled edge computing (NVIDIA Jetson)' },
+              { text: 'Industrial cloud integration (OPC UA/MQTT)' },
+            ],
+            footnote: 'Achieves 30% communication load reduction via AI optimization',
+          },
+          {
+            kicker: 'OEM/ODM SERVICES',
+            title: 'End-to-End Customization',
+            items: [
+              { label: 'HARDWARE', text: 'IP66-rated control cabinets & modular layouts' },
+              { label: 'SOFTWARE', text: 'White-label HMI interfaces & IIoT expansions' },
+            ],
+            footnote: 'Global logistics supported by 160+ patents',
+          },
+          {
+            kicker: 'MIL-SPEC QC',
+            title: 'Rigorous Quality Fortress',
+            items: [
+              { text: 'Component aging tests (MIL-STD-883G)' },
+              { text: 'Control cabinet IP validation (IEC 60529)' },
+              { text: '72hr load simulation (GB/T 2423.1)' },
+            ],
+            footnote: '±0.01mm precision machining records',
+          },
+          {
+            kicker: '24/7 GLOBAL SUPPORT',
+            title: 'Uninterrupted Service Commitment',
+            items: [
+              { text: 'Remote diagnostics & firmware updates' },
+              { text: 'On-site engineers (APAC/EU/NA)' },
+              { text: 'Air-shipped replacements ≤24hr' },
+            ],
+            footnote: 'Shared fault code database (300+ cases)',
+          },
+        ],
+      },
     },
     locale: 'en',
   })
+  // 先读回 en 拿到数组行 id —— localized 数组不带 id 写入会重建、冲掉 en
+  const settingsEn = await payload.findGlobal({ slug: 'site-settings', locale: 'en' })
+  const advantageEn = settingsEn.homeAdvantage
+  const zhTitles = ['软硬件协同', '端到端定制', '严苛质量管控', '7×24 全球支持']
+  const zhKickers = ['一体化解决方案', 'OEM/ODM 服务', '军规级品控', '全球服务支持']
   await payload.updateGlobal({
     slug: 'site-settings',
-    data: { companyName: '天津东林众控自动化科技有限公司', contact: { location: '中国·天津' } },
+    data: {
+      companyName: '天津东林众控自动化科技有限公司',
+      contact: { location: '中国·天津' },
+      homeAdvantage: {
+        eyebrow: '公司优势',
+        heading: '客户为何指定东林众控',
+        columns: (advantageEn?.columns ?? []).map((col, i) => ({
+          ...col,
+          kicker: zhKickers[i] ?? col.kicker,
+          title: zhTitles[i] ?? col.title,
+          // 要点含 MIL-STD-883G / IEC 60529 等术语，保持原文不译
+          items: (col.items ?? []).map((item) => ({ ...item })),
+        })),
+      },
+    },
     locale: 'zh',
   })
   log('站点设置已写入')
