@@ -1,7 +1,12 @@
 import { getPayload, type Payload } from 'payload'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
 
 import config from '@/payload.config'
+import { FeatureColumns } from '@/components/ui/FeatureColumns'
+
+// vitest 未开 test.globals，RTL 的自动 cleanup 探测不到全局 afterEach，需手动挂
+afterEach(cleanup)
 
 let payload: Payload
 
@@ -66,5 +71,47 @@ describe('首页优势区（SiteSettings.homeAdvantage）', () => {
 
     const zhAfter = await payload.findGlobal({ slug: 'site-settings', locale: 'zh' })
     expect(zhAfter.homeAdvantage?.columns?.[0]?.title).toBe('中文-Software-Hardware Synergy')
+  })
+})
+
+describe('FeatureColumns 组件', () => {
+  const columns = [
+    {
+      id: 'a',
+      kicker: 'INTEGRATED SOLUTIONS',
+      title: 'Software-Hardware Synergy',
+      items: [{ id: 'a1', text: 'PLC/HMI/SCADA programming & commissioning' }],
+      footnote: 'Achieves 30% communication load reduction',
+    },
+    {
+      id: 'b',
+      title: 'End-to-End Customization',
+      items: [{ id: 'b1', label: 'HARDWARE', text: 'IP66-rated control cabinets' }],
+    },
+  ]
+
+  it('渲染 kicker、标题、要点与脚注', () => {
+    render(<FeatureColumns columns={columns} />)
+    expect(screen.getByText('INTEGRATED SOLUTIONS')).toBeDefined()
+    expect(screen.getByText('Software-Hardware Synergy')).toBeDefined()
+    expect(screen.getByText(/PLC\/HMI\/SCADA/)).toBeDefined()
+    expect(screen.getByText(/30% communication load reduction/)).toBeDefined()
+  })
+
+  it('要点的加粗前缀渲染为 strong', () => {
+    render(<FeatureColumns columns={columns} />)
+    const label = screen.getByText('HARDWARE')
+    expect(label.tagName).toBe('STRONG')
+  })
+
+  it('kicker 与 footnote 缺省时不渲染空节点', () => {
+    const { container } = render(<FeatureColumns columns={[columns[1]!]} />)
+    expect(container.querySelectorAll('[data-kicker]')).toHaveLength(0)
+    expect(container.querySelectorAll('[data-footnote]')).toHaveLength(0)
+  })
+
+  it('栏目为空时整体不渲染', () => {
+    const { container } = render(<FeatureColumns columns={[]} />)
+    expect(container.firstChild).toBeNull()
   })
 })
