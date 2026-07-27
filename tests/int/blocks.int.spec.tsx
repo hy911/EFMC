@@ -1,11 +1,12 @@
 import { getPayload, type Payload } from 'payload'
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 
 import config from '@/payload.config'
 import { FeatureColumns } from '@/components/ui/FeatureColumns'
 import { LogoStrip } from '@/components/ui/LogoStrip'
 import { SectionHeader } from '@/components/ui/SectionHeader'
+import type { SiteSetting } from '@/payload-types'
 
 // vitest 未开 test.globals，RTL 的自动 cleanup 探测不到全局 afterEach，需手动挂
 afterEach(cleanup)
@@ -13,8 +14,49 @@ afterEach(cleanup)
 let payload: Payload
 
 describe('首页优势区（SiteSettings.homeAdvantage）', () => {
+  // 这组测试会真写 site-settings 这个 global（localized 字段），会污染运营/seed 数据
+  // 且被后续 e2e 断言依赖 —— 必须快照原值、跑完原样写回（两个语种都要）
+  let originalEn: SiteSetting['homeAdvantage']
+  let originalZh: SiteSetting['homeAdvantage']
+
   beforeAll(async () => {
     payload = await getPayload({ config: await config })
+    originalEn = (await payload.findGlobal({ slug: 'site-settings', locale: 'en' })).homeAdvantage
+    originalZh = (await payload.findGlobal({ slug: 'site-settings', locale: 'zh' })).homeAdvantage
+  })
+
+  afterAll(async () => {
+    // 带上原有行 id 写回，避免 localized 数组被重建冲掉数据（本项目反复踩过的坑）
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      locale: 'en',
+      data: {
+        homeAdvantage: originalEn
+          ? {
+              ...originalEn,
+              columns: (originalEn.columns ?? []).map((col) => ({
+                ...col,
+                items: (col.items ?? []).map((item) => ({ ...item })),
+              })),
+            }
+          : { eyebrow: null, heading: null, columns: [] },
+      },
+    })
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      locale: 'zh',
+      data: {
+        homeAdvantage: originalZh
+          ? {
+              ...originalZh,
+              columns: (originalZh.columns ?? []).map((col) => ({
+                ...col,
+                items: (col.items ?? []).map((item) => ({ ...item })),
+              })),
+            }
+          : { eyebrow: null, heading: null, columns: [] },
+      },
+    })
   })
 
   it('可写入四栏并按语种回读', async () => {
