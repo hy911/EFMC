@@ -4,6 +4,7 @@ import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { Capabilities } from '@/components/home/Capabilities'
+import { CompanyAdvantage } from '@/components/home/CompanyAdvantage'
 import { ContactCTA } from '@/components/home/ContactCTA'
 import { FeaturedProducts } from '@/components/home/FeaturedProducts'
 import { Hero } from '@/components/home/Hero'
@@ -77,6 +78,7 @@ export default async function HomePage({ params }: Props) {
       <main>
         <Hero />
         <Capabilities />
+        <CompanyAdvantage settings={settings} />
         <FeaturedProducts products={products} />
         <Trust />
         <Industries industries={industries} />

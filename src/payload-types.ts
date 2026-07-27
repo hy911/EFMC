@@ -366,6 +366,54 @@ export interface Page {
             blockType: 'statsGrid';
           }
         | {
+            heading?: string | null;
+            /**
+             * 2–4 columns. Rendered as a 1px-divided grid; stacks to one column on mobile.
+             */
+            columns: {
+              /**
+               * Small uppercase label above the title, e.g. "INTEGRATED SOLUTIONS". Optional.
+               */
+              kicker?: string | null;
+              title: string;
+              items?:
+                | {
+                    /**
+                     * Optional bold prefix for two-level items, e.g. "HARDWARE".
+                     */
+                    label?: string | null;
+                    text: string;
+                    id?: string | null;
+                  }[]
+                | null;
+              /**
+               * Grey-background note at the bottom of the column. Optional.
+               */
+              footnote?: string | null;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureColumns';
+          }
+        | {
+            heading?: string | null;
+            /**
+             * Logos render at a uniform height with object-contain; upload transparent PNGs.
+             */
+            logos: {
+              image: number | Media;
+              /**
+               * Used as the title attribute.
+               */
+              name: string;
+              id?: string | null;
+            }[];
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'logoStrip';
+          }
+        | {
             heading: string;
             body?: string | null;
             buttonLabel: string;
@@ -765,6 +813,42 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
+        featureColumns?:
+          | T
+          | {
+              heading?: T;
+              columns?:
+                | T
+                | {
+                    kicker?: T;
+                    title?: T;
+                    items?:
+                      | T
+                      | {
+                          label?: T;
+                          text?: T;
+                          id?: T;
+                        };
+                    footnote?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        logoStrip?:
+          | T
+          | {
+              heading?: T;
+              logos?:
+                | T
+                | {
+                    image?: T;
+                    name?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
         ctaBanner?:
           | T
           | {
@@ -1014,6 +1098,40 @@ export interface SiteSetting {
      */
     whatsAppQr?: (number | null) | Media;
   };
+  /**
+   * The four-column advantage section on the homepage. Leave columns empty to hide the section.
+   */
+  homeAdvantage?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    /**
+     * 2–4 columns. Rendered as a 1px-divided grid; stacks to one column on mobile.
+     */
+    columns?:
+      | {
+          /**
+           * Small uppercase label above the title, e.g. "INTEGRATED SOLUTIONS". Optional.
+           */
+          kicker?: string | null;
+          title: string;
+          items?:
+            | {
+                /**
+                 * Optional bold prefix for two-level items, e.g. "HARDWARE".
+                 */
+                label?: string | null;
+                text: string;
+                id?: string | null;
+              }[]
+            | null;
+          /**
+           * Grey-background note at the bottom of the column. Optional.
+           */
+          footnote?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1032,6 +1150,27 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         whatsAppNumber?: T;
         wechatQr?: T;
         whatsAppQr?: T;
+      };
+  homeAdvantage?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        columns?:
+          | T
+          | {
+              kicker?: T;
+              title?: T;
+              items?:
+                | T
+                | {
+                    label?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              footnote?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

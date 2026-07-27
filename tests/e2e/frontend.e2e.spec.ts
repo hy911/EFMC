@@ -77,4 +77,46 @@ test.describe('Frontend', () => {
     expect(response?.status()).toBe(404)
     await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
   })
+
+  test('About 页渲染多栏要点与 logo 横条', async ({ page }) => {
+    await page.goto('http://localhost:3000/en/about')
+    await expect(page.getByRole('heading', { name: 'What we deliver' })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Industrial-grade electrical control equipment' }),
+    ).toBeVisible()
+    await expect(page.getByTitle('Siemens')).toBeVisible()
+  })
+
+  test('About 页中文语种显示中文文案', async ({ page }) => {
+    await page.goto('http://localhost:3000/zh/about')
+    await expect(page.getByRole('heading', { name: '我们交付什么' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '工业级电气控制设备' })).toBeVisible()
+  })
+
+  test('首页优势区渲染四栏与技术要点', async ({ page }) => {
+    await page.goto('http://localhost:3000/en')
+    await expect(
+      page.getByRole('heading', { name: 'Why customers specify Donglin' }),
+    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Software-Hardware Synergy' })).toBeVisible()
+    await expect(page.getByText(/MIL-STD-883G/)).toBeVisible()
+    await expect(page.getByText(/160\+ patents/)).toBeVisible()
+  })
+
+  test('首页优势区中文语种：标题译中文、技术术语保留原文', async ({ page }) => {
+    await page.goto('http://localhost:3000/zh')
+    await expect(page.getByRole('heading', { name: '软硬件协同' })).toBeVisible()
+    await expect(page.getByText(/MIL-STD-883G/)).toBeVisible()
+  })
+
+  test('首页优势区在 375px 视口堆成单栏', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('http://localhost:3000/en')
+    const first = page.locator('#advantage h3').first()
+    const second = page.locator('#advantage h3').nth(1)
+    const firstBox = await first.boundingBox()
+    const secondBox = await second.boundingBox()
+    // 单栏：第二栏标题必须在第一栏下方，而非并排
+    expect(secondBox!.y).toBeGreaterThan(firstBox!.y + firstBox!.height)
+  })
 })

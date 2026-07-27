@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { featureColumnsField } from '@/fields/featureColumns'
+
 /**
  * Pages（固定页）可用的 5 种布局 block —— 一期最小集，
  * 覆盖 About / 工厂实力 / Contact 三个页面的排版需求。
@@ -118,11 +120,73 @@ export const ContactFormBlock: Block = {
   ],
 }
 
+/** 多栏要点块（公司优势 / 业务线等结构化卖点） */
+export const FeatureColumnsBlock: Block = {
+  slug: 'featureColumns',
+  labels: {
+    singular: { en: 'Feature Columns', zh: '多栏要点' },
+    plural: { en: 'Feature Columns', zh: '多栏要点' },
+  },
+  fields: [
+    {
+      name: 'heading',
+      label: { en: 'Heading', zh: '标题' },
+      type: 'text',
+      localized: true,
+    },
+    featureColumnsField,
+  ],
+}
+
+/** logo 横条块（合作供应商墙） */
+export const LogoStripBlock: Block = {
+  slug: 'logoStrip',
+  labels: {
+    singular: { en: 'Logo Strip', zh: 'Logo 横条' },
+    plural: { en: 'Logo Strips', zh: 'Logo 横条' },
+  },
+  fields: [
+    {
+      name: 'heading',
+      label: { en: 'Heading', zh: '标题' },
+      type: 'text',
+      localized: true,
+    },
+    {
+      name: 'logos',
+      label: { en: 'Logos', zh: 'Logo' },
+      type: 'array',
+      minRows: 1,
+      required: true,
+      admin: {
+        description: {
+          en: 'Logos render at a uniform height with object-contain; upload transparent PNGs.',
+          zh: 'Logo 按统一高度等比缩放显示；建议上传透明底 PNG。',
+        },
+      },
+      fields: [
+        { name: 'image', label: { en: 'Image', zh: '图片' }, type: 'upload', relationTo: 'media', required: true },
+        {
+          name: 'name',
+          label: { en: 'Brand Name', zh: '品牌名' },
+          type: 'text',
+          required: true,
+          admin: {
+            description: { en: 'Used as the title attribute.', zh: '用作 title 属性；品牌名不翻译，故不分语种。' },
+          },
+        },
+      ],
+    },
+  ],
+}
+
 /** Pages collection 引用的完整 block 列表 */
 export const pageBlocks: Block[] = [
   RichTextBlock,
   ImageGalleryBlock,
   StatsGridBlock,
+  FeatureColumnsBlock,
+  LogoStripBlock,
   CtaBannerBlock,
   ContactFormBlock,
 ]

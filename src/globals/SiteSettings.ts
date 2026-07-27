@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { anyone, authenticated } from '@/access'
+import { featureColumnsField } from '@/fields/featureColumns'
 import { revalidateSiteSettings } from '@/hooks/revalidate'
 
 /**
@@ -100,6 +101,32 @@ export const SiteSettings: GlobalConfig = {
             },
           },
         },
+      ],
+    },
+    {
+      name: 'homeAdvantage',
+      label: { en: 'Homepage Advantage Section', zh: '首页优势区' },
+      type: 'group',
+      admin: {
+        description: {
+          en: 'The four-column advantage section on the homepage. Leave columns empty to hide the section.',
+          zh: '首页的四栏优势区；栏目留空则该区块整体不显示。',
+        },
+      },
+      fields: [
+        {
+          name: 'eyebrow',
+          label: { en: 'Eyebrow', zh: '区块小标' },
+          type: 'text',
+          localized: true,
+        },
+        {
+          name: 'heading',
+          label: { en: 'Heading', zh: '区块标题' },
+          type: 'text',
+          localized: true,
+        },
+        { ...featureColumnsField, required: false },
       ],
     },
   ],
