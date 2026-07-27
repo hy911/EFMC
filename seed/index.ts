@@ -402,6 +402,41 @@ async function run() {
               { value: '5', label: 'Industries served' },
             ],
           },
+          {
+            blockType: 'featureColumns',
+            heading: 'What we deliver',
+            columns: [
+              {
+                title: 'Industrial-grade electrical control equipment',
+                items: [
+                  { text: 'PLC control cabinets and high/low-voltage power distribution systems' },
+                  { text: 'Explosion-proof, AI-enabled and cloud server-integrated cabinets' },
+                ],
+              },
+              {
+                title: 'Digital software services',
+                items: [
+                  { text: 'PLC programming and cloud platform development' },
+                  { text: 'WinCC/HMI interface design and customized industrial APP development' },
+                ],
+              },
+              {
+                title: 'Integrated innovation solutions',
+                items: [
+                  { text: 'Equipment data acquisition and cloud communication systems' },
+                  { text: 'Remote O&M platforms and smart factory transformation' },
+                ],
+              },
+            ],
+          },
+          {
+            blockType: 'logoStrip',
+            heading: 'Cooperative Suppliers',
+            logos: [
+              { image: await uploadMedia('logo-siemens', 'Siemens logo', '西门子 logo', 200, 60), name: 'Siemens' },
+              { image: await uploadMedia('logo-abb', 'ABB logo', 'ABB logo', 200, 60), name: 'ABB' },
+            ],
+          },
           { blockType: 'imageGallery', heading: 'Certificates & Authorizations', fromCertificates: true },
           {
             blockType: 'ctaBanner',
@@ -440,6 +475,22 @@ async function run() {
                 stats: (statsBlock?.blockType === 'statsGrid' ? statsBlock.stats ?? [] : []).map(
                   (stat, i) => ({ ...stat, label: zhStats[i] ?? stat.label }),
                 ),
+              }
+            case 'featureColumns':
+              return {
+                ...block,
+                heading: '我们交付什么',
+                columns: (block.columns ?? []).map((col, i) => ({
+                  id: col.id, // 关键：带上原有行 id
+                  title: ['工业级电气控制设备', '数字化软件服务', '集成创新解决方案'][i] ?? col.title,
+                  items: (col.items ?? []).map((item) => ({ id: item.id, text: item.text })),
+                })),
+              }
+            case 'logoStrip':
+              return {
+                ...block,
+                heading: '合作供应商',
+                logos: (block.logos ?? []).map((logo) => ({ id: logo.id, name: logo.name })),
               }
             case 'imageGallery':
               return { ...block, heading: '资质与授权' }

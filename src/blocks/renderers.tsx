@@ -2,6 +2,8 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 
 import { InquiryForm } from '@/components/home/InquiryForm'
 import { Container } from '@/components/ui/Container'
+import { FeatureColumns, type FeatureColumn } from '@/components/ui/FeatureColumns'
+import { LogoStrip, type LogoItem } from '@/components/ui/LogoStrip'
 import { MediaImage } from '@/components/ui/MediaImage'
 import type { Locale } from '@/i18n/routing'
 import { getPayloadClient } from '@/lib/payload'
@@ -135,6 +137,27 @@ export async function RenderBlocks({ blocks, locale }: { blocks: PageBlock[]; lo
                     <InquiryForm />
                   </div>
                 </div>
+              </Container>
+            )
+
+          /* 多栏要点 */
+          case 'featureColumns':
+            return (
+              <Container key={block.id} className="py-10">
+                {block.heading && (
+                  <h2 className="m-0 mb-8 font-display text-[28px] font-bold tracking-[-0.3px] text-navy">
+                    {block.heading}
+                  </h2>
+                )}
+                <FeatureColumns columns={(block.columns ?? []) as FeatureColumn[]} />
+              </Container>
+            )
+
+          /* 合作供应商 logo 横条 */
+          case 'logoStrip':
+            return (
+              <Container key={block.id} className="py-10">
+                <LogoStrip heading={block.heading} logos={(block.logos ?? []) as LogoItem[]} />
               </Container>
             )
 

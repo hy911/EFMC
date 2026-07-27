@@ -77,4 +77,19 @@ test.describe('Frontend', () => {
     expect(response?.status()).toBe(404)
     await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
   })
+
+  test('About 页渲染多栏要点与 logo 横条', async ({ page }) => {
+    await page.goto('http://localhost:3000/en/about')
+    await expect(page.getByRole('heading', { name: 'What we deliver' })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Industrial-grade electrical control equipment' }),
+    ).toBeVisible()
+    await expect(page.getByTitle('Siemens')).toBeVisible()
+  })
+
+  test('About 页中文语种显示中文文案', async ({ page }) => {
+    await page.goto('http://localhost:3000/zh/about')
+    await expect(page.getByRole('heading', { name: '我们交付什么' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '工业级电气控制设备' })).toBeVisible()
+  })
 })
