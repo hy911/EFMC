@@ -18,10 +18,10 @@ export function CompanyAdvantage({ settings }: { settings: SiteSetting }) {
   return (
     <section id="advantage" className="bg-white">
       <Container className="py-20 lg:py-[104px]">
-        {(advantage?.eyebrow || advantage?.heading) && (
+        {advantage?.heading && (
           <SectionHeader
-            eyebrow={advantage?.eyebrow ?? ''}
-            title={advantage?.heading ?? ''}
+            eyebrow={advantage?.eyebrow ?? undefined}
+            title={advantage.heading}
             className="mb-16 max-w-[640px]"
           />
         )}

@@ -5,6 +5,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import config from '@/payload.config'
 import { FeatureColumns } from '@/components/ui/FeatureColumns'
 import { LogoStrip } from '@/components/ui/LogoStrip'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 // vitest 未开 test.globals，RTL 的自动 cleanup 探测不到全局 afterEach，需手动挂
 afterEach(cleanup)
@@ -114,6 +115,22 @@ describe('FeatureColumns 组件', () => {
   it('栏目为空时整体不渲染', () => {
     const { container } = render(<FeatureColumns columns={[]} />)
     expect(container.firstChild).toBeNull()
+  })
+})
+
+describe('SectionHeader 组件', () => {
+  it('传了 eyebrow 时渲染小标题', () => {
+    const { container } = render(<SectionHeader eyebrow="Company Advantage" title="标题" />)
+    expect(screen.getByText('Company Advantage')).toBeDefined()
+    expect(container.querySelector('.uppercase')).not.toBeNull()
+  })
+
+  it('eyebrow 为空/未传时不渲染那个 div，避免留白', () => {
+    const { container: withoutProp } = render(<SectionHeader title="标题" />)
+    expect(withoutProp.querySelector('.uppercase')).toBeNull()
+
+    const { container: withEmptyString } = render(<SectionHeader eyebrow="" title="标题" />)
+    expect(withEmptyString.querySelector('.uppercase')).toBeNull()
   })
 })
 
