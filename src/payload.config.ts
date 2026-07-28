@@ -31,6 +31,21 @@ export default buildConfig({
       titleSuffix: '- Donglin Controls',
     },
   },
+  /**
+   * 后台**界面**语言（菜单、按钮、字段 label），与下方 localization 的
+   * 内容语言是两回事：这里决定运营看到的界面是中文还是英文，
+   * localization 决定在编辑哪个语种的内容。
+   * 运营是中文使用者，故默认中文；中英两种都保留，个人可在 /admin/account 切换。
+   *
+   * 注意 fallbackLanguage 是**兜底**不是强制。Payload 的选择顺序是
+   * 用户个人设置 → 浏览器 Accept-Language → 这里的 fallbackLanguage。
+   * 所以浏览器语言偏好里英文排在中文前面的人，看到的仍是英文界面，
+   * 需要自己去 /admin/account 改。想全员强制中文只能把 supportedLanguages
+   * 收窄到只剩 zh（代价是后台再也切不回英文）。
+   */
+  i18n: {
+    fallbackLanguage: 'zh',
+  },
   collections: [
     // 产品目录
     Products,
