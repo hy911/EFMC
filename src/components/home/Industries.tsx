@@ -6,8 +6,9 @@ import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { ApplicationScenario } from '@/payload-types'
 
 /**
- * 应用行业（设计稿 1:1）：中间蓝底，5 列图卡（图 + 名称 + 关键词标签），
- * hover 上浮。数据来自 ApplicationScenarios（按 displayOrder 前 5 个）。
+ * 应用行业（设计稿 1:1）：中间蓝底，图卡（图 + 名称 + 关键词标签），hover 上浮。
+ * 数据来自 ApplicationScenarios（按 displayOrder 前 6 个）。
+ * 宽屏一排 6 张（约 190px/张）；1024–1280px 排 3 列两行，避免卡片被压得太窄。
  */
 export async function Industries({ industries }: { industries: ApplicationScenario[] }) {
   const t = await getTranslations('industries')
@@ -21,7 +22,7 @@ export async function Industries({ industries }: { industries: ApplicationScenar
           dark
           className="mb-14 max-w-[620px]"
         />
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {industries.map((industry) => (
             <a
               key={industry.id}
@@ -34,7 +35,7 @@ export async function Industries({ industries }: { industries: ApplicationScenar
                   media={industry.image}
                   size="card"
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 230px"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 390px, 195px"
                 />
               </div>
               <div className="px-[18px] pt-[18px] pb-[22px]">

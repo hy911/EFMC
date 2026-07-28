@@ -407,12 +407,18 @@ async function main() {
     if (!DRY) process.exit(1)
   }
 
-  // 行业：牧场归到农业创新
-  const inds = await api(
-    '/api/application-scenarios?where[slug][equals]=agricultural-innovation&limit=1&locale=en&depth=0',
-  )
-  const industryId = inds.docs?.[0]?.id ?? null
-  if (!industryId) console.warn('⚠️ 没找到 agricultural-innovation 行业，本次不设所属行业')
+  // 行业：牧场归到农牧业（agricultural-innovation 是改名前的旧 slug，兼容一下）
+  let industryId = null
+  for (const slug of ['agriculture-livestock', 'agricultural-innovation']) {
+    const inds = await api(
+      `/api/application-scenarios?where[slug][equals]=${slug}&limit=1&locale=en&depth=0`,
+    )
+    if (inds.docs?.[0]) {
+      industryId = inds.docs[0].id
+      break
+    }
+  }
+  if (!industryId) console.warn('⚠️ 没找到「农牧业」行业，本次不设所属行业')
 
   // 关联产品：PLC 控制柜 + 现场仪表/操作箱
   const relatedSlugs = [

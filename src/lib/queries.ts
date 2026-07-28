@@ -28,8 +28,8 @@ export async function getFeaturedProducts(locale: Locale, limit = 6): Promise<Pr
   return docs
 }
 
-/** 首页应用行业（按 displayOrder 取前 5 个） */
-export async function getIndustries(locale: Locale, limit = 5): Promise<ApplicationScenario[]> {
+/** 首页应用行业（按 displayOrder 取前 6 个） */
+export async function getIndustries(locale: Locale, limit = 6): Promise<ApplicationScenario[]> {
   const payload = await getPayloadClient()
   const { docs } = await payload.find({
     collection: 'application-scenarios',
