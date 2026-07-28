@@ -203,7 +203,8 @@ async function main() {
     关联产品：${related.length} 个${missingRelated.length ? `（站上没有：${missingRelated.join(', ')}）` : ''}　|　顺序：${ind.displayOrder}${
       existing ? '' : `\n    配图：产品文件夹 ${ind.imageFrom.folder} 的第 ${ind.imageFrom.index + 1} 张`
     }`)
-      existing ? updated++ : created++
+      if (existing) updated++
+      else created++
       continue
     }
 
