@@ -15,16 +15,25 @@
     "contact": "Contact"
   },
   "hero": {
-    "eyebrow": "Authorized Partner of ABB & Schneider Electric",
+    "eyebrow": "Built with genuine ABB & Schneider components",
     "title": "Complete industrial automation, engineered to specification.",
     "subtitle": "From PLC control cabinets to full water-treatment automation systems — designed, built, and commissioned by a 30-engineer team in Tianjin, China.",
     "ctaPrimary": "Request a Quote",
     "ctaSecondary": "Explore Products",
     "imageBadge": "PLC Control Systems",
     "stats": {
-      "established": { "value": "2016", "label": "Established" },
-      "engineers": { "value": "30+", "label": "Engineers" },
-      "industries": { "value": "5", "label": "Industries served" }
+      "established": {
+        "value": "2016",
+        "label": "Established"
+      },
+      "engineers": {
+        "value": "30+",
+        "label": "Engineers"
+      },
+      "industries": {
+        "value": "5",
+        "label": "Industries served"
+      }
     }
   },
   "capabilities": {
@@ -51,7 +60,7 @@
   },
   "products": {
     "eyebrow": "Featured products",
-    "title": "Control systems built with ABB & Schneider components.",
+    "title": "Control systems built with genuine ABB & Schneider components.",
     "talkToEngineer": "Talk to an engineer →",
     "requestQuote": "Request a Quote →"
   },
@@ -86,13 +95,25 @@
   },
   "trust": {
     "eyebrow": "Why Donglin",
-    "title": "Authorized. Experienced. Accountable.",
-    "body": "Tianjin Donglin Zhongkong Automation Technology Co., Ltd. is an authorized distributor and system integrator for ABB and Schneider Electric — genuine components, factory-backed warranty, engineered to international standards.",
+    "title": "Engineered. Tested. Accountable.",
+    "body": "Tianjin Donglin Zhongkong Automation Technology Co., Ltd. designs and builds industrial control systems with genuine ABB and Schneider Electric components — every cabinet factory-tested before shipment, handed over with complete drawings and documentation.",
     "stats": {
-      "founded": { "value": "2016", "label": "Founded in Tianjin" },
-      "engineers": { "value": "30+", "label": "In-house engineers" },
-      "divisions": { "value": "4", "label": "Engineering divisions" },
-      "partnerships": { "value": "2", "label": "Authorized brand partnerships" }
+      "founded": {
+        "value": "2016",
+        "label": "Founded in Tianjin"
+      },
+      "engineers": {
+        "value": "30+",
+        "label": "In-house engineers"
+      },
+      "divisions": {
+        "value": "4",
+        "label": "Engineering divisions"
+      },
+      "partnerships": {
+        "value": "11",
+        "label": "Product lines"
+      }
     }
   },
   "industries": {
@@ -137,12 +158,12 @@
     "products": "Products",
     "contact": "Contact",
     "copyright": "© {year} Tianjin Donglin Zhongkong Automation Technology Co., Ltd.",
-    "authorized": "Authorized partner of ABB & Schneider Electric"
+    "authorized": "Built with genuine ABB & Schneider components"
   },
   "meta": {
     "home": {
-      "title": "Donglin Controls — Industrial Automation Systems | ABB & Schneider Authorized",
-      "description": "PLC control cabinets, HMI systems, VFD panels and water-treatment automation — designed, built and commissioned in Tianjin, China. Authorized partner of ABB & Schneider Electric."
+      "title": "Donglin Controls — PLC Control Cabinets & Industrial Automation",
+      "description": "PLC control cabinets, HMI systems, VFD panels and water-treatment automation — designed, built and commissioned in Tianjin, China."
     }
   }
 }

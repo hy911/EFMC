@@ -404,17 +404,20 @@ async function run() {
   }
   log(`应用行业就绪（${industries.length} 个）`)
 
-  /* ---------- 7. 授权证书 ---------- */
+  /* ---------- 7. 资质证书 ----------
+   * 演示数据刻意不使用任何品牌授权名义：真实的品牌授权是可被原厂核实的
+   * 具体主张，写进 seed 会在每个新环境（含 CI）里复现一份无依据的声明。
+   * 这里只放明显是占位的通用资质。 */
   const certificates = [
     {
-      key: 'abb-authorization',
-      en: { name: 'ABB Authorized Distributor Certificate', issuer: 'ABB' },
-      zh: { name: 'ABB 授权代理证书', issuer: 'ABB' },
+      key: 'sample-quality-system',
+      en: { name: 'Sample — Quality Management System', issuer: 'Sample Certification Body' },
+      zh: { name: '示例 — 质量管理体系证书', issuer: '示例认证机构' },
     },
     {
-      key: 'schneider-authorization',
-      en: { name: 'Schneider Electric Authorized Partner Certificate', issuer: 'Schneider Electric' },
-      zh: { name: '施耐德电气授权合作伙伴证书', issuer: '施耐德电气' },
+      key: 'sample-product-test',
+      en: { name: 'Sample — Product Type Test Report', issuer: 'Sample Test Laboratory' },
+      zh: { name: '示例 — 产品型式试验报告', issuer: '示例检测机构' },
     },
   ]
   const { totalDocs: certCount } = await payload.count({ collection: 'certificates' })
@@ -542,7 +545,7 @@ async function run() {
       id: aboutPage.id,
       data: {
         title: '关于我们',
-        intro: 'ABB 与施耐德电气授权合作伙伴，自 2016 年起在天津交付成套自动化系统。',
+        intro: '自 2016 年起在天津设计并交付成套工业自动化系统。',
         layout: layout.map((block) => {
           switch (block.blockType) {
             case 'richText':
@@ -576,7 +579,7 @@ async function run() {
                 logos: (block.logos ?? []).map((logo) => ({ ...logo })),
               }
             case 'imageGallery':
-              return { ...block, heading: '资质与授权' }
+              return { ...block, heading: '资质证书' }
             case 'ctaBanner':
               return {
                 ...block,
@@ -738,12 +741,12 @@ async function run() {
           title: 'ABB or Schneider for your next PLC project? An integrator’s view',
           excerpt:
             'Both ecosystems are excellent — the right choice depends on your installed base, regional support and application profile.',
-          body: 'As an authorized partner of both brands we are often asked which PLC to standardize on. The honest answer: both platforms cover the vast majority of industrial applications well. The decision usually comes down to your existing installed base and spare-parts stock, the regional service network at your plant locations, engineering-tool licensing, and specific application requirements such as motion, redundancy or safety integration. This article walks through each factor with examples from delivered projects.',
+          body: 'As an integrator working with both platforms we are often asked which PLC to standardize on. The honest answer: both platforms cover the vast majority of industrial applications well. The decision usually comes down to your existing installed base and spare-parts stock, the regional service network at your plant locations, engineering-tool licensing, and specific application requirements such as motion, redundancy or safety integration. This article walks through each factor with examples from delivered projects.',
         },
         zh: {
           title: '下个 PLC 项目选 ABB 还是施耐德？集成商视角',
           excerpt: '两个生态都很优秀——正确选择取决于你的存量设备、区域服务与应用场景。',
-          body: '作为两个品牌的授权合作伙伴，我们经常被问到应该以哪家 PLC 为标准。诚实的回答是：两个平台都能很好地覆盖绝大多数工业应用。决策通常取决于存量设备与备件库存、工厂所在地的区域服务网络、工程软件授权成本，以及运动控制、冗余或安全集成等具体应用需求。本文结合已交付项目逐项分析。',
+          body: '作为长期同时使用两个平台的集成商，我们经常被问到应该以哪家 PLC 为标准。诚实的回答是：两个平台都能很好地覆盖绝大多数工业应用。决策通常取决于存量设备与备件库存、工厂所在地的区域服务网络、工程软件授权成本，以及运动控制、冗余或安全集成等具体应用需求。本文结合已交付项目逐项分析。',
         },
       },
     ]

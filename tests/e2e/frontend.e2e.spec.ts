@@ -20,7 +20,7 @@ test.describe('Frontend', () => {
     // 数据驱动的区块：精选产品 + 信任区
     await expect(page.locator('#products h3').first()).toBeVisible()
     await expect(
-      page.getByRole('heading', { name: 'Authorized. Experienced. Accountable.' }),
+      page.getByRole('heading', { name: 'Engineered. Tested. Accountable.' }),
     ).toBeVisible()
   })
 

@@ -15,16 +15,25 @@
     "contact": "联系我们"
   },
   "hero": {
-    "eyebrow": "ABB 与施耐德电气授权合作伙伴",
+    "eyebrow": "采用 ABB 与施耐德正品元器件",
     "title": "成套工业自动化系统，按需定制交付。",
     "subtitle": "从 PLC 控制柜到整套水处理自动化系统——由天津 30 余人的工程师团队负责设计、制造与调试。",
     "ctaPrimary": "获取报价",
     "ctaSecondary": "浏览产品",
     "imageBadge": "PLC 控制系统",
     "stats": {
-      "established": { "value": "2016", "label": "公司成立" },
-      "engineers": { "value": "30+", "label": "工程师团队" },
-      "industries": { "value": "5", "label": "服务行业" }
+      "established": {
+        "value": "2016",
+        "label": "公司成立"
+      },
+      "engineers": {
+        "value": "30+",
+        "label": "工程师团队"
+      },
+      "industries": {
+        "value": "5",
+        "label": "服务行业"
+      }
     }
   },
   "capabilities": {
@@ -51,7 +60,7 @@
   },
   "products": {
     "eyebrow": "精选产品",
-    "title": "基于 ABB 与施耐德元器件的控制系统。",
+    "title": "基于 ABB 与施耐德正品元器件的控制系统。",
     "talkToEngineer": "与工程师沟通 →",
     "requestQuote": "获取报价 →"
   },
@@ -86,13 +95,25 @@
   },
   "trust": {
     "eyebrow": "为什么选择东林",
-    "title": "官方授权 · 经验丰富 · 全程负责",
-    "body": "天津东林众控自动化科技有限公司是 ABB 与施耐德电气的授权代理商及系统集成商——正品元器件、原厂质保，按国际标准设计制造。",
+    "title": "精工设计 · 出厂实测 · 全程负责",
+    "body": "天津东林众控自动化科技有限公司采用 ABB 与施耐德电气正品元器件设计制造工业控制系统——每台柜体出厂前完成实测，随柜交付完整图纸与技术文档。",
     "stats": {
-      "founded": { "value": "2016", "label": "创立于天津" },
-      "engineers": { "value": "30+", "label": "自有工程师" },
-      "divisions": { "value": "4", "label": "工程事业部" },
-      "partnerships": { "value": "2", "label": "品牌官方授权" }
+      "founded": {
+        "value": "2016",
+        "label": "创立于天津"
+      },
+      "engineers": {
+        "value": "30+",
+        "label": "自有工程师"
+      },
+      "divisions": {
+        "value": "4",
+        "label": "工程事业部"
+      },
+      "partnerships": {
+        "value": "11",
+        "label": "产品线"
+      }
     }
   },
   "industries": {
@@ -137,12 +158,12 @@
     "products": "产品",
     "contact": "联系方式",
     "copyright": "© {year} 天津东林众控自动化科技有限公司",
-    "authorized": "ABB 与施耐德电气授权合作伙伴"
+    "authorized": "采用 ABB 与施耐德正品元器件"
   },
   "meta": {
     "home": {
-      "title": "东林众控——工业自动化系统 | ABB 与施耐德授权",
-      "description": "PLC 控制柜、HMI 人机界面、变频柜与水处理自动化——天津设计、制造与调试。ABB 与施耐德电气授权合作伙伴。"
+      "title": "东林众控——PLC 控制柜与工业自动化系统",
+      "description": "PLC 控制柜、HMI 人机界面、变频柜与水处理自动化——天津设计、制造与调试。"
     }
   }
 }

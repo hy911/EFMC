@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { Container } from '@/components/ui/Container'
 
 /**
- * Why Donglin 信任区（设计稿 1:1）：左侧授权说明 + ABB / Schneider 品牌章，
+ * Why Donglin 信任区（设计稿 1:1）：左侧能力说明 + ABB / Schneider 品牌章，
  * 右侧 2×2 数据网格。
  */
 export async function Trust() {
@@ -24,7 +24,7 @@ export async function Trust() {
           <p className="m-0 mb-9 max-w-[480px] text-[16.5px] leading-[1.7] text-steel">
             {t('body')}
           </p>
-          {/* 品牌章：授权品牌名 */}
+          {/* 品牌章：所用元器件的主要品牌（陈述选型，非授权关系宣称） */}
           <div className="flex flex-wrap gap-5">
             <div className="border border-line px-7 py-5 font-display text-xl font-bold tracking-[1px] text-navy">
               ABB
