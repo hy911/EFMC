@@ -5,6 +5,15 @@ import { getPayloadClient } from '@/lib/payload'
 import { SITE_URL } from '@/lib/seo'
 
 /**
+ * ISR：与各页面一致的 10 分钟兜底。
+ * 没有这行，sitemap 会在构建时生成后**永不更新**——新增产品永远进不了
+ * 收录、已删除的 URL 一直留在里面（生产上出现过：sitemap 里躺着一条
+ * 早已 404 的产品 URL，而 11 个新产品一条都没有）。
+ * 内容页的「发布即生效」靠 revalidate 钩子，sitemap 走这条兜底即可。
+ */
+export const revalidate = 600
+
+/**
  * 分语种 sitemap：每个 URL 输出全部语种版本并互相声明 hreflang alternates
  * （Google 推荐的多语言 sitemap 形式）。收录：首页、产品页、固定页。
  */
