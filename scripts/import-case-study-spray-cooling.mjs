@@ -15,6 +15,7 @@
  *   node scripts/import-case-study-spray-cooling.mjs --dry-run
  *   node scripts/import-case-study-spray-cooling.mjs
  *   node scripts/import-case-study-spray-cooling.mjs --replace   已存在时覆盖章节
+ *   node scripts/import-case-study-spray-cooling.mjs --replace --prune  同时删掉被换下的旧图
  *
  * sections 是 localized blocks —— 写 zh 必须带上 en 回读到的 block id 和
  * 内层数组行 id，否则整个数组被重建、en 内容全丢（见 CLAUDE.md）。
@@ -28,6 +29,7 @@ import { api, login, requireEnv, uploadMedia } from './lib/payload-api.mjs'
 const args = process.argv.slice(2)
 const DRY = args.includes('--dry-run')
 const REPLACE = args.includes('--replace')
+const PRUNE = args.includes('--prune')
 const ASSETS = args.includes('--assets')
   ? args[args.indexOf('--assets') + 1]
   : 'D:/precision-spray-cooling-case-study-final/assets'
@@ -441,6 +443,17 @@ async function main() {
     return
   }
 
+  // 覆盖前先记下现有引用的图片，--prune 时在写入成功后删掉
+  const oldMediaIds = existing
+    ? [
+        existing.coverImage,
+        ...(existing.sections ?? []).flatMap((b) => [
+          b.image,
+          ...(b.cards ?? []).map((c) => c.image),
+        ]),
+      ].filter((v) => typeof v === 'number')
+    : []
+
   // 上传全部图片，拿到 media id
   const media = {}
   for (const [key, info] of Object.entries(IMAGES)) {
@@ -457,7 +470,8 @@ async function main() {
     industry: industryId,
     relatedProducts,
     sections: EN.sections(media),
-    // 简版正文清空：本案例走章节排版，两者都有会重复渲染一遍
+    // 简版正文清空：本案例走章节排版，两者都有会重复渲染一遍。
+    // body 是 localized 字段 —— 这里只清 en，zh 必须在下面的 zh PATCH 里再清一次
     body: null,
   }
 
@@ -480,18 +494,45 @@ async function main() {
   const zhSections = (saved.sections ?? []).map((block, i) => mergeLocale(block, ZH.sections[i] ?? {}))
   await api(`/api/case-studies/${id}?locale=zh`, {
     method: 'PATCH',
-    body: { title: ZH.title, excerpt: ZH.excerpt, sections: zhSections },
+    body: { title: ZH.title, excerpt: ZH.excerpt, sections: zhSections, body: null },
   })
   console.log('✓ 已写入 zh 内容')
 
-  // 自检：en 章节没被 zh 覆盖，图片还在
+  // 自检：en 章节没被 zh 覆盖，图片还在，两个语种的旧正文都清干净了
   const checkEn = await api(`/api/case-studies/${id}?locale=en&depth=0`)
   const enFigure = (checkEn.sections ?? []).find((b) => b.blockType === 'caseFigure')
   if (checkEn.title !== EN.title || !enFigure?.image) {
     console.error('⚠️ en 内容被覆盖了，检查 mergeLocale 是否带上了行 id')
     process.exit(1)
   }
-  console.log(`自检通过：en 仍是「${checkEn.title}」，${checkEn.sections.length} 个章节、配图完好`)
+  // fallback: false 才能看到 zh 自己的值；否则 zh 为空时会回落成 en 的内容
+  const checkZh = await api(`/api/case-studies/${id}?locale=zh&depth=0&fallback-locale=none`)
+  const leftover = [
+    checkEn.body && 'en',
+    checkZh.body && 'zh',
+  ].filter(Boolean)
+  if (leftover.length) {
+    console.error(`⚠️ ${leftover.join(' / ')} 的旧正文没清掉，前台会在章节下面重复渲染一遍`)
+    process.exit(1)
+  }
+  console.log(
+    `自检通过：en 仍是「${checkEn.title}」、zh 是「${checkZh.title}」，` +
+      `各 ${checkEn.sections.length} 个章节，旧正文已清空`,
+  )
+  if (PRUNE && oldMediaIds.length) {
+    for (const mediaId of oldMediaIds) {
+      await api(`/api/media/${mediaId}`, { method: 'DELETE' }).catch((e) =>
+        console.warn(`  旧图 ${mediaId} 删除失败（可能被别处引用）：${e.message}`),
+      )
+    }
+    console.log(`✓ 已删除 ${oldMediaIds.length} 张被换下的旧图`)
+  } else if (oldMediaIds.length) {
+    console.log(
+      `\n注意：${oldMediaIds.length} 张旧图仍留在媒体库（已无人引用）。` +
+        `确认新图无误后加 --prune 重跑清理，或在后台手动删。`,
+    )
+  }
+
   console.log(`\n前台地址：${base}/en/cases/${SLUG}　|　${base}/zh/cases/${SLUG}`)
   console.log('后台待补：项目地点、交付时间（月）、成果指标（有实测数据再填）。')
 }
