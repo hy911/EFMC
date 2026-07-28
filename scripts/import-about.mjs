@@ -73,6 +73,7 @@ const EN = {
       items: [{ text: 'Technical solutions from concept design to implementation' }],
     },
   ],
+  certHeading: 'Certificates',
   ctaHeading: 'Tell us what you need to control.',
   ctaBody:
     'Send us your process description, I/O list or single-line diagram — we will come back with a detailed quotation and bill of materials.',
@@ -121,18 +122,23 @@ const ZH = {
     { title: '行业领先效率', items: [{ text: '快速响应自动化需求' }] },
     { title: '全链路技术方案', items: [{ text: '从概念设计到落地实施' }] },
   ],
+  certHeading: '资质证书',
   ctaHeading: '告诉我们您要控制什么。',
   ctaBody: '发送工艺说明、I/O 清单或单线图，我们将回复详细报价与物料清单。',
   ctaButton: '获取报价',
   formHeading: '介绍一下您的项目',
 }
 
-/** 组装 en 版 layout */
-const layoutEn = () => [
+/** 组装 en 版 layout；hasCerts=false 时不放证书墙（否则只剩一个空标题） */
+const layoutEn = (hasCerts) => [
   { blockType: 'richText', content: richTextOf(EN.profile) },
   { blockType: 'statsGrid', stats: EN.stats },
   { blockType: 'featureColumns', heading: EN.deliverHeading, columns: EN.deliverColumns },
   { blockType: 'featureColumns', heading: EN.teamHeading, columns: EN.teamColumns },
+  // 证书墙：勾选 fromCertificates 后自动拉取 Certificates collection 的全部证书
+  ...(hasCerts
+    ? [{ blockType: 'imageGallery', heading: EN.certHeading, fromCertificates: true }]
+    : []),
   {
     blockType: 'ctaBanner',
     heading: EN.ctaHeading,
@@ -173,6 +179,8 @@ function layoutZh(enLayout) {
           })),
         }
       }
+      case 'imageGallery':
+        return { ...block, heading: ZH.certHeading }
       case 'ctaBanner':
         return { ...block, heading: ZH.ctaHeading, body: ZH.ctaBody, buttonLabel: ZH.ctaButton }
       case 'contactForm':
@@ -187,6 +195,14 @@ async function main() {
   const base = requireEnv()
   console.log(`目标站点：${base}${DRY ? '　【空跑，不写任何数据】' : ''}\n`)
   await login()
+
+  const certs = await api('/api/certificates?limit=1&locale=en&depth=0')
+  const hasCerts = (certs.totalDocs ?? 0) > 0
+  console.log(
+    hasCerts
+      ? `站上已有 ${certs.totalDocs} 张证书，会放入证书墙区块`
+      : '站上暂无证书，本次不放证书墙区块（导入证书后重跑即可加上）',
+  )
 
   const found = await api('/api/pages?where[slug][equals]=about&limit=1&locale=en')
   const existing = found.docs?.[0]
@@ -209,7 +225,7 @@ async function main() {
     console.log('About 页不存在，将新建')
   }
 
-  const en = layoutEn()
+  const en = layoutEn(hasCerts)
   if (DRY) {
     console.log(`\n将写入 ${en.length} 个积木块：`)
     en.forEach((b, i) => console.log(`  ${i + 1}. ${b.blockType}${b.heading ? ` — ${b.heading}` : ''}`))
