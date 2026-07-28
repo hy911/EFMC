@@ -48,3 +48,9 @@ qr-*.png
 
 # 厂房/车间照片的裁切中转目录：走 CMS 上传（Pages → about → 图片画廊），不进仓库
 photos-out/
+
+# 产品选图的联系表导出（prep-product-images.mjs sheet → build 的中间产物）
+selection.json
+
+# JetBrains IDE 的本地配置（.vscode/ 是共享的，故意提交，别加进来）
+.idea/
