@@ -1,6 +1,8 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { en } from '@payloadcms/translations/languages/en'
+import { zh } from '@payloadcms/translations/languages/zh'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -37,13 +39,18 @@ export default buildConfig({
    * localization 决定在编辑哪个语种的内容。
    * 运营是中文使用者，故默认中文；中英两种都保留，个人可在 /admin/account 切换。
    *
+   * supportedLanguages 必须显式声明：Payload 的默认值是 `{ en }` 一种，
+   * 后台账号页的「语言」下拉就是照这个列的。而且 sanitize 时会检查
+   * fallbackLanguage 在不在这个列表里，不在就悄悄退回列表第一项 ——
+   * 只写 fallbackLanguage: 'zh' 而不加 zh，整条设置会被无声丢弃。
+   *
    * 注意 fallbackLanguage 是**兜底**不是强制。Payload 的选择顺序是
    * 用户个人设置 → 浏览器 Accept-Language → 这里的 fallbackLanguage。
    * 所以浏览器语言偏好里英文排在中文前面的人，看到的仍是英文界面，
-   * 需要自己去 /admin/account 改。想全员强制中文只能把 supportedLanguages
-   * 收窄到只剩 zh（代价是后台再也切不回英文）。
+   * 需要自己去 /admin/account 切一次（切完存在用户偏好里，之后不用再切）。
    */
   i18n: {
+    supportedLanguages: { en, zh },
     fallbackLanguage: 'zh',
   },
   collections: [
