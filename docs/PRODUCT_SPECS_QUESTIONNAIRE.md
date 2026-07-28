@@ -30,6 +30,21 @@
 
 ---
 
+## 分类归属（已定）
+
+后台已建 4 个分类：
+
+| 中文 | 英文 | 归属的产品 |
+|---|---|---|
+| 工业自动化设计 | Industrial Automation Design | 1、2、3、6（PLC 控制柜） |
+| 电气自动化设计 | Electrical Automation Design | 4、5、7（配电柜 / 仪表箱 / 变频柜） |
+| 水处理系统设备及自动化设计 | Water Treatment System Equipment & Automation Design | 8 |
+| SCADA及HMI软件设计及编程 | SCADA & HMI Software Design & Development / Programming | 9、10、11（软件与服务） |
+
+> 9/10/11 的归属是按「四个分类里只有这个装得下软件类」推的。产品 10 是 PLC 编程调试、11 是云监控系统，严格说不属于 SCADA/HMI；若想调整（如把 10 归到工业自动化设计）告知即可。
+
+---
+
 ## A 组：PLC 控制柜（产品 1、2、3、6）
 
 四个产品填四遍，差异主要在 PLC 平台和 I/O 规模。
