@@ -5,6 +5,7 @@ import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
+import { RenderCaseSections } from '@/blocks/caseRenderers'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat'
@@ -94,19 +95,28 @@ export default async function CaseStudyPage({ params }: Props) {
       />
       <Navbar />
       <main className="bg-white">
-        {/* 页头 */}
-        <section className="bg-navy text-white">
-          <Container className="py-16 lg:py-20">
+        {/* 页头：封面铺满，左侧深色渐变压出文字可读性 */}
+        <section className="relative flex min-h-[560px] items-end overflow-hidden bg-navy text-white lg:min-h-[680px]">
+          <div className="absolute inset-0">
+            <MediaImage media={cs.coverImage} size="feature" fill sizes="100vw" priority />
+          </div>
+          {/* 渐变自左向右变淡，保证标题区对比度、右侧仍看得见照片 */}
+          <div className="absolute inset-0 bg-linear-to-r from-navy/95 via-navy/80 to-navy/10" />
+          <Container className="relative pt-32 pb-16 lg:pt-40 lg:pb-24">
             {industry && (
-              <div className="mb-3.5 text-[12.5px] font-semibold tracking-[2.2px] text-sky uppercase">
+              <div className="text-[12px] font-bold tracking-[2.2px] text-sky uppercase">
                 {industry.name}
               </div>
             )}
-            <h1 className="m-0 max-w-[820px] font-display text-[32px] leading-[1.15] font-bold tracking-[-0.4px] sm:text-[44px]">
+            <h1 className="mt-5 mb-0 max-w-[820px] font-display text-[40px] leading-[1.04] font-bold tracking-[-1.8px] sm:text-[58px] lg:text-[70px]">
               {cs.title}
             </h1>
+            <div className="my-8 h-1 w-[74px] bg-accent" />
+            <p className="m-0 max-w-[660px] text-[18px] leading-[1.6] text-cloud sm:text-[20px]">
+              {cs.excerpt}
+            </p>
             {facts.length > 0 && (
-              <div className="mt-7 flex flex-wrap gap-x-12 gap-y-3 border-t border-white/14 pt-6 text-[14.5px]">
+              <div className="mt-9 flex flex-wrap gap-x-12 gap-y-3 text-[13px] tracking-[0.8px] uppercase">
                 {facts.map((fact) => (
                   <div key={fact.label}>
                     <span className="mr-2.5 font-semibold text-sky">{fact.label}</span>
@@ -134,17 +144,17 @@ export default async function CaseStudyPage({ params }: Props) {
           </Container>
         )}
 
-        {/* 封面 + 正文 */}
-        <Container className="py-10">
-          <div className="relative mb-10 h-[300px] border border-line sm:h-[440px]">
-            <MediaImage media={cs.coverImage} size="feature" fill sizes="1180px" priority />
-          </div>
-          {cs.body && (
+        {/* 排版化章节 */}
+        {(cs.sections?.length ?? 0) > 0 && <RenderCaseSections blocks={cs.sections!} />}
+
+        {/* 简版正文（没做章节排版的案例走这里） */}
+        {cs.body && (
+          <Container className="py-10">
             <div className="prose max-w-[760px] text-ink prose-headings:font-display prose-headings:text-navy">
               <RichText data={cs.body} />
             </div>
-          )}
-        </Container>
+          </Container>
+        )}
 
         {/* 关联产品内链 */}
         {relatedProducts.length > 0 && (

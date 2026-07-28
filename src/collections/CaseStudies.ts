@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { anyone, authenticated } from '@/access'
+import { caseBlocks } from '@/blocks/case'
 import { seoField } from '@/fields/seo'
 import { slugField } from '@/fields/slug'
 import { revalidateCaseStudy, revalidateCaseStudyDelete } from '@/hooks/revalidate'
@@ -114,10 +115,29 @@ export const CaseStudies: CollectionConfig = {
       ],
     },
     {
+      // 排版化正文：编号章节，每块一种版式（见 src/blocks/case.ts）
+      name: 'sections',
+      label: { en: 'Sections', zh: '案例章节' },
+      type: 'blocks',
+      blocks: caseBlocks,
+      admin: {
+        description: {
+          en: 'Numbering and alternating backgrounds follow block order automatically.',
+          zh: '章节编号与底色交替按块的顺序自动生成，不用手填。',
+        },
+      },
+    },
+    {
       name: 'body',
-      label: { en: 'Body', zh: '案例正文' },
+      label: { en: 'Body (plain)', zh: '案例正文（纯文）' },
       type: 'richText',
       localized: true,
+      admin: {
+        description: {
+          en: 'Fallback for cases without designed sections. Rendered after the sections above.',
+          zh: '没有排版章节时的简版正文；有章节时会接在章节后面渲染。',
+        },
+      },
     },
     seoField,
   ],

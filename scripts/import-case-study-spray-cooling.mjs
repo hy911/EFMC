@@ -2,26 +2,28 @@
 /**
  * 导入客户案例：精准喷淋降温改造（Precision Spray-Cooling），中英双语。
  *
+ * 排版按客户认可的设计稿（index.html）拆成 8 个案例章节块，
+ * 章节编号与底色交替由前台按顺序自动生成，这里只给内容。
+ *
  * 素材来自 D:/precision-spray-cooling-case-study-final（可用 --assets 覆盖）：
- *   hero-dairy-barn.jpg        封面
- *   control-transformation.svg 改造前后对比图（脚本自动转 PNG，Media 不收 SVG 的矢量优势）
+ *   hero-dairy-barn.jpg        封面（页头满幅背景）
+ *   control-transformation.svg 改造前后对比图（脚本自动转 PNG）
  *   system-architecture.svg    系统架构图（同上）
  *   sensing-enclosure.jpg / t-cable-harness.jpg / plc-control-panel.jpg / mobile-operations-app.png
  *
  * 用法：
  *   node scripts/import-case-study-spray-cooling.mjs --dry-run
  *   node scripts/import-case-study-spray-cooling.mjs
- *   node scripts/import-case-study-spray-cooling.mjs --replace   已存在时覆盖正文
+ *   node scripts/import-case-study-spray-cooling.mjs --replace   已存在时覆盖章节
  *
- * body 是 localized richText（不是数组），zh 直接整体覆写即可，
- * 不存在 CLAUDE.md 里说的「localized 数组必须带行 id」的坑。
- * 但正文里的配图节点引用 media id，两个语种共用同一批图片。
+ * sections 是 localized blocks —— 写 zh 必须带上 en 回读到的 block id 和
+ * 内层数组行 id，否则整个数组被重建、en 内容全丢（见 CLAUDE.md）。
+ * 下面的 mergeLocale() 就是干这个的。
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 import { api, login, requireEnv, uploadMedia } from './lib/payload-api.mjs'
-import { doc, h, hr, img, list, p, quote } from './lib/lexical.mjs'
 
 const args = process.argv.slice(2)
 const DRY = args.includes('--dry-run')
@@ -31,10 +33,10 @@ const ASSETS = args.includes('--assets')
   : 'D:/precision-spray-cooling-case-study-final/assets'
 
 const SLUG = 'precision-spray-cooling-dairy-retrofit'
-/** SVG 转出的 PNG 放这里，避免污染素材目录 */
+/** SVG 转出的 PNG 放这里，不动素材目录 */
 const OUT_DIR = path.resolve(process.cwd(), 'photos-out', 'cases', SLUG)
 
-/** 正文配图：key → 文件名 + 中英 alt */
+/** 图片：key → 文件名 + 中英 alt */
 const IMAGES = {
   hero: {
     file: 'hero-dairy-barn.jpg',
@@ -43,13 +45,13 @@ const IMAGES = {
   },
   transformation: {
     file: 'control-transformation.svg',
-    en: 'Legacy row-level control versus position-level precision control',
-    zh: '原整排控制与改造后单位置精准控制对比',
+    en: 'Engineering comparison of row-level spraying and position-level precision control',
+    zh: '整排喷淋与单位置精准控制的工程对比',
   },
   architecture: {
     file: 'system-architecture.svg',
-    en: 'Sensor-activated precision spray-cooling system architecture',
-    zh: '传感器触发式精准喷淋降温系统架构',
+    en: 'Layered architecture of the sensor-activated precision spray-cooling system',
+    zh: '传感器触发式精准喷淋降温系统的分层架构',
   },
   enclosure: {
     file: 'sensing-enclosure.jpg',
@@ -63,12 +65,12 @@ const IMAGES = {
   },
   plc: {
     file: 'plc-control-panel.jpg',
-    en: 'Dedicated PLC control system',
-    zh: '专用 PLC 控制系统',
+    en: 'Dedicated PLC control panel',
+    zh: '专用 PLC 控制柜',
   },
   app: {
     file: 'mobile-operations-app.png',
-    en: 'Mobile equipment-status interface',
+    en: 'Mobile equipment status screen',
     zh: '移动端设备状态界面',
   },
 }
@@ -76,296 +78,301 @@ const IMAGES = {
 const EN = {
   title: 'Cooling Only Where It Matters',
   excerpt:
-    'A sensor-activated, stall-level spray-cooling retrofit for a commercial dairy: presence detection at every position, plug-and-play field cabling, PLC control logic and mobile status visibility.',
-  location: '',
-  body: (m) =>
-    doc([
-      p(
-        'The dairy’s existing cooling system used a single solenoid valve to control an entire row — or, in some areas, a complete barn line. Once the valve opened, every nozzle on that line sprayed at the same time, regardless of whether a cow was present at each position.',
-      ),
-      p('The client asked for a more precise approach:'),
-      quote(
-        '**Detect whether a cow is actually present at each position, and activate only the nozzle serving that occupied position.**',
-      ),
-      p(
-        'To meet that requirement, we engineered a complete retrofit around four purpose-built elements: a dedicated sensing enclosure, a plug-and-play T-cable harness, a PLC-based control system, and a mobile operations app.',
-      ),
-      hr(),
-
-      h('h2', 'The Operational Challenge'),
-      p(
-        'The legacy system could deliver water, but it could not direct that water according to actual cow occupancy.',
-      ),
-      list([
-        '**Empty-position spraying:** unoccupied stalls received the same spray as occupied stalls.',
-        '**Unnecessary water use:** water was consumed without contributing to animal cooling.',
-        '**Additional wastewater load:** excess water ultimately increased the burden on manure and wastewater handling.',
-        '**Coarse control:** the system could control a pipe section, but not an individual cow position.',
-        '**Labor-intensive maintenance:** long cable runs and field wiring made installation and troubleshooting more difficult.',
-      ]),
-      img(m.transformation),
-      hr(),
-
-      h('h2', 'The Client Requirement'),
-      list(
-        [
-          'Detect cow presence at each spray position.',
-          'Activate spraying only where a cow is present.',
-          'Withstand the humid, dusty and demanding conditions of a dairy barn.',
-          'Simplify field installation and eliminate unnecessary secondary wiring.',
-          'Provide centralized control and mobile visibility of system status.',
-        ],
-        true,
-      ),
-      p(
-        'This was not simply a sensor installation. The sensing device, field connection, control logic, valve actuation and operator interface all had to function as one system.',
-      ),
-      hr(),
-
-      h('h2', 'Our Engineered Solution'),
-      h('h3', 'A complete control loop — from cow presence to nozzle activation'),
-      img(m.architecture),
-      p(
-        'Each spray position is monitored by a dedicated sensing node. Presence signals travel through the purpose-built field harness to the PLC, where temperature, spray duration, interval and zoning rules are applied. The PLC then commands the corresponding solenoid valve and reports operating status to the mobile interface.',
-      ),
-      quote(
-        '**Presence Detection → Field Signal → PLC Decision → Individual Valve Actuation → Operational Feedback**',
-      ),
-
-      h('h3', '1. Purpose-Built Sensing Enclosure'),
-      img(m.enclosure),
-      p(
-        'The sensing enclosure identifies whether a cow is present at the corresponding spray position and sends that signal to the control system. This changes the minimum control unit from an entire pipe section to an individual cow position.',
-      ),
-      p(
-        'The enclosure was designed around practical barn installation, protection and replacement requirements.',
-      ),
-
-      h('h3', '2. Plug-and-Play T-Cable Harness'),
-      img(m.harness),
-      p(
-        'Long cable runs and numerous connection points can make conventional field wiring slow and error-prone. The dedicated T-cable harness provides standardized plug-and-play connections:',
-      ),
-      list([
-        'no secondary field wiring;',
-        'faster, more consistent installation;',
-        'fewer exposed or incorrectly wired connections;',
-        'easier device replacement;',
-        'a cleaner path for future expansion.',
-      ]),
-
-      h('h3', '3. Dedicated PLC Control System'),
-      img(m.plc),
-      p(
-        'The PLC receives presence signals from each position and executes the spray-cooling logic according to the dairy’s operating requirements:',
-      ),
-      list([
-        'independent valve control by position;',
-        'configurable spray duration and interval;',
-        'temperature-based system enable and disable;',
-        'zoned operation across the barn;',
-        'continued operation of unaffected zones if a local device requires attention.',
-      ]),
-
-      h('h3', '4. Mobile Operations App'),
-      img(m.app),
-      p(
-        'The mobile app gives managers visibility into barn conditions, equipment status and system operation. Parameters can be reviewed remotely, and abnormal device states can be narrowed to a specific area before technicians enter the barn.',
-      ),
-      hr(),
-
-      h('h2', 'Delivery Approach'),
-      list(
-        [
-          '**Site survey** — document the barn layout, existing water lines, electrical routes and control boundaries.',
-          '**Control zoning** — map cow positions, sensors, valves and spray points.',
-          '**Purpose-built configuration** — prepare sensing enclosures, cable harnesses and control panels for the actual barn.',
-          '**Phased installation** — retrofit by zone to minimize disruption to daily operation.',
-          '**System commissioning** — verify presence detection, PLC logic, valve response and timing.',
-          '**Operator handover** — configure the mobile interface and train the operating team.',
-        ],
-        true,
-      ),
-      hr(),
-
-      h('h2', 'Before and After'),
-      list([
-        '**Presence detection** — before: no position-level detection; after: presence is evaluated at each spray position.',
-        '**Spray control** — before: entire row or barn line; after: individual occupied positions.',
-        '**Field connection** — before: secondary wiring required; after: plug-and-play T-cable harness.',
-        '**Control logic** — before: coarse line-level operation; after: PLC-based timing, temperature and zoning logic.',
-        '**System visibility** — before: on-site inspection; after: mobile status visibility.',
-        '**Troubleshooting** — before: broad manual search; after: faster localization by zone and device.',
-      ]),
-      hr(),
-
-      h('h2', 'Value Delivered'),
-      list([
-        'Reduces spraying at unoccupied positions.',
-        'Directs cooling water to the positions where it is needed.',
-        'Helps reduce unnecessary wastewater entering manure-handling systems.',
-        'Simplifies installation, replacement and field maintenance.',
-        'Provides visible system status and configurable operating parameters.',
-        'Creates a scalable foundation for future environmental and operational data integration.',
-      ]),
-
-      h('h2', 'Project Perspective'),
-      p(
-        'This project was not about adding another valve or sensor. It redefined the smallest controllable unit of the dairy’s cooling system.',
-      ),
-      p(
-        'By integrating a purpose-built sensing enclosure, plug-and-play field cabling, PLC control, individual valve actuation and mobile visibility, the retrofit moved control from the **pipe level** to the **cow-position level**.',
-      ),
-      quote(
-        '**The goal is not to make every nozzle operate. It is to make the right nozzle operate at the right position.**',
-      ),
-      p(
-        'Project configurations vary according to barn geometry, cow-position count, existing utilities and operating requirements.',
-      ),
-    ]),
+    'A commercial dairy needed to move beyond row-level spraying. We engineered a stall-level control system that detects cow presence and activates only the corresponding spray position.',
+  sections: (m) => [
+    {
+      blockType: 'caseSplit',
+      kicker: 'Client challenge',
+      heading: 'The system could deliver water—but not according to actual cow occupancy.',
+      quote:
+        'Detect whether a cow is present at each position, and activate only the nozzle serving that occupied position.',
+      points: [
+        {
+          label: 'Empty-position spraying',
+          text: 'Every nozzle on the line operated, even when positions were unoccupied.',
+        },
+        {
+          label: 'Coarse control',
+          text: 'A single valve controlled an entire row—or, in some areas, a complete barn line.',
+        },
+        {
+          label: 'Installation and maintenance burden',
+          text: 'Long cable runs and secondary field wiring slowed installation and troubleshooting.',
+        },
+      ],
+    },
+    {
+      blockType: 'caseFigure',
+      kicker: 'The control transformation',
+      heading: 'From pipe-level operation to cow-position-level control.',
+      image: m.transformation,
+    },
+    {
+      blockType: 'caseFigure',
+      kicker: 'Engineered system',
+      heading: 'One coordinated architecture—from presence detection to remote operations.',
+      intro:
+        'The requirement could not be solved by adding a sensor alone. Sensing, field connectivity, PLC decision logic, individual valve actuation and operator visibility had to operate as one control loop.',
+      image: m.architecture,
+      banner:
+        'Presence Detection → Field Signal → PLC Decision → Individual Valve Actuation → Operational Feedback',
+    },
+    {
+      blockType: 'caseCards',
+      kicker: 'Purpose-built hardware and software',
+      heading:
+        'Four custom elements designed around the barn—not adapted from a generic control package.',
+      cards: [
+        {
+          image: m.enclosure,
+          tag: '01 / Sensing',
+          title: 'Purpose-Built Sensing Enclosure',
+          text: 'Evaluates cow presence at the corresponding spray position and sends the field signal to the control system.',
+        },
+        {
+          image: m.harness,
+          tag: '02 / Connectivity',
+          title: 'Plug-and-Play T-Cable Harness',
+          text: 'Standardized connections eliminate unnecessary secondary wiring and simplify installation, replacement and expansion.',
+        },
+        {
+          image: m.plc,
+          tag: '03 / Control',
+          title: 'Dedicated PLC Control',
+          text: 'Applies presence, temperature, timing and zoning logic before commanding the corresponding solenoid valve.',
+        },
+        {
+          image: m.app,
+          tag: '04 / Operations',
+          title: 'Mobile Operations App',
+          text: 'Provides equipment status, operating visibility, parameter review and faster localization of abnormal device states.',
+        },
+      ],
+    },
+    {
+      blockType: 'caseSteps',
+      kicker: 'Delivery approach',
+      heading: 'Survey first. Configure for the actual barn. Retrofit by zone.',
+      steps: [
+        { title: 'Site Survey', text: 'Map water, power, cable routes and existing controls.' },
+        {
+          title: 'Control Zoning',
+          text: 'Define positions, sensors, valves and spray points.',
+        },
+        {
+          title: 'Configuration',
+          text: 'Prepare enclosures, harnesses and panels for the barn.',
+        },
+        {
+          title: 'Installation',
+          text: 'Retrofit by zone to reduce operational disruption.',
+        },
+        {
+          title: 'Commissioning',
+          text: 'Verify detection, control logic, valve response and timing.',
+        },
+        { title: 'Handover', text: 'Configure mobile operations and train the dairy team.' },
+      ],
+    },
+    {
+      blockType: 'caseCompare',
+      kicker: 'Before and after',
+      heading: 'A measurable change in how the system is controlled and maintained.',
+      labelArea: 'Control area',
+      labelBefore: 'Before retrofit',
+      labelAfter: 'After retrofit',
+      rows: [
+        {
+          area: 'Presence detection',
+          before: 'No position-level detection',
+          after: 'Presence evaluated at each spray position',
+        },
+        {
+          area: 'Spray control',
+          before: 'Entire row or barn line',
+          after: 'Individual occupied positions',
+        },
+        {
+          area: 'Field connection',
+          before: 'Secondary wiring required',
+          after: 'Plug-and-play T-cable harness',
+        },
+        {
+          area: 'Control logic',
+          before: 'Coarse line-level operation',
+          after: 'PLC-based temperature, timing and zoning logic',
+        },
+        {
+          area: 'System visibility',
+          before: 'On-site inspection',
+          after: 'Mobile equipment-status visibility',
+        },
+        {
+          area: 'Troubleshooting',
+          before: 'Broad manual search',
+          after: 'Faster localization by zone and device',
+        },
+      ],
+    },
+    {
+      blockType: 'caseCards',
+      kicker: 'Value delivered',
+      heading:
+        'Precision at the spray position. Simplicity in the field. Visibility for operations.',
+      cards: [
+        {
+          title: 'More Targeted Cooling',
+          text: 'Spray activation follows actual occupancy instead of opening every nozzle on the line.',
+        },
+        {
+          title: 'Cleaner Installation',
+          text: 'Purpose-built, plug-and-play connections reduce field wiring and make replacement easier.',
+        },
+        {
+          title: 'More Visible Operations',
+          text: 'PLC control and the mobile interface make status, parameters and abnormal conditions easier to manage.',
+        },
+      ],
+    },
+    {
+      blockType: 'caseStatement',
+      kicker: 'Project perspective',
+      heading: 'The retrofit redefined the smallest controllable unit of the cooling system.',
+      body: 'Control moved from the pipe level to the cow-position level—supported by purpose-built sensing, connectivity, automation and mobile operations.',
+      statement:
+        'The goal is not to make every nozzle operate. It is to make the right nozzle operate at the right position.',
+    },
+  ],
 }
 
+/** zh 只给需要翻译的叶子字段；结构、图片、行 id 从 en 继承 */
 const ZH = {
   title: '只在需要的位置降温',
   excerpt:
-    '为商业牧场实施的传感器触发式牛位级喷淋降温改造：逐位置检测牛只在位、即插即用现场线束、PLC 控制逻辑与移动端状态可见。',
-  location: '',
-  body: (m) =>
-    doc([
-      p(
-        '牧场原有的降温系统用一个电磁阀控制一整排——部分区域甚至是一整条牛舍管线。阀门一开，该管线上的全部喷头同时喷淋，不管每个位置上是否真的有牛。',
-      ),
-      p('客户提出了更精准的要求：'),
-      quote('**检测每个位置上是否真的有牛，只启动该位置对应的喷头。**'),
-      p(
-        '为满足这一要求，我们围绕四个专门设计的部件完成了整套改造：专用感应盒、即插即用 T 型线束、基于 PLC 的控制系统，以及移动端运维 App。',
-      ),
-      hr(),
+    '牧场需要摆脱整排喷淋的粗放方式。我们设计了牛位级控制系统：检测牛只是否在位，只启动对应位置的喷头。',
+  sections: [
+    {
+      kicker: '客户的难题',
+      heading: '原系统能把水送出去，却送不到真正需要的位置。',
+      quote: '检测每个位置上是否有牛，只启动该位置对应的喷头。',
+      points: [
+        { label: '空位置照喷', text: '管线上的所有喷头一起动作，位置上没有牛也照喷。' },
+        { label: '控制颗粒度粗', text: '一个阀控制一整排——部分区域甚至是一整条牛舍管线。' },
+        { label: '安装与维护负担重', text: '线路长、现场二次接线多，安装和排查都被拖慢。' },
+      ],
+    },
+    {
+      kicker: '控制方式的转变',
+      heading: '从管路级运行，下沉到牛位级控制。',
+    },
+    {
+      kicker: '系统工程',
+      heading: '一套协同的架构——从在位检测一直到远程运维。',
+      intro:
+        '这个需求不是加个传感器就能解决的。感应、现场连接、PLC 判断逻辑、单阀执行与运行可见性，必须作为一个控制闭环协同工作。',
+      banner: '在位检测 → 现场信号 → PLC 判断 → 单阀执行 → 运行反馈',
+    },
+    {
+      kicker: '专门设计的软硬件',
+      heading: '四个围绕牛舍现场定制的部件——不是通用控制方案改一改。',
+      cards: [
+        {
+          tag: '01 / 感应',
+          title: '专用感应盒',
+          text: '判断对应喷淋位置上是否有牛，并把现场信号送给控制系统。',
+        },
+        {
+          tag: '02 / 连接',
+          title: '即插即用 T 型线束',
+          text: '标准化连接取消了不必要的二次接线，安装、更换与扩展都更简单。',
+        },
+        {
+          tag: '03 / 控制',
+          title: '专用 PLC 控制',
+          text: '综合在位、温度、时序与分区逻辑判断后，再驱动对应的电磁阀。',
+        },
+        {
+          tag: '04 / 运维',
+          title: '移动端运维 App',
+          text: '提供设备状态、运行可见性与参数查看，设备异常也能更快定位。',
+        },
+      ],
+    },
+    {
+      kicker: '实施方式',
+      heading: '先勘查，按实际牛舍配置，分区改造。',
+      steps: [
+        { title: '现场勘查', text: '梳理水路、电源、线缆走向与现有控制。' },
+        { title: '控制分区', text: '确定牛位、传感器、阀门与喷淋点的对应关系。' },
+        { title: '按需配置', text: '按牛舍实际情况准备感应盒、线束与控制柜。' },
+        { title: '分区安装', text: '按区改造，尽量不影响日常生产。' },
+        { title: '系统调试', text: '验证检测、控制逻辑、阀门响应与时序。' },
+        { title: '交付培训', text: '配置移动端运维并培训牧场团队。' },
+      ],
+    },
+    {
+      kicker: '改造前后',
+      heading: '控制方式与维护方式都发生了实实在在的变化。',
+      labelArea: '对比项',
+      labelBefore: '改造前',
+      labelAfter: '改造后',
+      rows: [
+        { area: '在位检测', before: '没有位置级检测', after: '逐个喷淋位置判断在位' },
+        { area: '喷淋控制', before: '整排或整条牛舍管线', after: '只喷有牛的位置' },
+        { area: '现场连接', before: '需要二次接线', after: '即插即用 T 型线束' },
+        { area: '控制逻辑', before: '管线级粗控', after: 'PLC 的温度、时序与分区逻辑' },
+        { area: '状态可见性', before: '到现场逐个看', after: '移动端查看设备状态' },
+        { area: '故障排查', before: '大范围人工查找', after: '按分区与设备快速定位' },
+      ],
+    },
+    {
+      kicker: '交付价值',
+      heading: '喷淋位置更精准，现场更简洁，运行更透明。',
+      cards: [
+        {
+          title: '降温更有的放矢',
+          text: '按牛只实际在位启动喷淋，不再一开就是整条管线的喷头。',
+        },
+        {
+          title: '现场更干净',
+          text: '专门设计的即插即用连接减少了现场接线，更换也更方便。',
+        },
+        {
+          title: '运行更透明',
+          text: 'PLC 控制与移动端界面让状态、参数与异常都更容易管理。',
+        },
+      ],
+    },
+    {
+      kicker: '项目回顾',
+      heading: '这次改造重新定义了降温系统的最小可控单元。',
+      body: '控制粒度从管路级下沉到牛位级——由专用感应、现场连接、自动化控制与移动运维共同支撑。',
+      statement: '目标不是让每个喷头都动，而是让对的喷头在对的位置动。',
+    },
+  ],
+}
 
-      h('h2', '运行中的实际问题'),
-      p('原系统能把水送出去，却无法按牛只实际在位情况定向送水。'),
-      list([
-        '**空位置照喷：**没有牛的牛床与有牛的牛床喷得一样多。',
-        '**无效用水：**水被消耗掉，却没有起到给牛降温的作用。',
-        '**额外废水负荷：**多余的水最终加重了粪污与废水处理的压力。',
-        '**控制颗粒度粗：**系统只能控制一段管路，无法控制单个牛位。',
-        '**维护费人工：**线路长、现场接线多，安装与排查都更困难。',
-      ]),
-      img(m.transformation),
-      hr(),
-
-      h('h2', '客户的具体要求'),
-      list(
-        [
-          '检测每个喷淋位置上是否有牛。',
-          '只在有牛的位置启动喷淋。',
-          '能长期承受牛舍潮湿、粉尘大的恶劣环境。',
-          '简化现场安装，取消不必要的二次接线。',
-          '提供集中控制与移动端的系统状态查看。',
-        ],
-        true,
-      ),
-      p(
-        '这不是单纯装几个传感器。感应设备、现场连接、控制逻辑、阀门执行与操作界面必须作为一个系统协同工作。',
-      ),
-      hr(),
-
-      h('h2', '我们交付的方案'),
-      h('h3', '从牛只在位到喷头启动的完整控制闭环'),
-      img(m.architecture),
-      p(
-        '每个喷淋位置由一个独立的感应节点监测。在位信号经专用现场线束传至 PLC，由 PLC 按温度、喷淋时长、间隔与分区规则做判断，再驱动对应的电磁阀，并把运行状态上报移动端界面。',
-      ),
-      quote('**在位检测 → 现场信号 → PLC 判断 → 单阀执行 → 运行反馈**'),
-
-      h('h3', '1. 专用感应盒'),
-      img(m.enclosure),
-      p(
-        '感应盒判断对应喷淋位置上是否有牛，并把信号送给控制系统。由此，最小控制单元从「一段管路」变成了「一个牛位」。',
-      ),
-      p('盒体按牛舍现场的安装、防护与更换需求设计。'),
-
-      h('h3', '2. 即插即用 T 型线束'),
-      img(m.harness),
-      p('线路长、接点多，会让常规现场接线既慢又容易出错。专用 T 型线束提供标准化的即插即用连接：'),
-      list([
-        '现场无需二次接线；',
-        '安装更快、一致性更好；',
-        '减少裸露接头与接错线；',
-        '设备更换更方便；',
-        '后续扩展路径更清晰。',
-      ]),
-
-      h('h3', '3. 专用 PLC 控制系统'),
-      img(m.plc),
-      p('PLC 接收各位置的在位信号，按牧场的运行要求执行喷淋降温逻辑：'),
-      list([
-        '按位置独立控阀；',
-        '喷淋时长与间隔可调；',
-        '按温度自动启停系统；',
-        '牛舍分区运行；',
-        '个别现场设备需要检修时，其余分区继续运行。',
-      ]),
-
-      h('h3', '4. 移动端运维 App'),
-      img(m.app),
-      p(
-        '移动端 App 让管理者随时掌握牛舍环境、设备状态与系统运行情况。参数可远程查看，设备异常可以在技术人员进入牛舍之前先定位到具体区域。',
-      ),
-      hr(),
-
-      h('h2', '实施流程'),
-      list(
-        [
-          '**现场勘查** —— 记录牛舍布局、现有水路、电气走向与控制边界。',
-          '**控制分区** —— 梳理牛位、传感器、阀门与喷淋点的对应关系。',
-          '**按需配置** —— 按实际牛舍准备感应盒、线束与控制柜。',
-          '**分阶段安装** —— 按分区改造，尽量不影响日常生产。',
-          '**系统调试** —— 验证在位检测、PLC 逻辑、阀门响应与时序。',
-          '**交付培训** —— 配置移动端界面并培训运行团队。',
-        ],
-        true,
-      ),
-      hr(),
-
-      h('h2', '改造前后对比'),
-      list([
-        '**在位检测** —— 改造前：无位置级检测；改造后：逐个喷淋位置判断在位。',
-        '**喷淋控制** —— 改造前：整排或整条管线；改造后：只喷有牛的位置。',
-        '**现场连接** —— 改造前：需要二次接线；改造后：即插即用 T 型线束。',
-        '**控制逻辑** —— 改造前：管线级粗控；改造后：PLC 的时序、温度与分区逻辑。',
-        '**状态可见性** —— 改造前：到现场看；改造后：移动端查看状态。',
-        '**故障排查** —— 改造前：大范围人工查找；改造后：按分区与设备快速定位。',
-      ]),
-      hr(),
-
-      h('h2', '交付价值'),
-      list([
-        '减少空置位置的无效喷淋。',
-        '把降温用水送到真正需要的位置。',
-        '有助于减少进入粪污处理系统的多余废水。',
-        '简化安装、更换与现场维护。',
-        '系统状态可见，运行参数可调。',
-        '为后续接入环境与运行数据打下可扩展的基础。',
-      ]),
-
-      h('h2', '项目回顾'),
-      p('这个项目要解决的不是多加一个阀或一个传感器，而是重新定义了牧场降温系统的最小可控单元。'),
-      p(
-        '把专用感应盒、即插即用现场线缆、PLC 控制、单阀执行与移动端可见性整合起来后，控制粒度从**管路级**下沉到了**牛位级**。',
-      ),
-      quote('**目标不是让每个喷头都动，而是让对的喷头在对的位置动。**'),
-      p('具体配置因牛舍结构、牛位数量、现有水电条件与运行要求而异。'),
-    ]),
+/**
+ * 把 zh 的叶子字段合并进 en 回读的节点，保留全部 id（block id / 数组行 id）。
+ * 数组按下标一一对应；zh 里没写的字段沿用 en 的值。
+ */
+function mergeLocale(enNode, zhNode) {
+  const out = { ...enNode }
+  for (const [key, zhValue] of Object.entries(zhNode)) {
+    if (Array.isArray(zhValue)) {
+      const enRows = Array.isArray(enNode?.[key]) ? enNode[key] : []
+      out[key] = zhValue.map((row, i) => mergeLocale(enRows[i] ?? {}, row))
+    } else {
+      out[key] = zhValue
+    }
+  }
+  return out
 }
 
 /** SVG 先转 1600px 宽的 PNG（Media 只做位图处理，直传 SVG 会按内在尺寸栅格化） */
 async function resolveAsset(file) {
   const src = path.join(ASSETS, file)
-  if (!/\.svg$/i.test(file)) {
-    await fs.access(src)
-    return src
-  }
+  if (!/\.svg$/i.test(file)) return src
   const out = path.join(OUT_DIR, file.replace(/\.svg$/i, '.png'))
   await fs.mkdir(OUT_DIR, { recursive: true })
   await sharp(src, { density: 200 }).resize({ width: 1600 }).png().toFile(out)
@@ -387,16 +394,14 @@ async function main() {
 
   await login()
 
-  const found = await api(
-    `/api/case-studies?where[slug][equals]=${SLUG}&limit=1&locale=en&depth=0`,
-  )
+  const found = await api(`/api/case-studies?where[slug][equals]=${SLUG}&limit=1&locale=en&depth=0`)
   const existing = found.docs?.[0]
   if (existing && !REPLACE) {
-    console.error(`\n✗ 案例已存在（id ${existing.id}），加 --replace 才会覆盖正文。`)
+    console.error(`\n✗ 案例已存在（id ${existing.id}），加 --replace 才会覆盖章节。`)
     if (!DRY) process.exit(1)
   }
 
-  // 行业：智慧水务/农业创新里取农业创新（牧场）
+  // 行业：牧场归到农业创新
   const inds = await api(
     '/api/application-scenarios?where[slug][equals]=agricultural-innovation&limit=1&locale=en&depth=0',
   )
@@ -413,12 +418,20 @@ async function main() {
   const relatedProducts = relatedSlugs.map((s) => idBySlug.get(s)).filter(Boolean)
 
   if (DRY) {
+    const preview = EN.sections({})
     console.log(`将${existing ? '覆盖' : '创建'}案例：${SLUG}`)
-    console.log(`  EN：${EN.title}`)
-    console.log(`  ZH：${ZH.title}`)
-    console.log(`  配图：${Object.keys(IMAGES).length} 张（其中 2 张 SVG 会转 PNG）`)
+    console.log(`  EN：${EN.title}　|　ZH：${ZH.title}`)
+    console.log(`  图片：${Object.keys(IMAGES).length} 张（其中 2 张 SVG 会转 PNG）`)
     console.log(`  所属行业：${industryId ? 'agricultural-innovation' : '（无）'}`)
     console.log(`  关联产品：${relatedProducts.length} 个 —— ${relatedSlugs.join(', ')}`)
+    console.log(`\n  ${preview.length} 个章节：`)
+    preview.forEach((b, i) => {
+      console.log(`    ${String(i + 1).padStart(2, '0')} · ${b.kicker}　[${b.blockType}]`)
+    })
+    if (preview.length !== ZH.sections.length) {
+      console.error(`\n✗ 中英章节数不一致（en ${preview.length} / zh ${ZH.sections.length}）`)
+      process.exit(1)
+    }
     console.log('\n未填字段（后台补）：项目地点、交付时间、成果指标。')
     console.log('这是空跑，没有写入任何数据。')
     return
@@ -439,7 +452,9 @@ async function main() {
     coverImage: media.hero,
     industry: industryId,
     relatedProducts,
-    body: EN.body(media),
+    sections: EN.sections(media),
+    // 简版正文清空：本案例走章节排版，两者都有会重复渲染一遍
+    body: null,
   }
 
   let id
@@ -456,19 +471,23 @@ async function main() {
     console.log(`✓ 已创建案例（id ${id}）`)
   }
 
+  // 回读 en 拿到 block id 与数组行 id，再写 zh
+  const saved = await api(`/api/case-studies/${id}?locale=en&depth=0`)
+  const zhSections = (saved.sections ?? []).map((block, i) => mergeLocale(block, ZH.sections[i] ?? {}))
   await api(`/api/case-studies/${id}?locale=zh`, {
     method: 'PATCH',
-    body: { title: ZH.title, excerpt: ZH.excerpt, body: ZH.body(media) },
+    body: { title: ZH.title, excerpt: ZH.excerpt, sections: zhSections },
   })
   console.log('✓ 已写入 zh 内容')
 
-  // 自检：en 没被 zh 覆盖
+  // 自检：en 章节没被 zh 覆盖，图片还在
   const checkEn = await api(`/api/case-studies/${id}?locale=en&depth=0`)
-  if (checkEn.title !== EN.title) {
-    console.error('⚠️ en 标题被覆盖了，检查 zh PATCH 的字段范围')
+  const enFigure = (checkEn.sections ?? []).find((b) => b.blockType === 'caseFigure')
+  if (checkEn.title !== EN.title || !enFigure?.image) {
+    console.error('⚠️ en 内容被覆盖了，检查 mergeLocale 是否带上了行 id')
     process.exit(1)
   }
-  console.log(`自检通过：en 标题仍为「${checkEn.title}」`)
+  console.log(`自检通过：en 仍是「${checkEn.title}」，${checkEn.sections.length} 个章节、配图完好`)
   console.log(`\n前台地址：${base}/en/cases/${SLUG}　|　${base}/zh/cases/${SLUG}`)
   console.log('后台待补：项目地点、交付时间（月）、成果指标（有实测数据再填）。')
 }

@@ -467,6 +467,155 @@ export interface CaseStudy {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Numbering and alternating backgrounds follow block order automatically.
+   */
+  sections?:
+    | (
+        | {
+            /**
+             * Short label above the heading, e.g. "Client challenge". The number (01 ·) is added automatically.
+             */
+            kicker: string;
+            /**
+             * One full sentence reads better than a two-word title at this size.
+             */
+            heading: string;
+            /**
+             * Client requirement in their own words. Optional; quotation marks are added by the page.
+             */
+            quote?: string | null;
+            points?:
+              | {
+                  label: string;
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'caseSplit';
+          }
+        | {
+            /**
+             * Short label above the heading, e.g. "Client challenge". The number (01 ·) is added automatically.
+             */
+            kicker: string;
+            /**
+             * One full sentence reads better than a two-word title at this size.
+             */
+            heading: string;
+            intro?: string | null;
+            /**
+             * Diagrams read best at 1600px wide. Export vector diagrams to PNG first.
+             */
+            image: number | Media;
+            /**
+             * One line on a dark bar under the image, e.g. a signal-flow summary. Optional.
+             */
+            banner?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'caseFigure';
+          }
+        | {
+            /**
+             * Short label above the heading, e.g. "Client challenge". The number (01 ·) is added automatically.
+             */
+            kicker: string;
+            /**
+             * One full sentence reads better than a two-word title at this size.
+             */
+            heading: string;
+            /**
+             * With images: two per row, image on the left. Without images: three per row.
+             */
+            cards?:
+              | {
+                  image?: (number | null) | Media;
+                  /**
+                   * Small uppercase label, e.g. "SENSING". Optional.
+                   */
+                  tag?: string | null;
+                  title: string;
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'caseCards';
+          }
+        | {
+            /**
+             * Short label above the heading, e.g. "Client challenge". The number (01 ·) is added automatically.
+             */
+            kicker: string;
+            /**
+             * One full sentence reads better than a two-word title at this size.
+             */
+            heading: string;
+            /**
+             * Numbered automatically in order. Six fit one row on desktop.
+             */
+            steps?:
+              | {
+                  title: string;
+                  text: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'caseSteps';
+          }
+        | {
+            /**
+             * Short label above the heading, e.g. "Client challenge". The number (01 ·) is added automatically.
+             */
+            kicker: string;
+            /**
+             * One full sentence reads better than a two-word title at this size.
+             */
+            heading: string;
+            labelArea: string;
+            labelBefore: string;
+            labelAfter: string;
+            rows?:
+              | {
+                  area: string;
+                  before: string;
+                  after: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'caseCompare';
+          }
+        | {
+            /**
+             * Short label above the heading, e.g. "Client challenge". The number (01 ·) is added automatically.
+             */
+            kicker: string;
+            /**
+             * One full sentence reads better than a two-word title at this size.
+             */
+            heading: string;
+            body?: string | null;
+            /**
+             * The one sentence the reader should remember. Rendered large, centred, on navy.
+             */
+            statement: string;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'caseStatement';
+          }
+      )[]
+    | null;
+  /**
+   * Fallback for cases without designed sections. Rendered after the sections above.
+   */
   body?: {
     root: {
       type: string;
@@ -895,6 +1044,98 @@ export interface CaseStudiesSelect<T extends boolean = true> {
         value?: T;
         label?: T;
         id?: T;
+      };
+  sections?:
+    | T
+    | {
+        caseSplit?:
+          | T
+          | {
+              kicker?: T;
+              heading?: T;
+              quote?: T;
+              points?:
+                | T
+                | {
+                    label?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        caseFigure?:
+          | T
+          | {
+              kicker?: T;
+              heading?: T;
+              intro?: T;
+              image?: T;
+              banner?: T;
+              id?: T;
+              blockName?: T;
+            };
+        caseCards?:
+          | T
+          | {
+              kicker?: T;
+              heading?: T;
+              cards?:
+                | T
+                | {
+                    image?: T;
+                    tag?: T;
+                    title?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        caseSteps?:
+          | T
+          | {
+              kicker?: T;
+              heading?: T;
+              steps?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        caseCompare?:
+          | T
+          | {
+              kicker?: T;
+              heading?: T;
+              labelArea?: T;
+              labelBefore?: T;
+              labelAfter?: T;
+              rows?:
+                | T
+                | {
+                    area?: T;
+                    before?: T;
+                    after?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        caseStatement?:
+          | T
+          | {
+              kicker?: T;
+              heading?: T;
+              body?: T;
+              statement?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   body?: T;
   seo?:
