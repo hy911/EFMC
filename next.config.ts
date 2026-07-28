@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   // Docker 部署：产出自包含的 standalone server（node server.js 直接运行）
   output: 'standalone',
   images: {
+    // 默认 75 对照片够用；90 留给案例页的架构/对比示意图 ——
+    // 细线和小字在 75 的 WebP 下会出现明显噪点（Next 16 要求白名单声明）
+    qualities: [75, 90],
     localPatterns: [
       {
         // Payload 媒体库文件

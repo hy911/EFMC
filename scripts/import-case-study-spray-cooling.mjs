@@ -369,13 +369,17 @@ function mergeLocale(enNode, zhNode) {
   return out
 }
 
-/** SVG 先转 1600px 宽的 PNG（Media 只做位图处理，直传 SVG 会按内在尺寸栅格化） */
+/**
+ * SVG 先转 PNG（Media 只做位图处理，直传 SVG 会按内在尺寸栅格化）。
+ * 2400px 宽是给 2 倍屏留的余量：图版容器约 1180 CSS 像素，
+ * 前台用原图渲染，源图不够宽的话细线和小字会糊。
+ */
 async function resolveAsset(file) {
   const src = path.join(ASSETS, file)
   if (!/\.svg$/i.test(file)) return src
   const out = path.join(OUT_DIR, file.replace(/\.svg$/i, '.png'))
   await fs.mkdir(OUT_DIR, { recursive: true })
-  await sharp(src, { density: 200 }).resize({ width: 1600 }).png().toFile(out)
+  await sharp(src, { density: 300 }).resize({ width: 2400 }).png().toFile(out)
   return out
 }
 

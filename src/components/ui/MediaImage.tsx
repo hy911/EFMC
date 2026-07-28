@@ -12,13 +12,15 @@ type Props = {
   className?: string
   sizes?: string
   priority?: boolean
+  /** 压缩质量；默认 75。示意图这类细线图用 90（可选值在 next.config.ts 的 images.qualities） */
+  quality?: 75 | 90
 }
 
 /**
  * Payload 媒体 → next/image 的适配组件。
  * 自动选择预生成的 WebP 尺寸并回落原图；alt 来自 media 文档（已按语种本地化）。
  */
-export function MediaImage({ media, size, fill, className, sizes, priority }: Props) {
+export function MediaImage({ media, size, fill, className, sizes, priority, quality }: Props) {
   // 关系未 populate（纯 id）或为空时不渲染
   if (!media || typeof media === 'number') return null
 
@@ -38,6 +40,7 @@ export function MediaImage({ media, size, fill, className, sizes, priority }: Pr
         className={className ?? 'object-cover'}
         sizes={sizes}
         priority={priority}
+        quality={quality}
       />
     )
   }
@@ -51,6 +54,7 @@ export function MediaImage({ media, size, fill, className, sizes, priority }: Pr
       className={className}
       sizes={sizes}
       priority={priority}
+      quality={quality}
     />
   )
 }

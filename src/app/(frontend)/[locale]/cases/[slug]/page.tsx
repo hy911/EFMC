@@ -96,27 +96,35 @@ export default async function CaseStudyPage({ params }: Props) {
       <Navbar />
       <main className="bg-white">
         {/* 页头：封面铺满，左侧深色渐变压出文字可读性 */}
-        <section className="relative flex min-h-[560px] items-end overflow-hidden bg-navy text-white lg:min-h-[680px]">
+        <section className="relative flex min-h-[620px] items-end overflow-hidden bg-navy text-white lg:min-h-[700px]">
+          {/* 用原图而非 feature（1280px 铺满宽屏会糊）；封面本身是唯一的 LCP 元素 */}
           <div className="absolute inset-0">
-            <MediaImage media={cs.coverImage} size="feature" fill sizes="100vw" priority />
+            <MediaImage
+              media={cs.coverImage}
+              fill
+              sizes="100vw"
+              priority
+              className="object-cover object-[60%_center]"
+            />
           </div>
           {/* 渐变自左向右变淡，保证标题区对比度、右侧仍看得见照片 */}
-          <div className="absolute inset-0 bg-linear-to-r from-navy/95 via-navy/80 to-navy/10" />
-          <Container className="relative pt-32 pb-16 lg:pt-40 lg:pb-24">
+          <div className="absolute inset-0 bg-linear-to-r from-navy/95 via-navy/[0.82] to-navy/10" />
+          <Container className="relative pt-[150px] pb-[70px] lg:pb-[100px]">
             {industry && (
-              <div className="text-[12px] font-bold tracking-[2.2px] text-sky uppercase">
+              <div className="text-[12px] font-bold tracking-[0.18em] text-sky uppercase">
                 {industry.name}
               </div>
             )}
-            <h1 className="mt-5 mb-0 max-w-[820px] font-display text-[40px] leading-[1.04] font-bold tracking-[-1.8px] sm:text-[58px] lg:text-[70px]">
+            {/* 设计稿 clamp(48px, 7vw, 82px) */}
+            <h1 className="mt-5 mb-0 max-w-[900px] font-display text-[47px] leading-[1.02] font-bold tracking-[-0.045em] sm:text-[64px] lg:text-[82px]">
               {cs.title}
             </h1>
-            <div className="my-8 h-1 w-[74px] bg-accent" />
-            <p className="m-0 max-w-[660px] text-[18px] leading-[1.6] text-cloud sm:text-[20px]">
+            <div className="my-[34px] h-1 w-[74px] bg-accent" />
+            <p className="m-0 max-w-[680px] text-[18px] leading-[1.55] text-cloud sm:text-[21px]">
               {cs.excerpt}
             </p>
             {facts.length > 0 && (
-              <div className="mt-9 flex flex-wrap gap-x-12 gap-y-3 text-[13px] tracking-[0.8px] uppercase">
+              <div className="mt-9 flex flex-wrap gap-x-9 gap-y-3 text-[13px] tracking-[0.08em] uppercase">
                 {facts.map((fact) => (
                   <div key={fact.label}>
                     <span className="mr-2.5 font-semibold text-sky">{fact.label}</span>
