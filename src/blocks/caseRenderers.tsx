@@ -11,16 +11,18 @@ const num = (i: number) => String(i + 1).padStart(2, '0')
 /** 章节留白：设计稿是 100px，窄屏 70px */
 const SECTION = 'py-[70px] lg:py-[100px]'
 
-/** 章节头（小标 + 大标题），各块共用 */
+/** 章节头（小标 + 大标题 + 引言），各块共用 */
 function SectionHead({
   index,
   kicker,
   heading,
+  intro,
   dark = false,
 }: {
   index: number
   kicker: string
   heading: string
+  intro?: string | null
   dark?: boolean
 }) {
   return (
@@ -38,6 +40,13 @@ function SectionHead({
       >
         {heading}
       </h2>
+      {intro && (
+        <p
+          className={`mt-6 mb-0 max-w-[760px] text-[16px] leading-[1.65] ${dark ? 'text-cloud' : 'text-steel'}`}
+        >
+          {intro}
+        </p>
+      )}
     </>
   )
 }
@@ -63,7 +72,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                 <Container className={SECTION}>
                   <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
                     <div>
-                      <SectionHead index={i} kicker={block.kicker} heading={block.heading} />
+                      <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
                     </div>
                     <div>
                       {block.quote && (
@@ -94,12 +103,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} />
-                  {block.intro && (
-                    <p className="mt-6 mb-0 max-w-[760px] text-[16px] leading-[1.65] text-steel">
-                      {block.intro}
-                    </p>
-                  )}
+                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
                   {/* 示意图按原始比例展示、不裁切；用原图而非 feature（1280px 在 2 倍屏上会糊） */}
                   <div className="mt-12 border border-line bg-white p-2 sm:p-[22px]">
                     <MediaImage
@@ -124,7 +128,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} />
+                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
                   <div
                     className={`mt-12 grid grid-cols-1 gap-7 ${
                       withImages ? 'lg:grid-cols-2' : 'sm:grid-cols-3'
@@ -170,8 +174,15 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} />
-                  <div className="mt-13 grid grid-cols-1 border-t-2 border-accent sm:grid-cols-2 lg:grid-cols-6">
+                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
+                  <div
+                    className={`mt-13 grid grid-cols-1 border-t-2 border-accent sm:grid-cols-2 ${
+                      // 配图的步骤更宽才放得下，一行最多 3 个
+                      (block.steps?.length ?? 0) > 4 && !block.steps?.some((s) => s.image)
+                        ? 'lg:grid-cols-6'
+                        : 'lg:grid-cols-3'
+                    }`}
+                  >
                     {(block.steps ?? []).map((step, s) => (
                       <div
                         key={step.id}
@@ -180,6 +191,11 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                         <b className="block text-[12px] font-bold tracking-[0.12em] text-accent">
                           {num(s)}
                         </b>
+                        {step.image && (
+                          <div className="relative mt-4 h-[150px] bg-mist">
+                            <MediaImage media={step.image} size="card" fill sizes="380px" />
+                          </div>
+                        )}
                         <strong className="mt-2.5 block text-[16px] leading-[1.3] font-semibold text-navy">
                           {step.title}
                         </strong>
@@ -189,6 +205,19 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                       </div>
                     ))}
                   </div>
+                  {/* 佐证条：一个数值 + 出处说明，如「5 秒（上一版为 5 分钟）」 */}
+                  {block.proofValue && (
+                    <div className="mt-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 bg-navy px-[30px] py-[26px]">
+                      <strong className="font-display text-[34px] leading-none font-bold text-white">
+                        {block.proofValue}
+                      </strong>
+                      {block.proofNote && (
+                        <p className="m-0 max-w-[620px] text-[15px] leading-[1.6] text-cloud">
+                          {block.proofNote}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </Container>
               </section>
             )
@@ -198,7 +227,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} />
+                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
                   {/* 窄屏横向滚动，页面本身不出现横向滚动条 */}
                   <div className="mt-11 overflow-x-auto">
                     <table className="w-full min-w-[760px] border-collapse text-left">
@@ -241,7 +270,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
               <section key={block.id} className="bg-navy text-white">
                 <Container className="py-[80px] text-center lg:py-[110px]">
                   <div className="mx-auto max-w-[980px]">
-                    <SectionHead index={i} kicker={block.kicker} heading={block.heading} dark />
+                    <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} dark />
                     {block.body && (
                       <p className="mx-auto mt-6 mb-0 max-w-[740px] text-[19px] leading-[1.65] text-cloud">
                         {block.body}

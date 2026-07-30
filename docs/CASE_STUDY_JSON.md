@@ -30,6 +30,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 | `location` | 否 | `{ en, zh }`，项目地点 |
 | `completedAt` | 否 | 交付月份，`"2026-04"` 这种格式 |
 | `metrics` | 否 | 最多 4 条，页头下方的数据条。`[{ value: {en,zh}, label: {en,zh} }]` |
+| `highlights` | 否 | 最多 4 个能力标签，页头导语下方。`[{ en, zh }]` |
 | `sections` | 是 | 章节数组，见下 |
 
 **所有面向读者的文字都是 `{ "en": "...", "zh": "..." }` 双语对象。** 中文缺失会自动回落英文——但那意味着中文站会出现英文段落，别偷懒。
@@ -40,7 +41,13 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 
 章节按数组顺序渲染，**编号（01 ·、02 ·）和深浅底色交替由官网自动生成**，不要自己在文字里写序号。
 
-每个章节都有 `kicker`（小标，如「客户的要求」）和 `heading`（大标题）。
+**每个章节都有三个通用字段**，六种类型都能用：
+
+| 字段 | 必填 | 说明 |
+| --- | --- | --- |
+| `kicker` | 是 | 小标，如「客户的要求」。前面的编号官网自动加 |
+| `heading` | 是 | 大标题。写成完整一句话比两个词好看 |
+| `intro` | 否 | 标题下方的一两句铺垫。**别省**——设计稿里每节标题下都有这段，缺了会显得空 |
 
 ### `split` — 问题陈述（左标题 / 右引语 + 清单）
 
@@ -49,6 +56,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
   "type": "split",
   "kicker": { "en": "Client request", "zh": "客户的要求" },
   "heading": { "en": "...", "zh": "..." },
+  "intro": { "en": "可选的铺垫", "zh": "..." },
   "quote": { "en": "客户原话", "zh": "..." },
   "points": [{ "label": { "en": "", "zh": "" }, "text": { "en": "", "zh": "" } }]
 }
@@ -61,8 +69,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 ```json
 {
   "type": "figure",
-  "kicker": {}, "heading": {},
-  "intro": { "en": "", "zh": "" },
+  "kicker": {}, "heading": {}, "intro": {},
   "image": "system-architecture.png",
   "imageAlt": { "en": "", "zh": "" },
   "banner": { "en": "A → B → C → D", "zh": "甲 → 乙 → 丙 → 丁" }
@@ -76,7 +83,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 ```json
 {
   "type": "cards",
-  "kicker": {}, "heading": {},
+  "kicker": {}, "heading": {}, "intro": {},
   "cards": [{
     "image": "plc-panel.jpg",
     "imageAlt": {},
@@ -94,19 +101,25 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 ```json
 {
   "type": "steps",
-  "kicker": {}, "heading": {},
-  "steps": [{ "title": {}, "text": {} }]
+  "kicker": {}, "heading": {}, "intro": {},
+  "steps": [{ "title": {}, "text": {}, "image": "plc-panel.jpg", "imageAlt": {} }],
+  "proofValue": { "en": "5 sec", "zh": "5 秒" },
+  "proofNote": { "en": "这个数值的含义与出处", "zh": "..." }
 }
 ```
 
 2–6 步，自动编号。实施流程、故障降级流程用这个。超过 6 步请合并——一行放不下就散了。
+
+`image` 可选，但**要配就每步都配**——只配一半会排得参差不齐，导入时会直接报错拦下。无图时一行最多 6 步，有图时一行 3 步。
+
+`proofValue` / `proofNote` 是步骤条下方的深色佐证块，放一个关键数值加出处，例如「5 秒 —— 报告记载升级后的摄像头故障响应，上一版为 5 分钟」。两个要么都填、要么都不填。
 
 ### `compare` — 前后对比表
 
 ```json
 {
   "type": "compare",
-  "kicker": {}, "heading": {},
+  "kicker": {}, "heading": {}, "intro": {},
   "labels": { "area": {}, "before": {}, "after": {} },
   "rows": [{ "area": {}, "before": {}, "after": {} }]
 }
@@ -120,7 +133,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 {
   "type": "statement",
   "kicker": { "en": "Project outcome", "zh": "项目成果" },
-  "heading": {}, "body": {},
+  "intro": {}, "heading": {}, "body": {},
   "statement": { "en": "希望读者记住的那一句", "zh": "..." }
 }
 ```
@@ -167,6 +180,10 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 > - 只写我提供的材料里有的数字，没有出处的百分比、认证、品牌授权一律不要写
 > - 每张图必须有中英 `imageAlt`
 > - 图片里不要有文字
+> - **每个章节都写 `intro`**（标题下的一两句铺垫），别只给标题和列表
+> - 测试数据要连方法学一起写进 `intro`：测了多久、多大间隔、用什么仪器
+> - 关键指标放 `metrics`（≤4 条）和 `steps` 的 `proofValue`/`proofNote`，有对比就写对比（"5 秒，上一版为 5 分钟"）
+> - 页头可以放 2–4 个 `highlights` 能力标签
 >
 > 素材和项目情况：<在这里描述项目背景、附上照片和技术资料>
 

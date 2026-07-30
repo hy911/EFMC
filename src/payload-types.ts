@@ -468,6 +468,15 @@ export interface CaseStudy {
       }[]
     | null;
   /**
+   * Short phrases shown under the lead paragraph in the page header. 2–4 works best.
+   */
+  highlights?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Numbering and alternating backgrounds follow block order automatically.
    */
   sections?:
@@ -481,6 +490,10 @@ export interface CaseStudy {
              * One full sentence reads better than a two-word title at this size.
              */
             heading: string;
+            /**
+             * One or two sentences under the heading, before the content below. Optional.
+             */
+            intro?: string | null;
             /**
              * Client requirement in their own words. Optional; quotation marks are added by the page.
              */
@@ -505,6 +518,9 @@ export interface CaseStudy {
              * One full sentence reads better than a two-word title at this size.
              */
             heading: string;
+            /**
+             * One or two sentences under the heading, before the content below. Optional.
+             */
             intro?: string | null;
             /**
              * Diagrams read best at 1600px wide. Export vector diagrams to PNG first.
@@ -527,6 +543,10 @@ export interface CaseStudy {
              * One full sentence reads better than a two-word title at this size.
              */
             heading: string;
+            /**
+             * One or two sentences under the heading, before the content below. Optional.
+             */
+            intro?: string | null;
             /**
              * With images: two per row, image on the left. Without images: three per row.
              */
@@ -556,15 +576,31 @@ export interface CaseStudy {
              */
             heading: string;
             /**
+             * One or two sentences under the heading, before the content below. Optional.
+             */
+            intro?: string | null;
+            /**
              * Numbered automatically in order. Six fit one row on desktop.
              */
             steps?:
               | {
+                  /**
+                   * Optional. Give every step an image or none — a half-filled row looks broken.
+                   */
+                  image?: (number | null) | Media;
                   title: string;
                   text: string;
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Large figure under the strip, e.g. "5 sec". Optional; needs Proof Note too.
+             */
+            proofValue?: string | null;
+            /**
+             * What the figure means and where it comes from.
+             */
+            proofNote?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'caseSteps';
@@ -578,6 +614,10 @@ export interface CaseStudy {
              * One full sentence reads better than a two-word title at this size.
              */
             heading: string;
+            /**
+             * One or two sentences under the heading, before the content below. Optional.
+             */
+            intro?: string | null;
             labelArea: string;
             labelBefore: string;
             labelAfter: string;
@@ -602,6 +642,10 @@ export interface CaseStudy {
              * One full sentence reads better than a two-word title at this size.
              */
             heading: string;
+            /**
+             * One or two sentences under the heading, before the content below. Optional.
+             */
+            intro?: string | null;
             body?: string | null;
             /**
              * The one sentence the reader should remember. Rendered large, centred, on navy.
@@ -1045,6 +1089,12 @@ export interface CaseStudiesSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  highlights?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
   sections?:
     | T
     | {
@@ -1053,6 +1103,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
           | {
               kicker?: T;
               heading?: T;
+              intro?: T;
               quote?: T;
               points?:
                 | T
@@ -1080,6 +1131,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
           | {
               kicker?: T;
               heading?: T;
+              intro?: T;
               cards?:
                 | T
                 | {
@@ -1097,13 +1149,17 @@ export interface CaseStudiesSelect<T extends boolean = true> {
           | {
               kicker?: T;
               heading?: T;
+              intro?: T;
               steps?:
                 | T
                 | {
+                    image?: T;
                     title?: T;
                     text?: T;
                     id?: T;
                   };
+              proofValue?: T;
+              proofNote?: T;
               id?: T;
               blockName?: T;
             };
@@ -1112,6 +1168,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
           | {
               kicker?: T;
               heading?: T;
+              intro?: T;
               labelArea?: T;
               labelBefore?: T;
               labelAfter?: T;
@@ -1131,6 +1188,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
           | {
               kicker?: T;
               heading?: T;
+              intro?: T;
               body?: T;
               statement?: T;
               id?: T;

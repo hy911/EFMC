@@ -22,26 +22,53 @@
   },
   "metrics": [
     {
-      "value": { "en": "99.9%", "zh": "99.9%" },
-      "label": { "en": "Daylight recognition accuracy", "zh": "白天识别准确率" }
+      "value": {
+        "en": "99.9%",
+        "zh": "99.9%"
+      },
+      "label": {
+        "en": "Daylight recognition accuracy",
+        "zh": "白天识别准确率"
+      }
     },
     {
-      "value": { "en": "99.2%", "zh": "99.2%" },
-      "label": { "en": "Night accuracy at 35–40 lux", "zh": "夜间 35–40 lux 识别准确率" }
+      "value": {
+        "en": "99.2%",
+        "zh": "99.2%"
+      },
+      "label": {
+        "en": "Night accuracy at 35–40 lux",
+        "zh": "夜间 35–40 lux 识别准确率"
+      }
     },
     {
-      "value": { "en": "5 sec", "zh": "5 秒" },
-      "label": { "en": "Camera-fault response", "zh": "摄像头故障响应" }
+      "value": {
+        "en": "5 sec",
+        "zh": "5 秒"
+      },
+      "label": {
+        "en": "Camera-fault response",
+        "zh": "摄像头故障响应"
+      }
     },
     {
-      "value": { "en": "8 sec", "zh": "8 秒" },
-      "label": { "en": "Image sampling interval", "zh": "图像采样间隔" }
+      "value": {
+        "en": "8 sec",
+        "zh": "8 秒"
+      },
+      "label": {
+        "en": "Image sampling interval",
+        "zh": "图像采样间隔"
+      }
     }
   ],
   "sections": [
     {
       "type": "split",
-      "kicker": { "en": "Client request", "zh": "客户的要求" },
+      "kicker": {
+        "en": "Client request",
+        "zh": "客户的要求"
+      },
       "heading": {
         "en": "Keep precision cooling. Remove the ambiguity.",
         "zh": "精准降温要保留，但不能再分不清对象。"
@@ -52,21 +79,30 @@
       },
       "points": [
         {
-          "label": { "en": "Presence is not identity", "zh": "有没有 ≠ 是什么" },
+          "label": {
+            "en": "Presence is not identity",
+            "zh": "有没有 ≠ 是什么"
+          },
           "text": {
             "en": "A sensing trigger can report activity or occupancy, but it cannot reliably tell a cow from a person.",
             "zh": "感应触发只能报告「这里有动静/有东西」，无法可靠区分是牛还是人。"
           }
         },
         {
-          "label": { "en": "Complex barn conditions", "zh": "牛舍环境复杂" },
+          "label": {
+            "en": "Complex barn conditions",
+            "zh": "牛舍环境复杂"
+          },
           "text": {
             "en": "Light, dust, night operation and target orientation all affect the quality of the decision.",
             "zh": "光照、粉尘、夜间作业和目标朝向，都会影响判断质量。"
           }
         },
         {
-          "label": { "en": "Limited decision traceability", "zh": "判断结果无从追溯" },
+          "label": {
+            "en": "Limited decision traceability",
+            "zh": "判断结果无从追溯"
+          },
           "text": {
             "en": "Without visual evidence, operators have little context for reviewing a trigger, tuning a zone or explaining an event.",
             "zh": "没有画面佐证，管理者复核一次触发、调整一个分区或解释一起事件时都没有依据。"
@@ -76,48 +112,103 @@
     },
     {
       "type": "compare",
-      "kicker": { "en": "Control transformation", "zh": "控制方式的转变" },
+      "kicker": {
+        "en": "Control transformation",
+        "zh": "控制方式的转变"
+      },
       "heading": {
         "en": "From “something is there” to “a cow is in this zone.”",
         "zh": "从「这里有东西」变成「这个分区里有一头牛」。"
       },
       "labels": {
-        "area": { "en": "Decision layer", "zh": "决策环节" },
-        "before": { "en": "Sensor-triggered logic", "zh": "传感器触发逻辑" },
-        "after": { "en": "AI vision decision", "zh": "AI 视觉决策" }
+        "area": {
+          "en": "Decision layer",
+          "zh": "决策环节"
+        },
+        "before": {
+          "en": "Sensor-triggered logic",
+          "zh": "传感器触发逻辑"
+        },
+        "after": {
+          "en": "AI vision decision",
+          "zh": "AI 视觉决策"
+        }
       },
       "rows": [
         {
-          "area": { "en": "Input signal", "zh": "输入信号" },
-          "before": { "en": "Presence state only", "zh": "只有「在位」状态位" },
-          "after": { "en": "Classified target inside a defined zone", "zh": "分区内被分类过的目标" }
+          "area": {
+            "en": "Input signal",
+            "zh": "输入信号"
+          },
+          "before": {
+            "en": "Presence state only",
+            "zh": "只有「在位」状态位"
+          },
+          "after": {
+            "en": "Classified target inside a defined zone",
+            "zh": "分区内被分类过的目标"
+          }
         },
         {
-          "area": { "en": "Cow vs. person", "zh": "人牛区分" },
-          "before": { "en": "Same trigger for both", "zh": "两者触发完全一样" },
-          "after": { "en": "Classified before the valve command", "zh": "先分类，再下开阀指令" }
+          "area": {
+            "en": "Cow vs. person",
+            "zh": "人牛区分"
+          },
+          "before": {
+            "en": "Same trigger for both",
+            "zh": "两者触发完全一样"
+          },
+          "after": {
+            "en": "Classified before the valve command",
+            "zh": "先分类，再下开阀指令"
+          }
         },
         {
-          "area": { "en": "Zone granularity", "zh": "分区颗粒度" },
-          "before": { "en": "One sensing point per position", "zh": "每个位置一个感应点" },
-          "after": { "en": "Independent ROI mapped to each spray position", "zh": "每个喷淋位置一个独立识别区（ROI）" }
+          "area": {
+            "en": "Zone granularity",
+            "zh": "分区颗粒度"
+          },
+          "before": {
+            "en": "One sensing point per position",
+            "zh": "每个位置一个感应点"
+          },
+          "after": {
+            "en": "Independent ROI mapped to each spray position",
+            "zh": "每个喷淋位置一个独立识别区（ROI）"
+          }
         },
         {
-          "area": { "en": "Traceability", "zh": "可追溯性" },
-          "before": { "en": "State bit in the controller", "zh": "控制器里的一个状态位" },
-          "after": { "en": "Image evidence, alarms and event history", "zh": "画面证据、告警与事件历史" }
+          "area": {
+            "en": "Traceability",
+            "zh": "可追溯性"
+          },
+          "before": {
+            "en": "State bit in the controller",
+            "zh": "控制器里的一个状态位"
+          },
+          "after": {
+            "en": "Image evidence, alarms and event history",
+            "zh": "画面证据、告警与事件历史"
+          }
         }
-      ]
+      ],
+      "intro": {
+        "en": "The upgrade changes the quality of the input — not the final actuator. Classification now happens before PLC logic issues the valve command.",
+        "zh": "这次升级换掉的是输入信号的质量，不是末端执行机构。分类发生在 PLC 下达开阀指令之前。"
+      }
     },
     {
       "type": "figure",
-      "kicker": { "en": "Field evidence", "zh": "现场实拍" },
+      "kicker": {
+        "en": "Field evidence · Night recognition view",
+        "zh": "现场实拍 · 夜间识别画面"
+      },
       "heading": {
         "en": "Recognition zones and detected cattle, seen from the control layer.",
         "zh": "控制层看到的识别分区与被识别出的牛只。"
       },
       "intro": {
-        "en": "Independent coloured areas define the recognition zones. Cattle are detected by the model before the corresponding zone status enters the PLC decision layer.",
+        "en": "Independent colored areas define the recognition zones. Cattle are detected by the model before the corresponding zone status enters the PLC decision layer.",
         "zh": "画面上不同颜色的区域就是各自独立的识别区。模型先识别出牛只，对应分区的状态才会进入 PLC 的判断环节。"
       },
       "image": "ai-detection.png",
@@ -126,65 +217,123 @@
         "zh": "夜间摄像头画面：牛只识别框与各自独立的喷淋分区"
       },
       "banner": {
-        "en": "See → Classify → Verify zone → Actuate",
-        "zh": "看见 → 分类 → 校验分区 → 执行"
+        "en": "01 · See → 02 · Classify → 03 · Verify zone → 04 · Actuate",
+        "zh": "01 · 看见 → 02 · 分类 → 03 · 校验分区 → 04 · 执行"
       }
     },
     {
       "type": "steps",
-      "kicker": { "en": "How the system works", "zh": "系统怎么运转" },
+      "kicker": {
+        "en": "How the system works",
+        "zh": "系统怎么运转"
+      },
       "heading": {
         "en": "A six-stage closed loop from camera to field equipment.",
         "zh": "从摄像头到现场设备的六段闭环。"
       },
       "steps": [
         {
-          "title": { "en": "Capture", "zh": "采集" },
+          "title": {
+            "en": "Capture",
+            "zh": "采集"
+          },
           "text": {
             "en": "Cameras acquire live images from each feeding zone.",
             "zh": "摄像头实时采集每个采食区的画面。"
+          },
+          "image": "camera-enclosure.jpg",
+          "imageAlt": {
+            "en": "Field-mounted camera capturing the feeding zone",
+            "zh": "现场安装的摄像头拍摄采食区"
           }
         },
         {
-          "title": { "en": "Recognize", "zh": "识别" },
+          "title": {
+            "en": "Recognize",
+            "zh": "识别"
+          },
           "text": {
             "en": "The AI model classifies cows and evaluates the defined ROI.",
             "zh": "AI 模型对牛只分类，并判断预设的识别区。"
+          },
+          "image": "ai-detection.png",
+          "imageAlt": {
+            "en": "AI model classifying cattle inside the recognition zones",
+            "zh": "AI 模型在识别区内对牛只分类"
           }
         },
         {
-          "title": { "en": "Transmit", "zh": "上送" },
+          "title": {
+            "en": "Transmit",
+            "zh": "上送"
+          },
           "text": {
             "en": "Recognition results are sent to the PLC and the cloud service.",
             "zh": "识别结果送往 PLC 与云端服务。"
+          },
+          "image": "hardware-upgrade.jpg",
+          "imageAlt": {
+            "en": "Edge AI computing unit transmitting recognition results",
+            "zh": "边缘 AI 计算单元上送识别结果"
           }
         },
         {
-          "title": { "en": "Decide", "zh": "判断" },
+          "title": {
+            "en": "Decide",
+            "zh": "判断"
+          },
           "text": {
             "en": "PLC logic checks zone, timing, mode and operating conditions.",
             "zh": "PLC 逻辑校验分区、时序、运行模式与工况。"
+          },
+          "image": "plc-panel.jpg",
+          "imageAlt": {
+            "en": "PLC control cabinet evaluating zone and timing conditions",
+            "zh": "PLC 控制柜校验分区与时序条件"
           }
         },
         {
-          "title": { "en": "Actuate", "zh": "执行" },
+          "title": {
+            "en": "Actuate",
+            "zh": "执行"
+          },
           "text": {
             "en": "Only the corresponding valve and spray position are activated.",
             "zh": "只启动对应的阀门与喷淋位置。"
+          },
+          "image": "field-valves.jpg",
+          "imageAlt": {
+            "en": "Solenoid valve actuating the corresponding spray position",
+            "zh": "电磁阀驱动对应的喷淋位置"
           }
         },
         {
-          "title": { "en": "Feedback", "zh": "反馈" },
+          "title": {
+            "en": "Feedback",
+            "zh": "反馈"
+          },
           "text": {
             "en": "Equipment status returns to the AI layer for review and tuning.",
             "zh": "设备状态回传 AI 层，用于复核与调优。"
+          },
+          "image": "mobile-dashboard.png",
+          "imageAlt": {
+            "en": "Equipment status returning to the operations layer",
+            "zh": "设备状态回传运维层"
           }
         }
-      ]
+      ],
+      "intro": {
+        "en": "A thin data path links visual recognition, control decisions and real equipment status — without a single oversized step dominating the workflow.",
+        "zh": "一条很轻的数据链路把视觉识别、控制判断与设备真实状态串起来，没有哪一环重到拖累整体。"
+      }
     },
     {
       "type": "cards",
-      "kicker": { "en": "Engineered system", "zh": "系统构成" },
+      "kicker": {
+        "en": "Engineered system",
+        "zh": "系统构成"
+      },
       "heading": {
         "en": "Four layers designed to operate as one.",
         "zh": "四个层次，按一个系统来设计。"
@@ -196,8 +345,14 @@
             "en": "Field-mounted camera and protected vision enclosure",
             "zh": "现场安装的摄像头与防护箱体"
           },
-          "tag": { "en": "01 / Vision", "zh": "01 / 视觉" },
-          "title": { "en": "Camera + Defined Recognition Zones", "zh": "摄像头与识别分区" },
+          "tag": {
+            "en": "01 / Vision layer",
+            "zh": "01 / 视觉层"
+          },
+          "title": {
+            "en": "Camera + Defined Recognition Zones",
+            "zh": "摄像头与识别分区"
+          },
           "text": {
             "en": "Live images cover the feeding line while independent ROIs map visual decisions to individual spray positions.",
             "zh": "画面覆盖整条采食线，各自独立的识别区把视觉判断对应到单个喷淋位置。"
@@ -209,8 +364,14 @@
             "en": "Edge AI computing hardware installed for the upgrade",
             "zh": "本次改造加装的边缘 AI 计算硬件"
           },
-          "tag": { "en": "02 / Edge AI", "zh": "02 / 边缘计算" },
-          "title": { "en": "Day / Night Model Logic", "zh": "昼夜双模型逻辑" },
+          "tag": {
+            "en": "02 / AI computing",
+            "zh": "02 / AI 计算"
+          },
+          "title": {
+            "en": "Day / Night Model Logic",
+            "zh": "昼夜双模型逻辑"
+          },
           "text": {
             "en": "The documented system uses an NVIDIA AI computer and switches datasets to match different lighting conditions.",
             "zh": "按报告记载，系统采用 NVIDIA AI 计算单元，并按光照条件切换数据集。"
@@ -222,8 +383,14 @@
             "en": "Dedicated PLC control cabinet and internal components",
             "zh": "专用 PLC 控制柜与柜内元器件"
           },
-          "tag": { "en": "03 / Control", "zh": "03 / 控制" },
-          "title": { "en": "PLC + Independent Sub-Control", "zh": "PLC 与独立分控" },
+          "tag": {
+            "en": "03 / Control layer",
+            "zh": "03 / 控制层"
+          },
+          "title": {
+            "en": "PLC + Independent Sub-Control",
+            "zh": "PLC 与独立分控"
+          },
           "text": {
             "en": "PLC logic performs secondary processing and commands field equipment; independent sub-control limits fault impact.",
             "zh": "PLC 做二次处理并驱动现场设备；分控独立，把故障影响限制在局部。"
@@ -235,151 +402,258 @@
             "en": "Smart spraying control system interface with zone and equipment status",
             "zh": "智能喷淋控制系统界面：分区与设备状态"
           },
-          "tag": { "en": "04 / Operations", "zh": "04 / 运维" },
-          "title": { "en": "Cloud, Alarms and History", "zh": "云端、告警与历史记录" },
+          "tag": {
+            "en": "04 / Operations layer",
+            "zh": "04 / 运维层"
+          },
+          "title": {
+            "en": "Cloud, Alarms and Historical Records",
+            "zh": "云端、告警与历史记录"
+          },
           "text": {
             "en": "Operators can review device connectivity, zone status, alarms and system history from the visual control layer.",
             "zh": "管理者在可视化控制层就能查看设备连通性、分区状态、告警与历史记录。"
           }
         }
-      ]
+      ],
+      "intro": {
+        "en": "The project combines visual acquisition, edge intelligence, deterministic PLC control and operational visibility.",
+        "zh": "这个项目把视觉采集、边缘智能、确定性的 PLC 控制与运行可见性组合在一起。"
+      }
     },
     {
       "type": "cards",
-      "kicker": { "en": "Field validation", "zh": "现场验证" },
+      "kicker": {
+        "en": "Field validation",
+        "zh": "现场验证"
+      },
       "heading": {
-        "en": "Recognition stayed above 99% across the recorded light levels.",
+        "en": "Recognition remained above 99% across the recorded light levels.",
         "zh": "记录到的各档光照下，识别率均保持在 99% 以上。"
       },
       "cards": [
         {
-          "tag": { "en": "Illuminance > 500 lux", "zh": "照度 > 500 lux" },
-          "title": { "en": "Daylight / overcast · 99.9%", "zh": "白天 / 阴天 · 99.9%" },
+          "tag": {
+            "en": "Illuminance > 500 lux",
+            "zh": "照度 > 500 lux"
+          },
+          "title": {
+            "en": "Daylight / overcast · 99.9%",
+            "zh": "白天 / 阴天 · 99.9%"
+          },
           "text": {
             "en": "Reported missed-detection rate 0.01%.",
             "zh": "报告记录的漏检率 0.01%。"
           }
         },
         {
-          "tag": { "en": "Illuminance 45–49 lux", "zh": "照度 45–49 lux" },
-          "title": { "en": "Night · Level 1 · 99.5%", "zh": "夜间 · 一档 · 99.5%" },
+          "tag": {
+            "en": "Illuminance 45–49 lux",
+            "zh": "照度 45–49 lux"
+          },
+          "title": {
+            "en": "Night · Level 1 · 99.5%",
+            "zh": "夜间 · 一档 · 99.5%"
+          },
           "text": {
             "en": "Reported missed-detection rate 0.03%.",
             "zh": "报告记录的漏检率 0.03%。"
           }
         },
         {
-          "tag": { "en": "Illuminance 35–40 lux", "zh": "照度 35–40 lux" },
-          "title": { "en": "Night · Level 2 · 99.2%", "zh": "夜间 · 二档 · 99.2%" },
+          "tag": {
+            "en": "Illuminance 35–40 lux",
+            "zh": "照度 35–40 lux"
+          },
+          "title": {
+            "en": "Night · Level 2 · 99.2%",
+            "zh": "夜间 · 二档 · 99.2%"
+          },
           "text": {
             "en": "Reported missed-detection rate 0.05%.",
             "zh": "报告记录的漏检率 0.05%。"
           }
         }
-      ]
+      ],
+      "intro": {
+        "en": "The source report documents intermittent image sampling at 8-second intervals between April 5 and April 27, using two online lux sensors installed at the same position and angle.",
+        "zh": "据源报告记载：4 月 5 日至 4 月 27 日期间以 8 秒间隔间歇采样，使用两台安装在相同位置与角度的在线照度计。"
+      }
     },
     {
       "type": "steps",
-      "kicker": { "en": "Operational resilience", "zh": "运行可靠性" },
+      "kicker": {
+        "en": "Operational resilience",
+        "zh": "运行可靠性"
+      },
       "heading": {
         "en": "If vision goes offline, cooling does not simply disappear.",
         "zh": "视觉一旦掉线，降温不会跟着停摆。"
       },
       "steps": [
         {
-          "title": { "en": "Monitor", "zh": "监视" },
+          "title": {
+            "en": "Monitor",
+            "zh": "监视"
+          },
           "text": {
             "en": "Camera connection is checked continuously.",
             "zh": "持续检查摄像头连接状态。"
           }
         },
         {
-          "title": { "en": "Detect", "zh": "发现" },
-          "text": { "en": "Fault or disconnection is identified.", "zh": "识别出故障或断连。" }
+          "title": {
+            "en": "Detect",
+            "zh": "发现"
+          },
+          "text": {
+            "en": "Fault or disconnection is identified.",
+            "zh": "识别出故障或断连。"
+          }
         },
         {
-          "title": { "en": "Fallback", "zh": "降级" },
+          "title": {
+            "en": "Fallback",
+            "zh": "降级"
+          },
           "text": {
             "en": "The sub-controller switches to local conventional mode.",
             "zh": "分控切到本地常规模式继续运行。"
           }
         },
         {
-          "title": { "en": "Report", "zh": "上报" },
+          "title": {
+            "en": "Report",
+            "zh": "上报"
+          },
           "text": {
             "en": "Alarm and event history notify operators.",
             "zh": "告警与事件历史通知管理者。"
           }
         }
-      ]
+      ],
+      "intro": {
+        "en": "The documented configuration treats camera status as part of the control strategy and preserves a local fallback path.",
+        "zh": "报告记载的配置把摄像头状态本身当作控制策略的一部分，并保留了本地降级通道。"
+      },
+      "proofValue": {
+        "en": "5 sec",
+        "zh": "5 秒"
+      },
+      "proofNote": {
+        "en": "Camera fault response documented for the upgraded configuration, compared with 5 minutes in the preceding version.",
+        "zh": "报告记载升级后配置的摄像头故障响应时间，上一版为 5 分钟。"
+      }
     },
     {
       "type": "steps",
-      "kicker": { "en": "Delivery approach", "zh": "实施方式" },
+      "kicker": {
+        "en": "Delivery approach",
+        "zh": "实施方式"
+      },
       "heading": {
         "en": "Built around the actual barn — not a generic model.",
         "zh": "围绕这座牛舍来做，不是套一个通用模型。"
       },
       "steps": [
         {
-          "title": { "en": "Survey", "zh": "现场勘查" },
+          "title": {
+            "en": "Survey",
+            "zh": "现场勘查"
+          },
           "text": {
             "en": "Map cameras, feeding positions, lighting and the existing control network.",
             "zh": "梳理摄像头点位、采食位置、光照条件与既有控制网络。"
           }
         },
         {
-          "title": { "en": "Define ROI", "zh": "划识别区" },
+          "title": {
+            "en": "Define ROI",
+            "zh": "划识别区"
+          },
           "text": {
             "en": "Create independent visual recognition zones for each spray position.",
             "zh": "为每个喷淋位置划出各自独立的视觉识别区。"
           }
         },
         {
-          "title": { "en": "Train", "zh": "训练模型" },
+          "title": {
+            "en": "Train",
+            "zh": "训练模型"
+          },
           "text": {
             "en": "Build a dairy-specific dataset around environment, cattle and camera angle.",
             "zh": "按本场的环境、牛只与机位角度建专属数据集。"
           }
         },
         {
-          "title": { "en": "Integrate", "zh": "系统集成" },
+          "title": {
+            "en": "Integrate",
+            "zh": "系统集成"
+          },
           "text": {
             "en": "Connect AI inference, PLC sub-control, valves and cloud operations.",
             "zh": "打通 AI 推理、PLC 分控、阀门与云端运维。"
           }
         },
         {
-          "title": { "en": "Validate", "zh": "验证" },
+          "title": {
+            "en": "Validate",
+            "zh": "验证"
+          },
           "text": {
             "en": "Check day/night recognition, timing, actuation and fault fallback.",
             "zh": "验证昼夜识别、时序、执行动作与故障降级。"
           }
         },
         {
-          "title": { "en": "Handover", "zh": "交付培训" },
+          "title": {
+            "en": "Handover",
+            "zh": "交付培训"
+          },
           "text": {
             "en": "Open visual review, parameters, alarms and history to the farm team.",
             "zh": "把画面复核、参数、告警与历史记录交给牧场团队。"
           }
         }
-      ]
+      ],
+      "intro": {
+        "en": "Each stage is executed against this barn — its camera angles, its lighting and its existing control network.",
+        "zh": "每一步都是针对这座牛舍做的——它的机位角度、它的光照条件、它现有的控制网络。"
+      }
     },
     {
       "type": "statement",
-      "kicker": { "en": "Project outcome", "zh": "项目成果" },
+      "kicker": {
+        "en": "Project outcome",
+        "zh": "项目成果"
+      },
       "heading": {
         "en": "A smarter decision layer for every spray position.",
         "zh": "给每个喷淋位置配一个更聪明的决策层。"
       },
       "body": {
-        "en": "The upgrade retained position-level control while adding target classification, visual review, day/night adaptation and operational fallback. Recognition performance depends on camera placement, lighting, the barn environment and the quality of the farm-specific training dataset.",
-        "zh": "这次升级保留了原有的位置级控制，另外加上了目标分类、画面复核、昼夜适配与故障降级。识别表现取决于机位、光照、牛舍环境以及本场专属训练数据集的质量。"
+        "en": "The upgrade retained position-level control while adding target classification, visual review, day/night adaptation and operational fallback. Recognition performance depends on camera placement, lighting, the barn environment and the quality of the farm-specific training dataset. System configuration and field performance vary by barn, environment and operating requirements.",
+        "zh": "这次升级保留了原有的位置级控制，另外加上了目标分类、画面复核、昼夜适配与故障降级。识别表现取决于机位、光照、牛舍环境以及本场专属训练数据集的质量。系统配置与现场表现因牛舍、环境与运行要求而异。"
       },
       "statement": {
         "en": "The project was not about finding a new way to open a valve. It was about making a better decision before the valve opens.",
         "zh": "这个项目要解决的不是「怎么开阀」，而是「开阀之前怎么判断得更准」。"
       }
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Cow / person classification",
+      "zh": "人牛分类"
+    },
+    {
+      "en": "Zone-level control",
+      "zh": "分区级控制"
+    },
+    {
+      "en": "AI + PLC closed loop",
+      "zh": "AI + PLC 闭环"
     }
   ]
 }

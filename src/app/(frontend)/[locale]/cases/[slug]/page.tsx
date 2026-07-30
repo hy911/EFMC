@@ -123,8 +123,20 @@ export default async function CaseStudyPage({ params }: Props) {
             <p className="m-0 max-w-[680px] text-[18px] leading-[1.55] text-cloud sm:text-[21px]">
               {cs.excerpt}
             </p>
+            {(cs.highlights?.length ?? 0) > 0 && (
+              <div className="mt-8 flex flex-wrap gap-2.5">
+                {cs.highlights!.map((h) => (
+                  <span
+                    key={h.id}
+                    className="border border-white/25 px-3.5 py-2 text-[13px] text-cloud"
+                  >
+                    {h.label}
+                  </span>
+                ))}
+              </div>
+            )}
             {facts.length > 0 && (
-              <div className="mt-9 flex flex-wrap gap-x-9 gap-y-3 text-[13px] tracking-[0.08em] uppercase">
+              <div className="mt-8 flex flex-wrap gap-x-9 gap-y-3 text-[13px] tracking-[0.08em] uppercase">
                 {facts.map((fact) => (
                   <div key={fact.label}>
                     <span className="mr-2.5 font-semibold text-sky">{fact.label}</span>

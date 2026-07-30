@@ -51,11 +51,13 @@ function validate(data) {
   const errs = []
   const at = (p, msg) => errs.push(`${p}：${msg}`)
 
-  if (!data.slug || !/^[a-z0-9-]+$/.test(data.slug)) at('slug', '必填，只能用小写字母、数字和连字符')
+  if (!data.slug || !/^[a-z0-9-]+$/.test(data.slug))
+    at('slug', '必填，只能用小写字母、数字和连字符')
   if (!isText(data.title)) at('title', '必填，需要 { en, zh }')
   if (!isText(data.excerpt)) at('excerpt', '必填，需要 { en, zh }（列表卡片和页头导语都用它）')
   if (!data.cover) at('cover', '必填，封面图文件名')
-  if (!Array.isArray(data.sections) || data.sections.length === 0) at('sections', '至少要有一个章节')
+  if (!Array.isArray(data.sections) || data.sections.length === 0)
+    at('sections', '至少要有一个章节')
 
   for (const [i, m] of (data.metrics ?? []).entries()) {
     if (!isText(m.value)) at(`metrics[${i}].value`, '需要 { en, zh }')
@@ -63,14 +65,21 @@ function validate(data) {
   }
   if ((data.metrics?.length ?? 0) > 4) at('metrics', '最多 4 条（页头数据条一排放 4 个）')
 
+  for (const [i, h] of (data.highlights ?? []).entries()) {
+    if (!isText(h)) at(`highlights[${i}]`, '需要 { en, zh }')
+  }
+  if ((data.highlights?.length ?? 0) > 4) at('highlights', '最多 4 个能力标签')
+
   for (const [i, s] of (data.sections ?? []).entries()) {
     const p = `sections[${i}]`
     if (!BLOCK_TYPE[s.type]) {
       at(p, `type 只能是 ${Object.keys(BLOCK_TYPE).join(' / ')}，收到 "${s.type}"`)
       continue
     }
-    if (!isText(s.kicker)) at(`${p}.kicker`, '必填，需要 { en, zh }（章节编号前台自动加，别自己写）')
+    if (!isText(s.kicker))
+      at(`${p}.kicker`, '必填，需要 { en, zh }（章节编号前台自动加，别自己写）')
     if (!isText(s.heading)) at(`${p}.heading`, '必填，需要 { en, zh }')
+    if (s.intro !== undefined && !isText(s.intro)) at(`${p}.intro`, '写了就要 { en, zh }')
 
     switch (s.type) {
       case 'split':
@@ -92,14 +101,24 @@ function validate(data) {
           if (c.image && !isText(c.imageAlt)) at(`${p}.cards[${j}].imageAlt`, '有图就必须有 alt')
         }
         break
-      case 'steps':
+      case 'steps': {
         if (!Array.isArray(s.steps) || s.steps.length < 2 || s.steps.length > 6)
           at(`${p}.steps`, '2–6 步（桌面端一行最多 6 个）')
         for (const [j, st] of (s.steps ?? []).entries()) {
           if (!isText(st.title)) at(`${p}.steps[${j}].title`, '需要 { en, zh }')
           if (!isText(st.text)) at(`${p}.steps[${j}].text`, '需要 { en, zh }')
+          if (st.image && !isText(st.imageAlt)) at(`${p}.steps[${j}].imageAlt`, '有图就必须有 alt')
         }
+        // 只给一半步骤配图会排得参差不齐
+        const withImg = (s.steps ?? []).filter((st) => st.image).length
+        if (withImg > 0 && withImg < (s.steps?.length ?? 0))
+          at(`${p}.steps`, `要配图就每步都配（现在 ${s.steps.length} 步里只有 ${withImg} 步有图）`)
+        if (s.proofValue !== undefined && !isText(s.proofValue))
+          at(`${p}.proofValue`, '写了就要 { en, zh }')
+        if (isText(s.proofValue) && !isText(s.proofNote))
+          at(`${p}.proofNote`, '填了 proofValue 就要说明这个数值的出处')
         break
+      }
       case 'compare':
         for (const k of ['area', 'before', 'after']) {
           if (!isText(s.labels?.[k])) at(`${p}.labels.${k}`, '需要 { en, zh }（表头）')
@@ -125,6 +144,7 @@ function collectImages(data) {
   for (const s of data.sections ?? []) {
     if (s.image) files.add(s.image)
     for (const c of s.cards ?? []) if (c.image) files.add(c.image)
+    for (const st of s.steps ?? []) if (st.image) files.add(st.image)
   }
   return [...files]
 }
@@ -141,7 +161,12 @@ async function resolveAsset(assetsDir, outDir, file) {
 
 /** JSON 章节 → Payload block（en）。media 是文件名 → media id 的映射 */
 function sectionToBlockEn(s, media) {
-  const base = { blockType: BLOCK_TYPE[s.type], kicker: en(s.kicker), heading: en(s.heading) }
+  const base = {
+    blockType: BLOCK_TYPE[s.type],
+    kicker: en(s.kicker),
+    heading: en(s.heading),
+    intro: en(s.intro),
+  }
   switch (s.type) {
     case 'split':
       return {
@@ -150,7 +175,7 @@ function sectionToBlockEn(s, media) {
         points: s.points.map((p) => ({ label: en(p.label), text: en(p.text) })),
       }
     case 'figure':
-      return { ...base, intro: en(s.intro), image: media[s.image], banner: en(s.banner) }
+      return { ...base, image: media[s.image], banner: en(s.banner) }
     case 'cards':
       return {
         ...base,
@@ -162,7 +187,16 @@ function sectionToBlockEn(s, media) {
         })),
       }
     case 'steps':
-      return { ...base, steps: s.steps.map((st) => ({ title: en(st.title), text: en(st.text) })) }
+      return {
+        ...base,
+        steps: s.steps.map((st) => ({
+          image: st.image ? media[st.image] : undefined,
+          title: en(st.title),
+          text: en(st.text),
+        })),
+        proofValue: en(s.proofValue),
+        proofNote: en(s.proofNote),
+      }
     case 'compare':
       return {
         ...base,
@@ -178,7 +212,7 @@ function sectionToBlockEn(s, media) {
 
 /** JSON 章节 → 只含中文叶子字段的对象（结构与 en 一致，供 mergeLocale 合并） */
 function sectionToZh(s) {
-  const base = { kicker: zh(s.kicker), heading: zh(s.heading) }
+  const base = { kicker: zh(s.kicker), heading: zh(s.heading), intro: zh(s.intro) }
   switch (s.type) {
     case 'split':
       return {
@@ -187,14 +221,19 @@ function sectionToZh(s) {
         points: s.points.map((p) => ({ label: zh(p.label), text: zh(p.text) })),
       }
     case 'figure':
-      return { ...base, intro: zh(s.intro), banner: zh(s.banner) }
+      return { ...base, banner: zh(s.banner) }
     case 'cards':
       return {
         ...base,
         cards: s.cards.map((c) => ({ tag: zh(c.tag), title: zh(c.title), text: zh(c.text) })),
       }
     case 'steps':
-      return { ...base, steps: s.steps.map((st) => ({ title: zh(st.title), text: zh(st.text) })) }
+      return {
+        ...base,
+        steps: s.steps.map((st) => ({ title: zh(st.title), text: zh(st.text) })),
+        proofValue: zh(s.proofValue),
+        proofNote: zh(s.proofNote),
+      }
     case 'compare':
       return {
         ...base,
@@ -290,13 +329,18 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
   const idBySlug = new Map((prods.docs ?? []).map((d) => [d.slug, d.id]))
   const relatedProducts = (data.relatedProducts ?? []).map((s) => idBySlug.get(s)).filter(Boolean)
   const missingProducts = (data.relatedProducts ?? []).filter((s) => !idBySlug.has(s))
-  if (missingProducts.length) console.warn(`⚠️ 站上没有这些产品，已跳过关联：${missingProducts.join(', ')}`)
+  if (missingProducts.length)
+    console.warn(`⚠️ 站上没有这些产品，已跳过关联：${missingProducts.join(', ')}`)
 
   if (DRY) {
     console.log(`将${existing ? '覆盖' : '创建'}案例：${data.slug}`)
     console.log(`  EN：${data.title.en}　|　ZH：${data.title.zh}`)
-    console.log(`  图片：${imageFiles.length} 张${imageFiles.some((f) => /\.svg$/i.test(f)) ? '（SVG 会转 PNG）' : ''}`)
-    console.log(`  所属行业：${industryId ? data.industry : '（无）'}　|　关联产品：${relatedProducts.length} 个`)
+    console.log(
+      `  图片：${imageFiles.length} 张${imageFiles.some((f) => /\.svg$/i.test(f)) ? '（SVG 会转 PNG）' : ''}`,
+    )
+    console.log(
+      `  所属行业：${industryId ? data.industry : '（无）'}　|　关联产品：${relatedProducts.length} 个`,
+    )
     console.log(`  成果指标：${data.metrics?.length ?? 0} 条`)
     console.log(`\n  ${data.sections.length} 个章节：`)
     data.sections.forEach((s, i) => {
@@ -307,10 +351,17 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
   }
 
   // 覆盖前记下现有引用的图，--prune 时写入成功后删掉
+  // 去重：同一张图可能同时被卡片和步骤引用，重复删第二次会 404
   const oldMediaIds = existing
     ? [
-        existing.coverImage,
-        ...(existing.sections ?? []).flatMap((b) => [b.image, ...(b.cards ?? []).map((c) => c.image)]),
+        ...new Set([
+          existing.coverImage,
+          ...(existing.sections ?? []).flatMap((b) => [
+            b.image,
+            ...(b.cards ?? []).map((c) => c.image),
+            ...(b.steps ?? []).map((s) => s.image),
+          ]),
+        ]),
       ].filter((v) => typeof v === 'number')
     : []
 
@@ -334,6 +385,7 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     location: data.location?.en,
     completedAt: data.completedAt ? `${data.completedAt}-01T00:00:00.000Z` : undefined,
     metrics: (data.metrics ?? []).map((m) => ({ value: m.value.en, label: m.label.en })),
+    highlights: (data.highlights ?? []).map((h) => ({ label: h.en })),
     sections: data.sections.map((s) => sectionToBlockEn(s, media)),
     // 简版正文清空：本案例走章节排版，两者都有会重复渲染一遍。
     // body 是 localized 字段，这里只清 en，zh 在下面的 PATCH 里再清一次
@@ -342,7 +394,10 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
 
   let id
   if (existing) {
-    const r = await api(`/api/case-studies/${existing.id}?locale=en`, { method: 'PATCH', body: payloadEn })
+    const r = await api(`/api/case-studies/${existing.id}?locale=en`, {
+      method: 'PATCH',
+      body: payloadEn,
+    })
     id = r.doc.id
     console.log(`✓ 已更新 en 内容（id ${id}）`)
   } else {
@@ -364,6 +419,9 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
           value: zh(data.metrics?.[i]?.value),
           label: zh(data.metrics?.[i]?.label),
         }),
+      ),
+      highlights: (saved.highlights ?? []).map((row, i) =>
+        mergeLocale(row, { label: zh(data.highlights?.[i]) }),
       ),
       sections: (saved.sections ?? []).map((block, i) =>
         mergeLocale(block, sectionToZh(data.sections[i])),
@@ -422,6 +480,9 @@ function altFor(data, file) {
     if (s.image === file) return { en: en(s.imageAlt), zh: zh(s.imageAlt) ?? en(s.imageAlt) }
     for (const c of s.cards ?? []) {
       if (c.image === file) return { en: en(c.imageAlt), zh: zh(c.imageAlt) ?? en(c.imageAlt) }
+    }
+    for (const st of s.steps ?? []) {
+      if (st.image === file) return { en: en(st.imageAlt), zh: zh(st.imageAlt) ?? en(st.imageAlt) }
     }
   }
   return { en: en(data.title), zh: zh(data.title) ?? en(data.title) }

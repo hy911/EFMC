@@ -37,6 +37,19 @@ const sectionHead: Field[] = [
       },
     },
   },
+  {
+    // 章节引言：标题下方那段铺垫，各版式都有；可留空
+    name: 'intro',
+    label: { en: 'Intro', zh: '章节引言' },
+    type: 'textarea',
+    localized: true,
+    admin: {
+      description: {
+        en: 'One or two sentences under the heading, before the content below. Optional.',
+        zh: '标题与下方内容之间的一两句铺垫；可留空。',
+      },
+    },
+  },
 ]
 
 /** 01 · 问题陈述：左侧大标题，右侧引语 + 问题清单 */
@@ -94,12 +107,6 @@ export const CaseFigureBlock: Block = {
   },
   fields: [
     ...sectionHead,
-    {
-      name: 'intro',
-      label: { en: 'Intro', zh: '引言' },
-      type: 'textarea',
-      localized: true,
-    },
     {
       name: 'image',
       label: { en: 'Image', zh: '图片' },
@@ -209,6 +216,19 @@ export const CaseStepsBlock: Block = {
       },
       fields: [
         {
+          // 配图可选：全部步骤都配图才好看，只配一半会参差不齐
+          name: 'image',
+          label: { en: 'Image', zh: '配图' },
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: {
+              en: 'Optional. Give every step an image or none — a half-filled row looks broken.',
+              zh: '可留空。要配就每步都配，只配一半会参差不齐。',
+            },
+          },
+        },
+        {
           name: 'title',
           label: { en: 'Title', zh: '步骤名' },
           type: 'text',
@@ -223,6 +243,31 @@ export const CaseStepsBlock: Block = {
           localized: true,
         },
       ],
+    },
+    {
+      // 佐证条：步骤条下方的深色数据块，如「5 秒响应（上一版为 5 分钟）」
+      name: 'proofValue',
+      label: { en: 'Proof Value', zh: '佐证数值' },
+      type: 'text',
+      localized: true,
+      admin: {
+        description: {
+          en: 'Large figure under the strip, e.g. "5 sec". Optional; needs Proof Note too.',
+          zh: '步骤条下方的大字数值，如「5 秒」；可留空，填了就要一并填佐证说明。',
+        },
+      },
+    },
+    {
+      name: 'proofNote',
+      label: { en: 'Proof Note', zh: '佐证说明' },
+      type: 'textarea',
+      localized: true,
+      admin: {
+        description: {
+          en: 'What the figure means and where it comes from.',
+          zh: '这个数值是什么、出处在哪。',
+        },
+      },
     },
   ],
 }

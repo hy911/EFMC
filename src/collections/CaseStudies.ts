@@ -115,6 +115,28 @@ export const CaseStudies: CollectionConfig = {
       ],
     },
     {
+      // 页头导语下方的能力标签，如「人牛分类 / 分区控制 / AI+PLC 闭环」
+      name: 'highlights',
+      label: { en: 'Capability Tags', zh: '能力标签' },
+      type: 'array',
+      maxRows: 4,
+      admin: {
+        description: {
+          en: 'Short phrases shown under the lead paragraph in the page header. 2–4 works best.',
+          zh: '页头导语下方的短语标签，2–4 个最合适。',
+        },
+      },
+      fields: [
+        {
+          name: 'label',
+          label: { en: 'Label', zh: '标签' },
+          type: 'text',
+          required: true,
+          localized: true,
+        },
+      ],
+    },
+    {
       // 排版化正文：编号章节，每块一种版式（见 src/blocks/case.ts）
       name: 'sections',
       label: { en: 'Sections', zh: '案例章节' },
