@@ -225,21 +225,34 @@ crontab -e
 | postgres 容器拒绝启动 | postgres:18 镜像改了数据目录约定 | 卷挂 `/var/lib/postgresql`（不带 `/data`），已在 `docker-compose.yml` |
 | 库刚起还没就绪就 build | 首次 initdb 需要时间 | `deploy.sh` 加了 `pg_isready` 就绪门 |
 | `pnpm i` 报 `ERR_PNPM_IGNORED_BUILDS` | corepack 拉到更严格的 pnpm 默认版 | Dockerfile 钉死 pnpm 10.33.0 + `ignoredBuiltDependencies` |
-| `next build` 卡在 "Creating an optimized production build" 十几分钟不动 | `--max-old-space-size` 设得比物理内存还大（曾是 8000，机器只有 4GB），Node 不及早 GC 而是申请进 swap 疯狂换页 | `package.json` 的 build 脚本钉在 2800（≈ 内存的 70%，Postgres 容器还要占一部分）。换机器再调，别删 |
+| 构建到一半 SSH 断开、之后再也连不上，只能去服务商控制台强制重启 | 构建把内存吃光触发内核 OOM，被杀的往往是 sshd | 加 swap + 把 `--max-old-space-size` 降到 2048，见下节 |
+| `next build` 卡在 "Creating an optimized production build" 十几分钟不动 | 同上的前兆：堆设得比可用内存大（曾是 8000，机器只有 4GB），Node 不及早 GC 而是一路申请、开始换页 | `package.json` 的 build 脚本钉在 2048。换机器再调，别删 |
 
-### 构建太慢怎么办
+### 构建把服务器跑死了怎么办
 
-生产机是 2 核 4GB，`next build` 在这个配置上跑十分钟上下属于正常——Turbopack 编译 + SSG 预渲染两件事都吃 CPU。先确认不是内存问题：
+**先救机器**：SSH 已经进不去的话，只能去 VPS 服务商控制台强制重启。内存被吃光时 sshd 连 fork 都做不到，等不回来。
 
-```bash
-nproc && free -h && swapon --show
-```
-
-没有 swap 就补 2G，避免峰值时被内核 OOM 杀掉（有 swap 只是慢，没有就是直接失败）：
+**再做三件事，之后就不会再被关在门外**（一次性，重启后仍生效）：
 
 ```bash
-fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+# 1. 加 4G swap —— 有 swap 只是慢，没有就是被 OOM 直接杀
+fallocate -l 4G /swapfile && chmod 600 /swapfile
+mkswap /swapfile && swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+# 2. 让 sshd 免于被 OOM 杀掉，保证任何情况下还能登进来
+mkdir -p /etc/systemd/system/ssh.service.d
+printf '[Service]\nOOMScoreAdjust=-900\n' > /etc/systemd/system/ssh.service.d/oom.conf
+systemctl daemon-reload && systemctl restart ssh
+
+# 3. 构建放 tmux 里跑，SSH 断线不会连带杀掉构建
+tmux new -s deploy
+# 在 tmux 里：bash deploy.sh
+# 断线后：tmux attach -t deploy
 ```
 
-改完仍嫌慢，就别在生产机上构建了：让 GitHub Actions 构建镜像推 GHCR，服务器只 `docker compose pull` + `up -d`。服务器侧从十几分钟降到一分钟，且构建不再抢生产机的 CPU 和内存。代价是要改 CI workflow、compose 的 `image:` 与一次 GHCR 认证。
+`deploy.sh` 起手会检查 swap，没有就直接拦下并打印上面这段。
+
+**2 核 4GB 上构建十分钟上下是正常水位**，Turbopack 编译和 SSG 预渲染都吃 CPU。慢不要紧，别把机器闷死。
+
+嫌慢只有两条路：升级到 4 核（每月多几十块，改动为零），或把构建挪到 GitHub Actions（公开仓库免费，但本项目构建期要连库跑迁移和预渲染，搬走等于重构构建架构 —— 页面得改成运行时渲染 + ISR，迁移要拆成部署时的独立步骤）。以当前部署频率，前者更划算。

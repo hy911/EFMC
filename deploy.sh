@@ -5,6 +5,40 @@
 # =============================================================================
 set -e
 
+# ---------------------------------------------------------------------------
+# 起飞前检查：内存
+#
+# next build 是这台机器上最吃内存的一步（Turbopack 编译 + SSG 预渲染）。
+# 小内存 VPS 上没有 swap 时，峰值会把内存吃光 —— 内核 OOM 杀进程，sshd
+# 往往先死，表现为「构建到一半 SSH 断开且再也连不上，只能去服务商控制台
+# 强制重启」。有 swap 的话只是变慢，机器还活着。
+# ---------------------------------------------------------------------------
+if [ "$(free -m 2>/dev/null | awk '/^Swap:/ {print $2}')" = "0" ]; then
+  MEM_MB=$(free -m | awk '/^Mem:/ {print $2}')
+  echo "✗ 这台机器没有 swap（内存 ${MEM_MB}MB）。构建期很可能把内存吃光、把 sshd 一起杀掉。"
+  echo ''
+  echo '  先加 4G swap 再部署（一次性操作，重启后仍生效）：'
+  echo '    fallocate -l 4G /swapfile && chmod 600 /swapfile'
+  echo '    mkswap /swapfile && swapon /swapfile'
+  echo "    echo '/swapfile none swap sw 0 0' >> /etc/fstab"
+  echo ''
+  echo '  另外建议让 sshd 免于被 OOM 杀掉，保证任何情况下还能登进来：'
+  echo '    mkdir -p /etc/systemd/system/ssh.service.d'
+  echo "    printf '[Service]\\nOOMScoreAdjust=-900\\n' > /etc/systemd/system/ssh.service.d/oom.conf"
+  echo '    systemctl daemon-reload && systemctl restart ssh'
+  echo ''
+  echo '  确认要冒险继续：SKIP_SWAP_CHECK=1 bash deploy.sh'
+  [ -z "$SKIP_SWAP_CHECK" ] && exit 1
+fi
+
+# 构建很慢（2 核机器十分钟上下）。SSH 断线会连带杀掉构建，用 tmux 兜一下。
+if [ -z "$TMUX" ] && [ -z "$SKIP_TMUX_HINT" ] && command -v tmux >/dev/null 2>&1; then
+  echo '提示：构建耗时较长，建议在 tmux 里跑，SSH 断了也不会中断：'
+  echo '  tmux new -s deploy   然后在里面执行 bash deploy.sh'
+  echo '  （断线后用 tmux attach -t deploy 回到现场）'
+  echo ''
+fi
+
 # .env 里设了 CLOUDFLARE_TUNNEL_TOKEN 就一并启动 cloudflared（tunnel profile）；
 # 没设则按纯 app + postgres 部署（比如改用 Caddy/自建反代的场景）。
 if grep -qE '^CLOUDFLARE_TUNNEL_TOKEN=.+' .env 2>/dev/null; then

@@ -41,10 +41,11 @@ ENV DATABASE_URL=$DATABASE_URL \
 
 # 先跑数据库迁移（首次部署建表），再构建（预渲染需要查库）
 #
-# 注意 package.json 的 build 脚本把 --max-old-space-size 钉在 2800（生产 VPS 是
-# 2 核 4GB，Postgres 容器还占着几百 MB）。这个值不是「越大越好」：给的堆比物理内存
-# 大时，Node 不会及早 GC 而是一路申请进 swap，构建从几分钟变成十几分钟且不报错。
-# 换更大的机器再往上调，别直接删。
+# 注意 package.json 的 build 脚本把 --max-old-space-size 钉在 2048（生产 VPS 是
+# 2 核 4GB，同机还跑着 Postgres 与上一版 app 容器）。这个值不是「越大越好」：
+# 给的堆比可用内存大时，Node 不会及早 GC 而是一路申请，最终触发内核 OOM ——
+# 被杀的往往是 sshd，表现为「构建到一半 SSH 断开且再也连不上」。
+# 换更大的机器再往上调，别直接删。宁可慢，不要把机器闷死。
 RUN pnpm payload migrate && pnpm build
 
 # ---------- 运行层：仅 standalone 产物 ----------
