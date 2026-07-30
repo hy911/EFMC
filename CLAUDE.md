@@ -39,6 +39,17 @@ e2e 的 `webServer` 会自己 `pnpm dev` 起服务（`reuseExistingServer: true`
 
 注意：dev 模式 Drizzle 会交互式询问 schema 变更（列改名 vs 新建），无人值守环境下会卡住——schema 变更一律走 `migrate:create` + `migrate`，别依赖 dev push。已被 dev push 污染过的库还有第二道坎：`payload migrate` 自己也会弹一次 `data loss will occur … (y/N)` 确认，而输出被 pipe 时看不到提示符，表现为**命令永久挂起、零输出**。无人值守用 `yes y | pnpm payload migrate`（确认接受丢数据，跑完补 `pnpm seed`）。
 
+**改 collection / block 定义之前先停掉 dev server。** dev server 一直在跑的话，改完文件它会立刻热重载并把新 schema push 进库；随后 `migrate` 就会撞 `relation … already exists` / `type … already exists` 而整条迁移失败（迁移是一个事务里的多条语句，前面几条建过的表不会回滚）。这个坑在本项目连踩三次（`case_studies_highlights` 表、章节 `intro` 列、`enum_..._case_cards_layout` 枚举）。
+
+已经撞上了就得手工回滚 dev push 建的东西，再重跑迁移。先读迁移文件确认它到底建了什么：
+
+```bash
+grep -o 'CREATE TABLE "[a-z_]*"' src/migrations/<name>.ts
+grep -o 'ADD COLUMN "[a-z_]*"' src/migrations/<name>.ts
+```
+
+然后写个临时 tsx 脚本，用 `payload.db.pool.query()` 执行 `DROP TABLE IF EXISTS`（删之前先 `select count(*)` 确认是空表）/ `ALTER TABLE … DROP COLUMN IF EXISTS` / `DROP TYPE IF EXISTS`，最后 `yes y | pnpm payload migrate`。注意 `pg` 不是直接依赖，脚本里连库要走 `getPayload({ config })` 拿 `payload.db.pool`，不能 `import pg`。
+
 ## 架构要点（跨文件才能看懂的部分）
 
 ### 两层多语言，别混淆
@@ -70,7 +81,7 @@ e2e 的 `webServer` 会自己 `pnpm dev` 起服务（`reuseExistingServer: true`
 1. slug 用 `src/fields/slug.ts` 的 `slugField()`（自带 beforeValidate 自动生成、非 localized）；SEO 用 `src/fields/seo.ts` 的 `seoField`（metaTitle/metaDescription/ogImage，前端在 `generateMetadata()` 消费）
 2. access 用 `src/access/index.ts` 的 `anyone`/`authenticated`/`noOne`，不要在 collection 里内联匿名函数
 3. 挂 `src/hooks/revalidate.ts` 的 afterChange 钩子 → 补 `src/app/sitemap.ts` → 补 `src/lib/queries.ts` 查询函数
-4. `pnpm payload migrate:create <name>` + `pnpm generate:types`（两个都要，迁移文件进 git）
+4. **先停 dev server**，再 `pnpm payload migrate:create <name>` + `pnpm generate:types`（两个都要，迁移文件进 git）
 
 ### Payload localized 数组/blocks 的一个坑
 
@@ -105,3 +116,11 @@ Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env
 - eslint.config.mjs 用 eslint-config-next 16 的原生 flat 导出，不要退回 FlatCompat 写法（会崩）
 - CI（`.github/workflows/ci.yml`）跑真实 postgres:18 service，顺序与生产一致：lint → tsc → migrate → build → test:int → test:e2e。本地想复现 CI 失败就按这个顺序跑
 - 深入文档在 `docs/`：`DEPLOYMENT.md`（VPS/Docker/Cloudflare 全流程）、`MAINTENANCE.md`（备份/升级/排障）、`ADMIN_GUIDE.md`（给运营的后台使用说明）；`README.md` 有本地起步与二期进度
+
+### 内容导入脚本（scripts/）
+
+生产内容不靠手工录入，走 REST API 脚本导入。凭据从 `.env.import` 读（模板 `.env.import.example`，实际文件已 gitignore），命令行前缀的环境变量优先于文件。公共封装在 `scripts/lib/payload-api.mjs`。
+
+客户案例是**内容与代码分离**的：`scripts/import-case-study.mjs <case.json>` 是通用导入器，内容放 `scripts/data/cases/*.json`。字段契约见 `docs/CASE_STUDY_JSON.md` —— 那份文档同时是给外部写手（含客户的 AI 助手）的交付规范，改积木块字段时要同步更新它，否则外部产出的 JSON 会缺字段。新案例不要再写专用脚本。
+
+导入 localized blocks 的通用套路：先以 en 写入 → 回读拿到 block id 与数组行 id → `mergeLocale()` 把 zh 叶子字段合并进去再 PATCH。跳过回读会让数组被重建、en 内容全丢。写完自检要用 `?fallback-locale=none` 回读，否则 zh 为空时会回落成 en 的值，看不出漏翻。
