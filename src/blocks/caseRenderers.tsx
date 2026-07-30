@@ -217,36 +217,47 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                     heading={block.heading}
                     intro={block.intro}
                   />
-                  <div
-                    className={`mt-13 grid grid-cols-1 border-t-2 border-accent sm:grid-cols-2 ${
-                      // 配图的步骤更宽才放得下，一行最多 3 个
-                      (block.steps?.length ?? 0) > 4 && !block.steps?.some((s) => s.image)
-                        ? 'lg:grid-cols-6'
-                        : 'lg:grid-cols-3'
-                    }`}
-                  >
-                    {(block.steps ?? []).map((step, s) => (
+                  {/*
+                    每格自带顶线，不用「整条顶线 + 格间竖线」那套。
+                    格间线要求判断某一格是不是行尾 / 末行，而每个断点的列数不同，
+                    CSS 判断不出来 —— 4 步排 3 列（3+1）这种非满行必然错位。
+                    每格一条线则行数、列数怎么变都成立，也和本页价值卡片一致。
+
+                    列数按步数来：配了图的格子更宽，一行最多 3 个。
+                  */}
+                  {(() => {
+                    const steps = block.steps ?? []
+                    const withImages = steps.some((s) => s.image)
+                    const cols = withImages
+                      ? 'lg:grid-cols-3'
+                      : { 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-6' }[
+                          steps.length
+                        ] || 'lg:grid-cols-3'
+                    return (
                       <div
-                        key={step.id}
-                        className="border-b border-line px-0 pt-[26px] pb-6 sm:px-[18px] sm:not-last:border-r lg:border-b-0"
+                        className={`mt-13 grid grid-cols-1 gap-x-7 gap-y-10 sm:grid-cols-2 ${cols}`}
                       >
-                        <b className="block text-[12px] font-bold tracking-[0.12em] text-accent">
-                          {num(s)}
-                        </b>
-                        {step.image && (
-                          <div className="relative mt-4 h-[150px] bg-mist">
-                            <MediaImage media={step.image} size="card" fill sizes="380px" />
+                        {steps.map((step, s) => (
+                          <div key={step.id} className="border-t-2 border-accent pt-[26px]">
+                            <b className="block text-[12px] font-bold tracking-[0.12em] text-accent">
+                              {num(s)}
+                            </b>
+                            {step.image && (
+                              <div className="relative mt-4 h-[150px] bg-mist">
+                                <MediaImage media={step.image} size="card" fill sizes="380px" />
+                              </div>
+                            )}
+                            <strong className="mt-2.5 block text-[16px] leading-[1.3] font-semibold text-navy">
+                              {step.title}
+                            </strong>
+                            <span className="mt-2 block text-[13px] leading-[1.5] text-steel">
+                              {step.text}
+                            </span>
                           </div>
-                        )}
-                        <strong className="mt-2.5 block text-[16px] leading-[1.3] font-semibold text-navy">
-                          {step.title}
-                        </strong>
-                        <span className="mt-2 block text-[13px] leading-[1.5] text-steel">
-                          {step.text}
-                        </span>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    )
+                  })()}
                   {/* 佐证条：一个数值 + 出处说明，如「5 秒（上一版为 5 分钟）」 */}
                   {block.proofValue && (
                     <div className="mt-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 bg-navy px-[30px] py-[26px]">
