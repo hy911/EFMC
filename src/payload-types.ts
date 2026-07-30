@@ -548,6 +548,10 @@ export interface CaseStudy {
              */
             intro?: string | null;
             /**
+             * Bento needs 4+ cards with images to look deliberate; with fewer it just looks uneven.
+             */
+            layout?: ('uniform' | 'bento') | null;
+            /**
              * With images: two per row, image on the left. Without images: three per row.
              */
             cards?:
@@ -1132,6 +1136,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              layout?: T;
               cards?:
                 | T
                 | {

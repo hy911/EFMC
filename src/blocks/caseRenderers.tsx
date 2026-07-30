@@ -72,7 +72,12 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                 <Container className={SECTION}>
                   <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
                     <div>
-                      <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
+                      <SectionHead
+                        index={i}
+                        kicker={block.kicker}
+                        heading={block.heading}
+                        intro={block.intro}
+                      />
                     </div>
                     <div>
                       {block.quote && (
@@ -103,7 +108,12 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
+                  <SectionHead
+                    index={i}
+                    kicker={block.kicker}
+                    heading={block.heading}
+                    intro={block.intro}
+                  />
                   {/* 示意图按原始比例展示、不裁切；用原图而非 feature（1280px 在 2 倍屏上会糊） */}
                   <div className="mt-12 border border-line bg-white p-2 sm:p-[22px]">
                     <MediaImage
@@ -121,48 +131,75 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
               </section>
             )
 
-          /* 卡片网格：有图两栏（图在左），无图三栏 */
+          /* 卡片网格：有图两栏（图在左），无图三栏；拼贴时首末两张通栏 */
           case 'caseCards': {
             const cards = block.cards ?? []
             const withImages = cards.some((card) => card.image)
+            // 拼贴要有图、且至少 4 张才成立，否则退回等宽网格
+            const bento = block.layout === 'bento' && withImages && cards.length >= 4
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
+                  <SectionHead
+                    index={i}
+                    kicker={block.kicker}
+                    heading={block.heading}
+                    intro={block.intro}
+                  />
                   <div
                     className={`mt-12 grid grid-cols-1 gap-7 ${
                       withImages ? 'lg:grid-cols-2' : 'sm:grid-cols-3'
                     }`}
                   >
-                    {cards.map((card) => (
-                      <article
-                        key={card.id}
-                        className={
-                          withImages
-                            ? 'grid grid-cols-1 gap-7 border-t border-line pt-[26px] sm:grid-cols-[190px_1fr]'
-                            : 'border-t-4 border-accent pt-[22px]'
-                        }
-                      >
-                        {card.image && (
-                          <div className="relative h-[210px] bg-mist sm:h-[155px]">
-                            <MediaImage media={card.image} size="card" fill sizes="380px" />
-                          </div>
-                        )}
-                        <div>
-                          {card.tag && (
-                            <div className="mb-2 text-[12px] font-bold tracking-[0.16em] text-accent uppercase">
-                              {card.tag}
+                    {cards.map((card, c) => {
+                      const spans = bento && (c === 0 || c === cards.length - 1)
+                      return (
+                        <article
+                          key={card.id}
+                          className={[
+                            withImages
+                              ? 'grid grid-cols-1 gap-7 border-t border-line pt-[26px]'
+                              : 'border-t-4 border-accent pt-[22px]',
+                            // 通栏卡：横跨两列，图片给到更大的比例
+                            spans
+                              ? 'lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_380px]'
+                              : withImages
+                                ? 'sm:grid-cols-[190px_1fr]'
+                                : '',
+                          ]
+                            .filter(Boolean)
+                            .join(' ')}
+                        >
+                          {card.image && (
+                            <div
+                              className={`relative bg-mist ${
+                                spans ? 'h-[240px] lg:h-[320px]' : 'h-[210px] sm:h-[155px]'
+                              }`}
+                            >
+                              <MediaImage
+                                media={card.image}
+                                size={spans ? 'feature' : 'card'}
+                                fill
+                                sizes={spans ? '740px' : '380px'}
+                              />
                             </div>
                           )}
-                          <h3 className="m-0 font-display text-[24px] leading-[1.25] font-bold text-navy">
-                            {card.title}
-                          </h3>
-                          <p className="mt-3.5 mb-0 text-[16px] leading-[1.65] text-steel">
-                            {card.text}
-                          </p>
-                        </div>
-                      </article>
-                    ))}
+                          <div className={spans ? 'lg:self-center' : ''}>
+                            {card.tag && (
+                              <div className="mb-2 text-[12px] font-bold tracking-[0.16em] text-accent uppercase">
+                                {card.tag}
+                              </div>
+                            )}
+                            <h3 className="m-0 font-display text-[24px] leading-[1.25] font-bold text-navy">
+                              {card.title}
+                            </h3>
+                            <p className="mt-3.5 mb-0 text-[16px] leading-[1.65] text-steel">
+                              {card.text}
+                            </p>
+                          </div>
+                        </article>
+                      )
+                    })}
                   </div>
                 </Container>
               </section>
@@ -174,7 +211,12 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
+                  <SectionHead
+                    index={i}
+                    kicker={block.kicker}
+                    heading={block.heading}
+                    intro={block.intro}
+                  />
                   <div
                     className={`mt-13 grid grid-cols-1 border-t-2 border-accent sm:grid-cols-2 ${
                       // 配图的步骤更宽才放得下，一行最多 3 个
@@ -227,7 +269,12 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             return (
               <section key={block.id} className={bg}>
                 <Container className={SECTION}>
-                  <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} />
+                  <SectionHead
+                    index={i}
+                    kicker={block.kicker}
+                    heading={block.heading}
+                    intro={block.intro}
+                  />
                   {/* 窄屏横向滚动，页面本身不出现横向滚动条 */}
                   <div className="mt-11 overflow-x-auto">
                     <table className="w-full min-w-[760px] border-collapse text-left">
@@ -270,7 +317,13 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
               <section key={block.id} className="bg-navy text-white">
                 <Container className="py-[80px] text-center lg:py-[110px]">
                   <div className="mx-auto max-w-[980px]">
-                    <SectionHead index={i} kicker={block.kicker} heading={block.heading} intro={block.intro} dark />
+                    <SectionHead
+                      index={i}
+                      kicker={block.kicker}
+                      heading={block.heading}
+                      intro={block.intro}
+                      dark
+                    />
                     {block.body && (
                       <p className="mx-auto mt-6 mb-0 max-w-[740px] text-[19px] leading-[1.65] text-cloud">
                         {block.body}

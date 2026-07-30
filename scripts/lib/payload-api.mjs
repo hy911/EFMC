@@ -1,11 +1,21 @@
 /**
  * Payload REST API 的公共封装，供 scripts/ 下各导入脚本复用。
  *
- * 凭据只从环境变量读，不打印、不落盘：
- *   PAYLOAD_URL / PAYLOAD_EMAIL / PAYLOAD_PASSWORD
+ * 凭据来源，按优先级：
+ *   1. 命令行前缀的环境变量（PAYLOAD_URL=... node scripts/xxx.mjs）
+ *   2. 项目根的 .env.import（推荐；已 gitignore，不进仓库）
+ *   3. 项目根的 .env
+ * 读到后不打印、不落盘。已存在的环境变量不会被文件覆盖，
+ * 所以「平时用文件里的生产站，临时改本地」只要在命令前加一次变量即可。
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import dotenv from 'dotenv'
+
+// override: false —— 命令行传进来的优先，文件只补缺失的
+for (const file of ['.env.import', '.env']) {
+  dotenv.config({ path: path.resolve(process.cwd(), file), override: false, quiet: true })
+}
 
 const URL_BASE = (process.env.PAYLOAD_URL || '').replace(/\/$/, '')
 const EMAIL = process.env.PAYLOAD_EMAIL
@@ -15,10 +25,14 @@ let token = ''
 
 export function requireEnv() {
   if (!URL_BASE || !EMAIL || !PASSWORD) {
-    console.error(`缺少环境变量。请先设置：
-  PAYLOAD_URL       目标站点（如 http://localhost:3000）
-  PAYLOAD_EMAIL     后台账号
-  PAYLOAD_PASSWORD  后台密码`)
+    console.error(`缺少凭据。在项目根建 .env.import（已 gitignore），内容：
+
+  PAYLOAD_URL=https://efmc-automation.com
+  PAYLOAD_EMAIL=你的后台账号
+  PAYLOAD_PASSWORD=你的后台密码
+
+照 .env.import.example 抄一份改掉即可。临时换目标站点就在命令前加：
+  PAYLOAD_URL=http://localhost:3000 node scripts/xxx.mjs`)
     process.exit(1)
   }
   return URL_BASE

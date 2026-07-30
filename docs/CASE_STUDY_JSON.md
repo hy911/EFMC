@@ -84,6 +84,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 {
   "type": "cards",
   "kicker": {}, "heading": {}, "intro": {},
+  "layout": "bento",
   "cards": [{
     "image": "plc-panel.jpg",
     "imageAlt": {},
@@ -95,6 +96,8 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 
 **有图**：每行 2 张、图在左，适合介绍系统组成部件。
 **无图**（省略 `image`）：每行 3 张，适合价值点、测试结果。
+
+`layout` 可省，默认 `"uniform"` 等宽。填 `"bento"` 则首尾两张通栏、中间两张并排（大·中·中·宽），适合介绍系统分层。**bento 要 4 张以上带图卡片**，不够会被导入器拦下——少于 4 张排出来只是参差不齐，不是层次感。
 
 ### `steps` — 步骤条
 
@@ -204,4 +207,14 @@ node scripts/import-case-study.mjs <json> --replace --prune    # 顺带删掉被
 node scripts/import-case-study.mjs <json> --assets "D:/某目录"  # 覆盖素材目录
 ```
 
-凭据走环境变量 `PAYLOAD_URL` / `PAYLOAD_EMAIL` / `PAYLOAD_PASSWORD`。
+凭据从 `.env.import` 读（照 `.env.import.example` 抄一份填好，已 gitignore）：
+
+```bash
+cp .env.import.example .env.import
+```
+
+临时换目标站点不用改文件，命令前加变量即可（命令行优先于文件）：
+
+```bash
+PAYLOAD_URL=http://localhost:3000 node scripts/import-case-study.mjs <json> --dry-run
+```

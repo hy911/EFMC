@@ -145,6 +145,25 @@ export const CaseCardsBlock: Block = {
   fields: [
     ...sectionHead,
     {
+      name: 'layout',
+      label: { en: 'Layout', zh: '排布方式' },
+      type: 'select',
+      defaultValue: 'uniform',
+      options: [
+        { label: { en: 'Uniform grid', zh: '等宽网格' }, value: 'uniform' },
+        {
+          label: { en: 'Bento (first & last span full width)', zh: '拼贴（首末两张通栏）' },
+          value: 'bento',
+        },
+      ],
+      admin: {
+        description: {
+          en: 'Bento needs 4+ cards with images to look deliberate; with fewer it just looks uneven.',
+          zh: '拼贴要 4 张以上带图卡片才成立，少于这个数只会显得参差不齐。',
+        },
+      },
+    },
+    {
       name: 'cards',
       label: { en: 'Cards', zh: '卡片' },
       type: 'array',

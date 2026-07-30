@@ -94,6 +94,10 @@ function validate(data) {
         if (!isText(s.imageAlt)) at(`${p}.imageAlt`, '必填，需要 { en, zh }（SEO 与无障碍都靠它）')
         break
       case 'cards':
+        if (s.layout && !['uniform', 'bento'].includes(s.layout))
+          at(`${p}.layout`, `只能是 uniform 或 bento，收到 "${s.layout}"`)
+        if (s.layout === 'bento' && (s.cards ?? []).filter((c) => c.image).length < 4)
+          at(`${p}.layout`, 'bento 拼贴要 4 张以上带图卡片，否则会排得参差不齐')
         if (!Array.isArray(s.cards) || s.cards.length === 0) at(`${p}.cards`, '至少一张')
         for (const [j, c] of (s.cards ?? []).entries()) {
           if (!isText(c.title)) at(`${p}.cards[${j}].title`, '需要 { en, zh }')
@@ -179,6 +183,7 @@ function sectionToBlockEn(s, media) {
     case 'cards':
       return {
         ...base,
+        layout: s.layout ?? 'uniform',
         cards: s.cards.map((c) => ({
           image: c.image ? media[c.image] : undefined,
           tag: en(c.tag),

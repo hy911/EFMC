@@ -419,7 +419,8 @@
       "intro": {
         "en": "The project combines visual acquisition, edge intelligence, deterministic PLC control and operational visibility.",
         "zh": "这个项目把视觉采集、边缘智能、确定性的 PLC 控制与运行可见性组合在一起。"
-      }
+      },
+      "layout": "bento"
     },
     {
       "type": "cards",
