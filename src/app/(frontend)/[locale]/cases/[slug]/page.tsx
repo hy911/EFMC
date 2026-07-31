@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { hasLocale } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { draftMode } from 'next/headers.js'
 import { notFound } from 'next/navigation'
 
 import { RenderCaseSections } from '@/blocks/caseRenderers'
@@ -10,6 +11,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat'
 import { Container } from '@/components/ui/Container'
+import { DraftBanner } from '@/components/ui/DraftBanner'
 import { MediaImage } from '@/components/ui/MediaImage'
 import { ProductCard } from '@/components/ui/ProductCard'
 import { RevealInit } from '@/components/ui/RevealInit'
@@ -17,7 +19,12 @@ import { routing, type Locale } from '@/i18n/routing'
 import { formatDate } from '@/lib/format'
 import { jsonLdScript, mediaUrl, simpleArticleJsonLd } from '@/lib/jsonld'
 import { getPayloadClient } from '@/lib/payload'
-import { getCaseStudyBySlug, getFeaturedProducts, getSiteSettings } from '@/lib/queries'
+import {
+  getCaseStudyBySlug,
+  getFeaturedProducts,
+  getSiteSettings,
+  PUBLISHED,
+} from '@/lib/queries'
 import { buildMeta, SITE_URL } from '@/lib/seo'
 
 type Props = {
@@ -31,6 +38,7 @@ export async function generateStaticParams() {
   const payload = await getPayloadClient()
   const { docs } = await payload.find({
     collection: 'case-studies',
+    where: PUBLISHED, // 草稿不预渲染，它只经预览链接访问
     limit: 1000,
     select: { slug: true },
   })
@@ -59,8 +67,11 @@ export default async function CaseStudyPage({ params }: Props) {
   const locale: Locale = hasLocale(routing.locales, raw) ? raw : routing.defaultLocale
   setRequestLocale(locale)
 
+  // 草稿模式由 /api/preview 打开（那里做鉴权）；开着就渲染最新草稿而非已发布版
+  const { isEnabled: isDraft } = await draftMode()
+
   const [cs, settings, footerProducts, t] = await Promise.all([
-    getCaseStudyBySlug(locale, slug),
+    getCaseStudyBySlug(locale, slug, isDraft),
     getSiteSettings(locale),
     getFeaturedProducts(locale, 4),
     getTranslations('casesPage'),
@@ -93,6 +104,7 @@ export default async function CaseStudyPage({ params }: Props) {
           ),
         }}
       />
+      {isDraft && <DraftBanner locale={locale} path={`/${locale}/cases/${slug}`} />}
       <Navbar />
       <main className="bg-white">
         {/* 页头：封面铺满，左侧深色渐变压出文字可读性 */}

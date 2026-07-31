@@ -5,6 +5,7 @@ import { caseBlocks } from '@/blocks/case'
 import { seoField } from '@/fields/seo'
 import { slugField } from '@/fields/slug'
 import { revalidateCaseStudy, revalidateCaseStudyDelete } from '@/hooks/revalidate'
+import { buildPreviewURL } from '@/lib/preview'
 
 /**
  * 客户案例（二期）—— B2B 信任背书核心内容：
@@ -21,6 +22,16 @@ export const CaseStudies: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'industry', 'completedAt', 'updatedAt'],
     group: { en: 'Content', zh: '内容管理' },
+    // 后台「预览」按钮：草稿态也能看到真实渲染效果（走 /api/preview 开草稿模式）
+    preview: (doc, { locale }) => buildPreviewURL('cases', doc?.slug as string, locale),
+  },
+  /**
+   * 草稿：外部写手交来的内容先导成草稿，拿预览链接反复改，满意了再发布。
+   * Payload 存草稿时不写主表（只写版本表），所以草稿不会顶掉线上已发布的内容。
+   */
+  versions: {
+    drafts: true,
+    maxPerDoc: 20,
   },
   access: {
     read: anyone,

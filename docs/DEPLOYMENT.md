@@ -101,6 +101,9 @@ RESEND_API_KEY=<第 1.1 步的 key>
 INQUIRY_NOTIFY_TO=<收询盘通知的运营邮箱>
 INQUIRY_NOTIFY_FROM=noreply@efmc-automation.com
 
+# 草稿预览令牌（发给外部写手的预览链接用；留空则只有后台登录用户能预览）
+PREVIEW_SECRET=<openssl rand -hex 16 的输出>
+
 # Turnstile（第 1.2 步）
 NEXT_PUBLIC_TURNSTILE_SITE_KEY=<Site Key>
 TURNSTILE_SECRET_KEY=<Secret Key>

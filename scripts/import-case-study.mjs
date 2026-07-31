@@ -7,6 +7,7 @@
  *   node scripts/import-case-study.mjs scripts/data/cases/<name>.json
  *   node scripts/import-case-study.mjs scripts/data/cases/<name>.json --replace        已存在时覆盖
  *   node scripts/import-case-study.mjs scripts/data/cases/<name>.json --replace --prune 顺带删掉被换下的旧图
+ *   node scripts/import-case-study.mjs <json> --draft                                  写成草稿，不动线上
  *   node scripts/import-case-study.mjs <json> --assets "D:/某目录"                      覆盖素材目录
  *
  * JSON 的字段格式见 docs/CASE_STUDY_JSON.md —— 那份文档同时是给外部写手
@@ -21,211 +22,37 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 import { api, login, requireEnv, uploadMedia } from './lib/payload-api.mjs'
+import {
+  BLOCK_TYPE,
+  checkAssets,
+  collectImages,
+  en,
+  findUntranslated,
+  validate,
+  zh,
+} from './lib/case-schema.mjs'
 
 const args = process.argv.slice(2)
 const DRY = args.includes('--dry-run')
 const REPLACE = args.includes('--replace')
 const PRUNE = args.includes('--prune')
+/**
+ * --draft：写成草稿而不是直接发布。
+ * Payload 存草稿时不写主表，所以线上已发布的那一版原样不动 ——
+ * 外部写手交来的内容先进草稿，拿预览链接改到满意，最后在后台点发布。
+ */
+const DRAFT = args.includes('--draft')
+/* 草稿态下所有读写都必须带 draft=true：主表里躺的是已发布版，
+   回读主表拿到的 block id 与草稿对不上，zh 会合并到错误的行上。 */
+const Q = DRAFT ? '&draft=true' : ''
+const STATUS = DRAFT ? { _status: 'draft' } : { _status: 'published' }
 const JSON_PATH = args.find((a) => !a.startsWith('--') && args[args.indexOf(a) - 1] !== '--assets')
 const ASSETS_ARG = args.includes('--assets') ? args[args.indexOf('--assets') + 1] : null
 
-/** block 类型简写 → Payload 的 blockType */
-const BLOCK_TYPE = {
-  split: 'caseSplit',
-  figure: 'caseFigure',
-  cards: 'caseCards',
-  steps: 'caseSteps',
-  compare: 'caseCompare',
-  statement: 'caseStatement',
-}
+/* 字段契约（BLOCK_TYPE / 校验规则）统一放 lib/case-schema.mjs：
+   那个文件外部写手也在直接跑（node case-schema.mjs case.json），
+   规则只能有一份，两处各写一套必然走样。 */
 
-const isText = (v) => v && typeof v === 'object' && typeof v.en === 'string' && v.en.trim() !== ''
-const en = (v) => v?.en
-const zh = (v) => (typeof v?.zh === 'string' && v.zh.trim() !== '' ? v.zh : undefined)
-
-/**
- * 校验 JSON，返回错误清单。宁可在这里啰嗦，也别让半截内容进库 ——
- * 外部写手拿到的应该是「第 3 个章节缺 heading.zh」这种能直接改的提示。
- */
-function validate(data) {
-  const errs = []
-  const at = (p, msg) => errs.push(`${p}：${msg}`)
-
-  if (!data.slug || !/^[a-z0-9-]+$/.test(data.slug))
-    at('slug', '必填，只能用小写字母、数字和连字符')
-  if (!isText(data.title)) at('title', '必填，需要 { en, zh }')
-  if (data.titleAccent !== undefined && !isText(data.titleAccent))
-    at('titleAccent', '写了就要 { en, zh }')
-  if (!isText(data.excerpt)) at('excerpt', '必填，需要 { en, zh }（列表卡片和页头导语都用它）')
-  if (!data.cover) at('cover', '必填，封面图文件名')
-  if (!Array.isArray(data.sections) || data.sections.length === 0)
-    at('sections', '至少要有一个章节')
-
-  for (const [i, m] of (data.metrics ?? []).entries()) {
-    if (!isText(m.value)) at(`metrics[${i}].value`, '需要 { en, zh }')
-    if (!isText(m.label)) at(`metrics[${i}].label`, '需要 { en, zh }')
-  }
-  if ((data.metrics?.length ?? 0) > 4) at('metrics', '最多 4 条（页头数据条一排放 4 个）')
-
-  for (const [i, h] of (data.highlights ?? []).entries()) {
-    if (!isText(h)) at(`highlights[${i}]`, '需要 { en, zh }')
-  }
-  if ((data.highlights?.length ?? 0) > 4) at('highlights', '最多 4 个能力标签')
-
-  for (const [i, s] of (data.sections ?? []).entries()) {
-    const p = `sections[${i}]`
-    if (!BLOCK_TYPE[s.type]) {
-      at(p, `type 只能是 ${Object.keys(BLOCK_TYPE).join(' / ')}，收到 "${s.type}"`)
-      continue
-    }
-    if (!isText(s.kicker))
-      at(`${p}.kicker`, '必填，需要 { en, zh }（章节编号前台自动加，别自己写）')
-    if (!isText(s.heading)) at(`${p}.heading`, '必填，需要 { en, zh }')
-    if (s.intro !== undefined && !isText(s.intro)) at(`${p}.intro`, '写了就要 { en, zh }')
-    if (s.theme && !['auto', 'white', 'wash', 'washBlue', 'dark'].includes(s.theme))
-      at(`${p}.theme`, `只能是 auto / white / wash / washBlue / dark，收到 "${s.theme}"`)
-    if (s.themeImage && s.theme !== 'dark')
-      at(`${p}.themeImage`, '只有 theme 为 dark 时才有底纹照片')
-
-    switch (s.type) {
-      case 'split':
-        for (const k of ['quoteLabel', 'quoteFooter']) {
-          if (s[k] !== undefined && !isText(s[k])) at(`${p}.${k}`, '写了就要 { en, zh }')
-        }
-        if (!Array.isArray(s.points) || s.points.length === 0) at(`${p}.points`, '至少一条')
-        for (const [j, pt] of (s.points ?? []).entries()) {
-          if (!isText(pt.label)) at(`${p}.points[${j}].label`, '需要 { en, zh }')
-          if (!isText(pt.text)) at(`${p}.points[${j}].text`, '需要 { en, zh }')
-        }
-        break
-      case 'figure':
-        if (!s.image) at(`${p}.image`, '必填，图片文件名')
-        if (!isText(s.imageAlt)) at(`${p}.imageAlt`, '必填，需要 { en, zh }（SEO 与无障碍都靠它）')
-        if (s.variant && !['full', 'side'].includes(s.variant))
-          at(`${p}.variant`, `只能是 full 或 side，收到 "${s.variant}"`)
-        break
-      case 'cards':
-        if (s.layout && !['uniform', 'bento', 'metrics'].includes(s.layout))
-          at(`${p}.layout`, `只能是 uniform / bento / metrics，收到 "${s.layout}"`)
-        if (s.layout === 'metrics') {
-          for (const [j, c] of (s.cards ?? []).entries()) {
-            if (!isText(c.value)) at(`${p}.cards[${j}].value`, 'metrics 版式每张卡都要大号数值')
-          }
-          if (s.sideImage && !isText(s.sideImageAlt))
-            at(`${p}.sideImageAlt`, '有 sideImage 就必须有 alt')
-          if (isText(s.sideImageValue) && !s.sideImage)
-            at(`${p}.sideImage`, '填了角标数值就要给佐证图')
-        }
-        if (s.layout === 'bento' && (s.cards ?? []).filter((c) => c.image).length < 4)
-          at(`${p}.layout`, 'bento 拼贴要 4 张以上带图卡片，否则会排得参差不齐')
-        if (!Array.isArray(s.cards) || s.cards.length === 0) at(`${p}.cards`, '至少一张')
-        for (const [j, c] of (s.cards ?? []).entries()) {
-          if (!isText(c.title)) at(`${p}.cards[${j}].title`, '需要 { en, zh }')
-          if (!isText(c.text)) at(`${p}.cards[${j}].text`, '需要 { en, zh }')
-          if (c.image && !isText(c.imageAlt)) at(`${p}.cards[${j}].imageAlt`, '有图就必须有 alt')
-        }
-        if ((s.facts?.length ?? 0) > 4) at(`${p}.facts`, '最多 4 格（一排放 4 个）')
-        for (const [j, f] of (s.facts ?? []).entries()) {
-          if (!isText(f.value)) at(`${p}.facts[${j}].value`, '需要 { en, zh }')
-          if (!isText(f.label)) at(`${p}.facts[${j}].label`, '需要 { en, zh }')
-        }
-        if (s.note !== undefined && !isText(s.note)) at(`${p}.note`, '写了就要 { en, zh }')
-        break
-      case 'steps': {
-        if (s.style && !['strip', 'flow', 'grid'].includes(s.style))
-          at(`${p}.style`, `只能是 strip / flow / grid，收到 "${s.style}"`)
-        for (const [j, st] of (s.steps ?? []).entries()) {
-          if (st.tone && !['accent', 'flag', 'go', 'navy'].includes(st.tone))
-            at(`${p}.steps[${j}].tone`, '只能是 accent / flag / go / navy')
-          if (st.pictogram && !['none', 'ai', 'network'].includes(st.pictogram))
-            at(`${p}.steps[${j}].pictogram`, '只能是 none / ai / network')
-          if (st.focal && (!Array.isArray(st.focal) || st.focal.length !== 2))
-            at(`${p}.steps[${j}].focal`, '要写成 [x, y]，两个 0–100 的数')
-        }
-        if (!Array.isArray(s.steps) || s.steps.length < 2 || s.steps.length > 6)
-          at(`${p}.steps`, '2–6 步（桌面端一行最多 6 个）')
-        for (const [j, st] of (s.steps ?? []).entries()) {
-          if (!isText(st.title)) at(`${p}.steps[${j}].title`, '需要 { en, zh }')
-          if (!isText(st.text)) at(`${p}.steps[${j}].text`, '需要 { en, zh }')
-          if (st.image && !isText(st.imageAlt)) at(`${p}.steps[${j}].imageAlt`, '有图就必须有 alt')
-        }
-        // 只给一半步骤配图会排得参差不齐
-        const hasVisual = (st) => st.image || (st.pictogram && st.pictogram !== 'none')
-        const withImg = (s.steps ?? []).filter(hasVisual).length
-        if (withImg > 0 && withImg < (s.steps?.length ?? 0))
-          at(
-            `${p}.steps`,
-            `要配图就每步都配，示意图也算（现在 ${s.steps.length} 步里只有 ${withImg} 步有）`,
-          )
-        if (s.cellLabel !== undefined && !isText(s.cellLabel))
-          at(`${p}.cellLabel`, '写了就要 { en, zh }')
-        if (s.proofValue !== undefined && !isText(s.proofValue))
-          at(`${p}.proofValue`, '写了就要 { en, zh }')
-        if (isText(s.proofValue) && !isText(s.proofNote))
-          at(`${p}.proofNote`, '填了 proofValue 就要说明这个数值的出处')
-        break
-      }
-      case 'compare':
-        for (const k of ['area', 'before', 'after']) {
-          if (!isText(s.labels?.[k])) at(`${p}.labels.${k}`, '需要 { en, zh }（表头）')
-        }
-        if (!Array.isArray(s.rows) || s.rows.length === 0) at(`${p}.rows`, '至少一行')
-        for (const [j, r] of (s.rows ?? []).entries()) {
-          for (const k of ['area', 'before', 'after']) {
-            if (!isText(r[k])) at(`${p}.rows[${j}].${k}`, '需要 { en, zh }')
-          }
-        }
-        // panel 是可选的图示面板，整块以 panel.image 为开关
-        if (s.panel) {
-          const q = `${p}.panel`
-          if (!s.panel.image) at(`${q}.image`, '必填，右卡的识别画面文件名（不想要图示面板就整个删掉 panel）')
-          if (!isText(s.panel.imageAlt)) at(`${q}.imageAlt`, '必填，需要 { en, zh }')
-          for (const k of ['beforeLabel', 'beforeTitle', 'afterLabel', 'afterTitle']) {
-            if (!isText(s.panel[k])) at(`${q}.${k}`, '必填，需要 { en, zh }')
-          }
-          if (!Array.isArray(s.panel.beforeRows) || s.panel.beforeRows.length === 0)
-            at(`${q}.beforeRows`, '至少一条情形（最多 3 条）')
-          if ((s.panel.beforeRows?.length ?? 0) > 3) at(`${q}.beforeRows`, '最多 3 条')
-          for (const [j, r] of (s.panel.beforeRows ?? []).entries()) {
-            if (!isText(r.symbol)) at(`${q}.beforeRows[${j}].symbol`, '需要 { en, zh }')
-            if (!isText(r.text)) at(`${q}.beforeRows[${j}].text`, '需要 { en, zh }')
-            if (r.image && !isText(r.imageAlt)) at(`${q}.beforeRows[${j}].imageAlt`, '有图就必须有 alt')
-          }
-          if ((s.panel.imageTags?.length ?? 0) > 3) at(`${q}.imageTags`, '最多 3 个浮标')
-          for (const [j, t] of (s.panel.imageTags ?? []).entries()) {
-            if (!isText(t.text)) at(`${q}.imageTags[${j}].text`, '需要 { en, zh }')
-            if (t.corner && !['bottomLeft', 'topRight', 'topLeft'].includes(t.corner))
-              at(`${q}.imageTags[${j}].corner`, ' 只能是 bottomLeft / topRight / topLeft')
-          }
-          if ((s.panel.afterFacts?.length ?? 0) > 3) at(`${q}.afterFacts`, '最多 3 格（一排放 3 个）')
-          for (const [j, f] of (s.panel.afterFacts ?? []).entries()) {
-            if (!isText(f.label)) at(`${q}.afterFacts[${j}].label`, '需要 { en, zh }')
-            if (!isText(f.value)) at(`${q}.afterFacts[${j}].value`, '需要 { en, zh }')
-          }
-        }
-        break
-      case 'statement':
-        if (!isText(s.statement)) at(`${p}.statement`, '必填，需要 { en, zh }（深色底的那句大字）')
-        break
-    }
-  }
-  return errs
-}
-
-/** 收集 JSON 里引用的全部图片文件名 */
-function collectImages(data) {
-  const files = new Set([data.cover])
-  for (const s of data.sections ?? []) {
-    if (s.image) files.add(s.image)
-    for (const c of s.cards ?? []) if (c.image) files.add(c.image)
-    for (const st of s.steps ?? []) if (st.image) files.add(st.image)
-    if (s.themeImage) files.add(s.themeImage)
-    if (s.sideImage) files.add(s.sideImage)
-    if (s.panel?.image) files.add(s.panel.image)
-    for (const r of s.panel?.beforeRows ?? []) if (r.image) files.add(r.image)
-  }
-  return [...files]
-}
 
 /** SVG 转 1600px 宽 PNG；位图原样返回 */
 async function resolveAsset(assetsDir, outDir, file) {
@@ -438,7 +265,8 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     ASSETS_ARG || data.assets || path.join(path.dirname(jsonFull), 'assets'),
   )
 
-  const errs = validate(data)
+  // 字段和素材一起查完再报，别让人改一处跑一次
+  const errs = [...validate(data), ...checkAssets(data, assetsDir)]
   if (errs.length) {
     console.error(`✗ ${path.basename(JSON_PATH)} 有 ${errs.length} 处问题：\n`)
     errs.forEach((e) => console.error(`  · ${e}`))
@@ -446,17 +274,16 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     process.exit(1)
   }
 
-  // 素材齐不齐先查，别登录完了才发现少图
+  // 漏翻不算错误（官网会回落英文），但中文站会一段一段冒英文，导之前必须看见
+  const untranslated = findUntranslated(data)
+  if (untranslated.length) {
+    console.warn(`⚠ 有 ${untranslated.length} 处只写了英文、没写中文：`)
+    untranslated.slice(0, 10).forEach((m) => console.warn(`  · ${m.path}`))
+    if (untranslated.length > 10) console.warn(`  · …还有 ${untranslated.length - 10} 处`)
+    console.warn('')
+  }
+
   const imageFiles = collectImages(data)
-  const missing = []
-  for (const f of imageFiles) {
-    await fs.access(path.join(assetsDir, f)).catch(() => missing.push(f))
-  }
-  if (missing.length) {
-    console.error(`✗ 素材目录里缺 ${missing.length} 个文件（${assetsDir}）：`)
-    missing.forEach((f) => console.error(`  · ${f}`))
-    process.exit(1)
-  }
 
   const base = requireEnv()
   console.log(`目标站点：${base}${DRY ? '　【空跑，不写任何数据】' : ''}`)
@@ -555,23 +382,27 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
 
   let id
   if (existing) {
-    const r = await api(`/api/case-studies/${existing.id}?locale=en`, {
+    const r = await api(`/api/case-studies/${existing.id}?locale=en${Q}`, {
       method: 'PATCH',
-      body: payloadEn,
+      body: { ...payloadEn, ...STATUS },
     })
     id = r.doc.id
     console.log(`✓ 已更新 en 内容（id ${id}）`)
   } else {
-    const r = await api('/api/case-studies?locale=en', { method: 'POST', body: payloadEn })
+    const r = await api(`/api/case-studies?locale=en${Q}`, {
+      method: 'POST',
+      body: { ...payloadEn, ...STATUS },
+    })
     id = r.doc.id
     console.log(`✓ 已创建案例（id ${id}）`)
   }
 
   // 回读 en 拿到 block id 与数组行 id，再写 zh
-  const saved = await api(`/api/case-studies/${id}?locale=en&depth=0`)
-  await api(`/api/case-studies/${id}?locale=zh`, {
+  const saved = await api(`/api/case-studies/${id}?locale=en&depth=0${Q}`)
+  await api(`/api/case-studies/${id}?locale=zh${Q}`, {
     method: 'PATCH',
     body: {
+      ...STATUS,
       title: data.title.zh,
       titleAccent: zh(data.titleAccent),
       excerpt: data.excerpt.zh,
@@ -594,9 +425,9 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
   console.log('✓ 已写入 zh 内容')
 
   // 自检：en 没被 zh 覆盖，两个语种的旧正文都清干净了
-  const checkEn = await api(`/api/case-studies/${id}?locale=en&depth=0`)
+  const checkEn = await api(`/api/case-studies/${id}?locale=en&depth=0${Q}`)
   // fallback-locale=none 才能看到 zh 自己的值，否则空字段会回落成 en 的
-  const checkZh = await api(`/api/case-studies/${id}?locale=zh&depth=0&fallback-locale=none`)
+  const checkZh = await api(`/api/case-studies/${id}?locale=zh&depth=0&fallback-locale=none${Q}`)
   if (checkEn.title !== data.title.en) {
     console.error('⚠️ en 内容被 zh 覆盖了，检查 mergeLocale 是否带上了行 id')
     process.exit(1)

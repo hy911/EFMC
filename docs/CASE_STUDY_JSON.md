@@ -11,7 +11,17 @@
 node scripts/import-case-study.mjs path/to/case.json --dry-run
 ```
 
-空跑会逐条报出哪个字段不合格（精确到 `sections[3].steps[2].text`），改完去掉 `--dry-run` 就进站了。**不需要为案例单独做网页、写 HTML/CSS 或搭前端项目**——官网已有统一的版式和配色，另做一套只会和站点其它页面对不上。
+空跑会逐条报出哪个字段不合格（精确到 `sections[3].steps[2].text`），改完去掉 `--dry-run` 就进站了。
+
+**写手可以自己先校验**，不用等导入：把 `scripts/lib/case-schema.mjs` 跟 `case.json` 放一起，
+
+```bash
+node case-schema.mjs case.json
+```
+
+这一个文件零依赖、不连数据库，会把字段问题、图片对不上、漏翻的中文一次列全。改到显示「校验通过」再交付。
+
+**不需要为案例单独做网页、写 HTML/CSS 或搭前端项目**——官网已有统一的版式和配色，另做一套只会和站点其它页面对不上。
 
 ---
 
@@ -320,6 +330,16 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 
 - **`scripts/data/cases/ai-vision-precision-spraying.json` —— 抄这个。** 9 个章节，用到全部 6 种块和绝大多数选项（引语卡、对比图示、metrics 数据、三种步骤版式、示意图、焦点、底色分档），是目前唯一跟得上前台版式的完整样本
 - `scripts/import-case-study-spray-cooling.mjs` 是精准喷淋降温案例的专用脚本，写在通用导入器之前。**别照它写新案例**——它没有 JSON 契约、每加一个字段都要改代码，留着只是因为那个案例已经进库了
+
+## 先导草稿，看过再发布
+
+内容第一次进站建议走草稿：
+
+```bash
+node scripts/import-case-study.mjs case.json --replace --draft
+```
+
+草稿只写版本表，**线上已发布的那一版原样不动**。导完拿一条预览链接（带 `PREVIEW_SECRET`）发给写手，页面顶部会有一条红色「草稿预览」横幅，改到满意再去后台点发布。这样反复改不需要重新部署，也不会有半成品出现在线上或 sitemap 里。
 
 ## 导入选项
 

@@ -744,6 +744,9 @@ export const CaseCompareBlock: Block = {
           name: 'corner',
           label: { en: 'Corner', zh: '位置' },
           type: 'select',
+          /* 自动生成的枚举名（含版本表的 _v_ 前缀）会超过 Postgres 的 63 字符上限，
+             必须显式起个短名。改名会连带迁移里的 ALTER TYPE … RENAME。 */
+          enumName: 'enum_case_panel_tag_corner',
           defaultValue: 'bottomLeft',
           options: [
             { label: { en: 'Bottom left', zh: '左下' }, value: 'bottomLeft' },

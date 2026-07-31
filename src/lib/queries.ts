@@ -41,11 +41,21 @@ export async function getIndustries(locale: Locale, limit = 6): Promise<Applicat
   return docs
 }
 
+/**
+ * 已发布筛选条件。
+ *
+ * 开了草稿之后，未发布的文档在主表里也有一行 —— Local API 默认
+ * overrideAccess，collection 的 access 规则拦不住它，所以每个面向公众的
+ * 查询都必须自己带上这个条件。漏一个就等于把草稿挂到线上。
+ */
+export const PUBLISHED = { _status: { equals: 'published' } } as const
+
 /** 客户案例列表（按交付时间倒序） */
 export async function getCaseStudies(locale: Locale, limit = 100): Promise<CaseStudy[]> {
   const payload = await getPayloadClient()
   const { docs } = await payload.find({
     collection: 'case-studies',
+    where: PUBLISHED,
     sort: '-completedAt',
     limit,
     locale,
@@ -55,14 +65,24 @@ export async function getCaseStudies(locale: Locale, limit = 100): Promise<CaseS
 }
 
 /** 按 slug 查询单个案例（含关联产品，供详情页内链） */
-export async function getCaseStudyBySlug(locale: Locale, slug: string): Promise<CaseStudy | null> {
+/**
+ * 案例详情。draft=true 时返回最新草稿（后台预览/外部预览链接用）。
+ * 默认 false —— 前台正式页面永远只拿已发布的那一版。
+ */
+export async function getCaseStudyBySlug(
+  locale: Locale,
+  slug: string,
+  draft = false,
+): Promise<CaseStudy | null> {
   const payload = await getPayloadClient()
   const { docs } = await payload.find({
     collection: 'case-studies',
-    where: { slug: { equals: slug } },
+    // 预览时不筛已发布，否则草稿永远查不出来
+    where: draft ? { slug: { equals: slug } } : { and: [{ slug: { equals: slug } }, PUBLISHED] },
     limit: 1,
     locale,
     depth: 2, // relatedProducts 里还要带出产品封面图
+    draft,
   })
   return docs[0] ?? null
 }

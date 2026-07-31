@@ -117,9 +117,20 @@ Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env
 - CI（`.github/workflows/ci.yml`）跑真实 postgres:18 service，顺序与生产一致：lint → tsc → migrate → build → test:int → test:e2e。本地想复现 CI 失败就按这个顺序跑
 - 深入文档在 `docs/`：`DEPLOYMENT.md`（VPS/Docker/Cloudflare 全流程）、`MAINTENANCE.md`（备份/升级/排障）、`ADMIN_GUIDE.md`（给运营的后台使用说明）；`README.md` 有本地起步与二期进度
 
+### 案例的草稿与预览
+
+CaseStudies 开了 `versions.drafts`。三件事必须一起记住：
+
+- **草稿不写主表**（Payload 存草稿只写版本表），所以 `--draft` 导入不会动线上已发布的那一版
+- **Local API 默认 `overrideAccess`，collection 的 access 拦不住草稿** —— 每个面向公众的查询都必须自己带 `where: PUBLISHED`（`src/lib/queries.ts` 导出）。列表、详情、sitemap、`generateStaticParams` 现在都带了，**新增面向公众的案例查询时别漏**，漏一个就是把草稿挂上线
+- 预览入口是 `src/app/api/preview/route.ts`：认 `PREVIEW_SECRET` 或后台登录态，且 `path` 必须匹配 `/(en|zh)/(cases|blog)/slug`。不校验 path 就是个开放重定向
+- 开草稿时 `ADD COLUMN "_status" DEFAULT 'draft'` 会**把现有行全部变成草稿**（PG 11+ 的 ADD COLUMN DEFAULT 会回填），迁移里手工补了一条 `UPDATE … SET _status='published'`。以后给别的 collection 开草稿要照做
+
 ### 内容导入脚本（scripts/）
 
 生产内容不靠手工录入，走 REST API 脚本导入。凭据从 `.env.import` 读（模板 `.env.import.example`，实际文件已 gitignore），命令行前缀的环境变量优先于文件。公共封装在 `scripts/lib/payload-api.mjs`。
+
+字段契约与校验规则集中在 `scripts/lib/case-schema.mjs` —— 这个文件外部写手也会直接跑（`node case-schema.mjs case.json`），所以它零依赖、不连库。**规则只能有这一份**，导入器 import 它，别在导入器里另写一套。
 
 客户案例是**内容与代码分离**的：`scripts/import-case-study.mjs <case.json>` 是通用导入器，内容放 `scripts/data/cases/*.json`。字段契约见 `docs/CASE_STUDY_JSON.md` —— 那份文档同时是给外部写手（含客户的 AI 助手）的交付规范，改积木块字段时要同步更新它，否则外部产出的 JSON 会缺字段。新案例不要再写专用脚本。
 

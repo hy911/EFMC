@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 
 import { routing } from '@/i18n/routing'
 import { getPayloadClient } from '@/lib/payload'
+import { PUBLISHED } from '@/lib/queries'
 import { SITE_URL } from '@/lib/seo'
 
 /**
@@ -26,6 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     payload.find({ collection: 'pages', limit: 1000, select: { slug: true, updatedAt: true } }),
     payload.find({
       collection: 'case-studies',
+      // 未发布的草稿不能进 sitemap —— 那等于主动请搜索引擎来抓
+      where: PUBLISHED,
       limit: 1000,
       select: { slug: true, updatedAt: true },
     }),
