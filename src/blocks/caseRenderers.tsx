@@ -51,6 +51,137 @@ function SectionHead({
   )
 }
 
+type CompareBlock = Extract<CaseBlock, { blockType: 'caseCompare' }>
+
+/**
+ * 「改造前 / 改造后」图示面板：左卡列出旧逻辑下无法区分的几种情形，
+ * 右卡放一张识别画面 + 控制层读数。以 panelImage 为开关，没传图就整块不渲染。
+ *
+ * 窄屏两卡上下排，中间那颗 AI 圆点在断点下换方向 —— 用 grid 的行列切换实现，
+ * 不做两套 DOM。
+ */
+function ContrastPanel({ block }: { block: CompareBlock }) {
+  const rows = block.panelBeforeRows ?? []
+  const tags = block.panelImageTags ?? []
+  const facts = block.panelAfterFacts ?? []
+  const corner: Record<string, string> = {
+    bottomLeft: 'bottom-5 left-5 border-l-[3px] border-go',
+    topRight: 'top-5 right-5 border-l-[3px] border-accent-soft',
+    topLeft: 'top-5 left-5 border-l-[3px] border-accent-soft',
+  }
+
+  return (
+    <div className="mt-12 grid grid-cols-1 items-center gap-y-9 lg:grid-cols-[minmax(0,0.9fr)_70px_minmax(0,1.1fr)] lg:gap-y-0">
+      {/* 左：旧逻辑 */}
+      <article className="border border-line bg-white shadow-[0_22px_70px_rgba(6,28,59,0.08)]">
+        <div className="flex items-center justify-between gap-5 border-b border-line px-6 py-[22px]">
+          <span className="text-[10px] font-extrabold tracking-[0.17em] text-accent uppercase">
+            {block.panelBeforeLabel}
+          </span>
+          <strong className="text-[14px] font-semibold text-navy">{block.panelBeforeTitle}</strong>
+        </div>
+        <div className="grid gap-4 px-7 py-8">
+          {rows.map((row) => (
+            <div
+              key={row.id}
+              className="grid grid-cols-[62px_1fr_auto] items-center gap-[18px] border border-line p-4"
+            >
+              <span className="relative grid h-[62px] w-[62px] place-items-center overflow-hidden rounded-[14px] border border-line bg-mist">
+                {row.image ? (
+                  <MediaImage media={row.image} size="card" fill sizes="62px" />
+                ) : (
+                  <em className="text-[11px] font-extrabold tracking-[0.08em] text-steel not-italic">
+                    {row.symbol}
+                  </em>
+                )}
+                {row.image && (
+                  <small className="absolute right-1 bottom-1 z-[2] bg-navy/90 px-[5px] py-[3px] text-[7px] leading-none font-extrabold tracking-[0.12em] text-white">
+                    {row.symbol}
+                  </small>
+                )}
+              </span>
+              <p className="m-0 text-[14px] font-semibold text-ink">
+                {row.text}
+                {row.note && (
+                  <small className="mt-1 block text-[11px] font-normal text-steel">{row.note}</small>
+                )}
+              </p>
+              {row.tag && (
+                <b className="border border-flag/30 bg-flag/8 px-[9px] py-[7px] text-[9px] tracking-[0.12em] text-flag uppercase">
+                  {row.tag}
+                </b>
+              )}
+            </div>
+          ))}
+        </div>
+        {block.panelBeforeResultValue && (
+          <div className="mx-7 mb-7 border-l-[3px] border-flag bg-flag/6 p-[22px]">
+            <span className="block text-[10px] tracking-[0.1em] text-flag uppercase">
+              {block.panelBeforeResultLabel}
+            </span>
+            <strong className="mt-1.5 block text-[17px] font-bold text-navy">
+              {block.panelBeforeResultValue}
+            </strong>
+          </div>
+        )}
+      </article>
+
+      {/* 中：AI 转折点 */}
+      {/* 细线方向随断点换：窄屏两卡上下排是竖线，宽屏并排是横线 */}
+      <div className="relative flex h-12 items-center justify-center lg:h-auto" aria-hidden="true">
+        <i className="absolute bg-[#9fb8d2] max-lg:h-full max-lg:w-px lg:h-px lg:w-full" />
+        <span className="relative z-[1] grid h-[39px] w-[39px] place-items-center rounded-full bg-accent text-[11px] font-extrabold text-white shadow-[0_0_0_7px_var(--color-mist)]">
+          AI
+        </span>
+      </div>
+
+      {/* 右：新逻辑 */}
+      <article className="border border-line bg-white shadow-[0_22px_70px_rgba(6,28,59,0.08)]">
+        <div className="flex items-center justify-between gap-5 border-b border-line px-6 py-[22px]">
+          <span className="text-[10px] font-extrabold tracking-[0.17em] text-accent uppercase">
+            {block.panelAfterLabel}
+          </span>
+          <strong className="text-[14px] font-semibold text-navy">{block.panelAfterTitle}</strong>
+        </div>
+        <div className="relative m-6 h-[240px] bg-navy lg:h-[310px]">
+          <MediaImage
+            media={block.panelImage}
+            size="feature"
+            fill
+            sizes="(min-width: 1024px) 620px, 100vw"
+          />
+          {tags.map((tag) => (
+            <span
+              key={tag.id}
+              className={`absolute z-[2] bg-navy/90 px-2 py-1.5 text-[9px] font-extrabold tracking-[0.11em] text-white ${
+                corner[tag.corner ?? 'bottomLeft']
+              }`}
+            >
+              {tag.text}
+            </span>
+          ))}
+        </div>
+        {facts.length > 0 && (
+          <div className="mx-6 mb-6 grid grid-cols-3 gap-px border border-line bg-line">
+            {facts.map((fact) => (
+              <div key={fact.id} className={fact.highlight ? 'bg-go/8 p-4' : 'bg-white p-4'}>
+                <small className="block text-[8px] tracking-[0.11em] text-steel uppercase">
+                  {fact.label}
+                </small>
+                <strong
+                  className={`mt-1.5 block text-[12px] font-bold ${fact.highlight ? 'text-go' : 'text-navy'}`}
+                >
+                  {fact.value}
+                </strong>
+              </div>
+            ))}
+          </div>
+        )}
+      </article>
+    </div>
+  )
+}
+
 /**
  * 案例章节渲染器：后台拼什么，前端渲染什么。
  * 底色按序号交替（白 / 浅灰），收尾块固定深蓝 —— 与首页的节奏一致。
@@ -201,6 +332,26 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                       )
                     })}
                   </div>
+                  {/* 口径小格：数据是怎么测出来的（窗口、间隔、仪器台数） */}
+                  {(block.facts?.length ?? 0) > 0 && (
+                    <div className="mt-10 grid grid-cols-2 gap-x-7 gap-y-6 sm:grid-cols-4">
+                      {block.facts!.map((fact) => (
+                        <div key={fact.id} className="border-t border-line pt-4">
+                          <b className="block font-display text-[22px] leading-none font-bold text-navy">
+                            {fact.value}
+                          </b>
+                          <span className="mt-2 block text-[13px] leading-[1.5] text-steel">
+                            {fact.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {block.note && (
+                    <p className="mt-8 mb-0 max-w-[760px] text-[13px] leading-[1.6] text-steel">
+                      {block.note}
+                    </p>
+                  )}
                 </Container>
               </section>
             )
@@ -275,7 +426,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
               </section>
             )
 
-          /* 前后对比表 */
+          /* 前后对比表（可选：表格上方再放一组「改造前 / 改造后」图示卡） */
           case 'caseCompare':
             return (
               <section key={block.id} className={bg}>
@@ -286,6 +437,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                     heading={block.heading}
                     intro={block.intro}
                   />
+                  {block.panelImage && <ContrastPanel block={block} />}
                   {/* 窄屏横向滚动，页面本身不出现横向滚动条 */}
                   <div className="mt-11 overflow-x-auto">
                     <table className="w-full min-w-[760px] border-collapse text-left">

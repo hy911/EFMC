@@ -195,6 +195,129 @@
       "intro": {
         "en": "The upgrade changes the quality of the input — not the final actuator. Classification now happens before PLC logic issues the valve command.",
         "zh": "这次升级换掉的是输入信号的质量，不是末端执行机构。分类发生在 PLC 下达开阀指令之前。"
+      },
+      "panel": {
+        "image": "ai-detection.png",
+        "imageAlt": {
+          "en": "AI vision interface identifying cows inside configured recognition zones",
+          "zh": "AI 视觉界面在设定的识别区内认出牛只"
+        },
+        "beforeLabel": {
+          "en": "Before",
+          "zh": "改造前"
+        },
+        "beforeTitle": {
+          "en": "Sensor-triggered logic",
+          "zh": "传感器触发逻辑"
+        },
+        "beforeRows": [
+          {
+            "image": "ai-detection.png",
+            "imageAlt": {
+              "en": "A cow standing in a feeding position",
+              "zh": "站在采食位上的牛"
+            },
+            "symbol": {
+              "en": "COW",
+              "zh": "牛"
+            },
+            "text": {
+              "en": "Cow enters position",
+              "zh": "牛进入采食位"
+            },
+            "note": {
+              "en": "Presence signal detected",
+              "zh": "检测到在位信号"
+            },
+            "tag": {
+              "en": "Trigger",
+              "zh": "触发"
+            }
+          },
+          {
+            "symbol": {
+              "en": "PERSON",
+              "zh": "人"
+            },
+            "text": {
+              "en": "Person enters position",
+              "zh": "人进入同一位置"
+            },
+            "note": {
+              "en": "Presence signal detected",
+              "zh": "检测到在位信号"
+            },
+            "tag": {
+              "en": "Trigger",
+              "zh": "触发"
+            }
+          }
+        ],
+        "beforeResultLabel": {
+          "en": "Same input state",
+          "zh": "输入状态完全相同"
+        },
+        "beforeResultValue": {
+          "en": "No target classification",
+          "zh": "没有目标分类"
+        },
+        "afterLabel": {
+          "en": "After",
+          "zh": "改造后"
+        },
+        "afterTitle": {
+          "en": "AI vision decision",
+          "zh": "AI 视觉决策"
+        },
+        "imageTags": [
+          {
+            "text": {
+              "en": "COW · 0.99",
+              "zh": "COW · 0.99"
+            },
+            "corner": "bottomLeft"
+          },
+          {
+            "text": {
+              "en": "ROI · ACTIVE",
+              "zh": "ROI · 已启用"
+            },
+            "corner": "topRight"
+          }
+        ],
+        "afterFacts": [
+          {
+            "label": {
+              "en": "Classification",
+              "zh": "分类结果"
+            },
+            "value": {
+              "en": "Cow",
+              "zh": "牛"
+            }
+          },
+          {
+            "label": {
+              "en": "Zone status",
+              "zh": "分区状态"
+            },
+            "value": {
+              "en": "Occupied",
+              "zh": "有牛在位"
+            }
+          },
+          {
+            "label": {
+              "en": "PLC output",
+              "zh": "PLC 输出"
+            },
+            "value": {
+              "en": "Allow spray",
+              "zh": "允许喷淋"
+            },
+            "highlight": true
+          }
+        ]
       }
     },
     {
@@ -479,6 +602,42 @@
       "intro": {
         "en": "The source report documents intermittent image sampling at 8-second intervals between April 5 and April 27, using two online lux sensors installed at the same position and angle.",
         "zh": "据源报告记载：4 月 5 日至 4 月 27 日期间以 8 秒间隔间歇采样，使用两台安装在相同位置与角度的在线照度计。"
+      },
+      "facts": [
+        {
+          "value": {
+            "en": "04.05–04.27",
+            "zh": "4.05–4.27"
+          },
+          "label": {
+            "en": "Recorded test window",
+            "zh": "记录的测试窗口"
+          }
+        },
+        {
+          "value": {
+            "en": "8 sec",
+            "zh": "8 秒"
+          },
+          "label": {
+            "en": "Intermittent capture interval",
+            "zh": "间歇采样间隔"
+          }
+        },
+        {
+          "value": {
+            "en": "2 units",
+            "zh": "2 台"
+          },
+          "label": {
+            "en": "Online lux sensors",
+            "zh": "在线照度计"
+          }
+        }
+      ],
+      "note": {
+        "en": "Project-specific results. Recognition performance depends on camera placement, lighting, the barn environment and the quality of the farm-specific training dataset.",
+        "zh": "以上为本项目的实测结果。识别表现取决于相机位置、光照、牛舍环境，以及针对该牧场训练的数据集质量。"
       }
     },
     {

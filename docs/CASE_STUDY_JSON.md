@@ -90,7 +90,9 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
     "imageAlt": {},
     "tag": { "en": "01 / Control", "zh": "01 / 控制" },
     "title": {}, "text": {}
-  }]
+  }],
+  "facts": [{ "value": { "en": "8 sec", "zh": "8 秒" }, "label": {} }],
+  "note": { "en": "Project-specific results…", "zh": "以上为本项目的实测结果……" }
 }
 ```
 
@@ -98,6 +100,8 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 **无图**（省略 `image`）：每行 3 张，适合价值点、测试结果。
 
 `layout` 可省，默认 `"uniform"` 等宽。填 `"bento"` 则首尾两张通栏、中间两张并排（大·中·中·宽），适合介绍系统分层。**bento 要 4 张以上带图卡片**，不够会被导入器拦下——少于 4 张排出来只是参差不齐，不是层次感。
+
+`facts`（最多 4 格）是卡片下方一排「数值 + 说明」，用来交代数据口径：测试窗口、采样间隔、仪器台数这类。`note` 是整块最下方的小字，放免责或适用范围。两者都可省。**凡是给了百分比、耗时这类数字的章节，都该用 `facts` 说清这些数字是怎么测出来的**——读者会先找口径。
 
 ### `steps` — 步骤条
 
@@ -129,6 +133,34 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 ```
 
 改造前后、方案 A/B 对比用这个。窄屏内部横向滚动，不会撑破页面。
+
+**可选：表格上方再放一组图示卡**。左卡列出旧逻辑下看起来完全一样的几种情形，右卡放一张识别画面加控制层读数——比纯表格更容易一眼看懂差别在哪。整块以 `panel` 存在与否为开关，不需要就整个删掉 `panel`。
+
+```json
+"panel": {
+  "image": "ai-detection.png",
+  "imageAlt": {},
+  "beforeLabel": { "en": "Before", "zh": "改造前" },
+  "beforeTitle": { "en": "Sensor-triggered logic", "zh": "传感器触发逻辑" },
+  "beforeRows": [{
+    "image": "ai-detection.png", "imageAlt": {},
+    "symbol": { "en": "COW", "zh": "牛" },
+    "text": { "en": "Cow enters position", "zh": "牛进入采食位" },
+    "note": { "en": "Presence signal detected", "zh": "检测到在位信号" },
+    "tag": { "en": "Trigger", "zh": "触发" }
+  }],
+  "beforeResultLabel": { "en": "Same input state", "zh": "输入状态完全相同" },
+  "beforeResultValue": { "en": "No target classification", "zh": "没有目标分类" },
+  "afterLabel": { "en": "After", "zh": "改造后" },
+  "afterTitle": { "en": "AI vision decision", "zh": "AI 视觉决策" },
+  "imageTags": [{ "text": { "en": "COW · 0.99", "zh": "COW · 0.99" }, "corner": "bottomLeft" }],
+  "afterFacts": [{ "label": {}, "value": {}, "highlight": true }]
+}
+```
+
+- `beforeRows` 最多 3 条。`image` 可省，省了就在方框里显示 `symbol` 那两个字
+- `imageTags` 最多 3 个，浮在右卡画面上；`corner` 取 `bottomLeft`（默认）/ `topRight` / `topLeft`
+- `afterFacts` 最多 3 格，最终结论那一格加 `"highlight": true`，会变成绿底
 
 ### `statement` — 深色收尾
 

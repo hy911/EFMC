@@ -104,6 +104,12 @@ function validate(data) {
           if (!isText(c.text)) at(`${p}.cards[${j}].text`, '需要 { en, zh }')
           if (c.image && !isText(c.imageAlt)) at(`${p}.cards[${j}].imageAlt`, '有图就必须有 alt')
         }
+        if ((s.facts?.length ?? 0) > 4) at(`${p}.facts`, '最多 4 格（一排放 4 个）')
+        for (const [j, f] of (s.facts ?? []).entries()) {
+          if (!isText(f.value)) at(`${p}.facts[${j}].value`, '需要 { en, zh }')
+          if (!isText(f.label)) at(`${p}.facts[${j}].label`, '需要 { en, zh }')
+        }
+        if (s.note !== undefined && !isText(s.note)) at(`${p}.note`, '写了就要 { en, zh }')
         break
       case 'steps': {
         if (!Array.isArray(s.steps) || s.steps.length < 2 || s.steps.length > 6)
@@ -133,6 +139,34 @@ function validate(data) {
             if (!isText(r[k])) at(`${p}.rows[${j}].${k}`, '需要 { en, zh }')
           }
         }
+        // panel 是可选的图示面板，整块以 panel.image 为开关
+        if (s.panel) {
+          const q = `${p}.panel`
+          if (!s.panel.image) at(`${q}.image`, '必填，右卡的识别画面文件名（不想要图示面板就整个删掉 panel）')
+          if (!isText(s.panel.imageAlt)) at(`${q}.imageAlt`, '必填，需要 { en, zh }')
+          for (const k of ['beforeLabel', 'beforeTitle', 'afterLabel', 'afterTitle']) {
+            if (!isText(s.panel[k])) at(`${q}.${k}`, '必填，需要 { en, zh }')
+          }
+          if (!Array.isArray(s.panel.beforeRows) || s.panel.beforeRows.length === 0)
+            at(`${q}.beforeRows`, '至少一条情形（最多 3 条）')
+          if ((s.panel.beforeRows?.length ?? 0) > 3) at(`${q}.beforeRows`, '最多 3 条')
+          for (const [j, r] of (s.panel.beforeRows ?? []).entries()) {
+            if (!isText(r.symbol)) at(`${q}.beforeRows[${j}].symbol`, '需要 { en, zh }')
+            if (!isText(r.text)) at(`${q}.beforeRows[${j}].text`, '需要 { en, zh }')
+            if (r.image && !isText(r.imageAlt)) at(`${q}.beforeRows[${j}].imageAlt`, '有图就必须有 alt')
+          }
+          if ((s.panel.imageTags?.length ?? 0) > 3) at(`${q}.imageTags`, '最多 3 个浮标')
+          for (const [j, t] of (s.panel.imageTags ?? []).entries()) {
+            if (!isText(t.text)) at(`${q}.imageTags[${j}].text`, '需要 { en, zh }')
+            if (t.corner && !['bottomLeft', 'topRight', 'topLeft'].includes(t.corner))
+              at(`${q}.imageTags[${j}].corner`, ' 只能是 bottomLeft / topRight / topLeft')
+          }
+          if ((s.panel.afterFacts?.length ?? 0) > 3) at(`${q}.afterFacts`, '最多 3 格（一排放 3 个）')
+          for (const [j, f] of (s.panel.afterFacts ?? []).entries()) {
+            if (!isText(f.label)) at(`${q}.afterFacts[${j}].label`, '需要 { en, zh }')
+            if (!isText(f.value)) at(`${q}.afterFacts[${j}].value`, '需要 { en, zh }')
+          }
+        }
         break
       case 'statement':
         if (!isText(s.statement)) at(`${p}.statement`, '必填，需要 { en, zh }（深色底的那句大字）')
@@ -149,6 +183,8 @@ function collectImages(data) {
     if (s.image) files.add(s.image)
     for (const c of s.cards ?? []) if (c.image) files.add(c.image)
     for (const st of s.steps ?? []) if (st.image) files.add(st.image)
+    if (s.panel?.image) files.add(s.panel.image)
+    for (const r of s.panel?.beforeRows ?? []) if (r.image) files.add(r.image)
   }
   return [...files]
 }
@@ -190,6 +226,8 @@ function sectionToBlockEn(s, media) {
           title: en(c.title),
           text: en(c.text),
         })),
+        facts: (s.facts ?? []).map((f) => ({ value: en(f.value), label: en(f.label) })),
+        note: en(s.note),
       }
     case 'steps':
       return {
@@ -209,6 +247,33 @@ function sectionToBlockEn(s, media) {
         labelBefore: en(s.labels.before),
         labelAfter: en(s.labels.after),
         rows: s.rows.map((r) => ({ area: en(r.area), before: en(r.before), after: en(r.after) })),
+        ...(s.panel
+          ? {
+              panelImage: media[s.panel.image],
+              panelBeforeLabel: en(s.panel.beforeLabel),
+              panelBeforeTitle: en(s.panel.beforeTitle),
+              panelBeforeRows: s.panel.beforeRows.map((r) => ({
+                image: r.image ? media[r.image] : undefined,
+                symbol: en(r.symbol),
+                text: en(r.text),
+                note: en(r.note),
+                tag: en(r.tag),
+              })),
+              panelBeforeResultLabel: en(s.panel.beforeResultLabel),
+              panelBeforeResultValue: en(s.panel.beforeResultValue),
+              panelAfterLabel: en(s.panel.afterLabel),
+              panelAfterTitle: en(s.panel.afterTitle),
+              panelImageTags: (s.panel.imageTags ?? []).map((t) => ({
+                text: en(t.text),
+                corner: t.corner ?? 'bottomLeft',
+              })),
+              panelAfterFacts: (s.panel.afterFacts ?? []).map((f) => ({
+                label: en(f.label),
+                value: en(f.value),
+                highlight: f.highlight === true,
+              })),
+            }
+          : {}),
       }
     case 'statement':
       return { ...base, body: en(s.body), statement: en(s.statement) }
@@ -231,6 +296,8 @@ function sectionToZh(s) {
       return {
         ...base,
         cards: s.cards.map((c) => ({ tag: zh(c.tag), title: zh(c.title), text: zh(c.text) })),
+        facts: (s.facts ?? []).map((f) => ({ value: zh(f.value), label: zh(f.label) })),
+        note: zh(s.note),
       }
     case 'steps':
       return {
@@ -246,6 +313,27 @@ function sectionToZh(s) {
         labelBefore: zh(s.labels.before),
         labelAfter: zh(s.labels.after),
         rows: s.rows.map((r) => ({ area: zh(r.area), before: zh(r.before), after: zh(r.after) })),
+        ...(s.panel
+          ? {
+              panelBeforeLabel: zh(s.panel.beforeLabel),
+              panelBeforeTitle: zh(s.panel.beforeTitle),
+              panelBeforeRows: s.panel.beforeRows.map((r) => ({
+                symbol: zh(r.symbol),
+                text: zh(r.text),
+                note: zh(r.note),
+                tag: zh(r.tag),
+              })),
+              panelBeforeResultLabel: zh(s.panel.beforeResultLabel),
+              panelBeforeResultValue: zh(s.panel.beforeResultValue),
+              panelAfterLabel: zh(s.panel.afterLabel),
+              panelAfterTitle: zh(s.panel.afterTitle),
+              panelImageTags: (s.panel.imageTags ?? []).map((t) => ({ text: zh(t.text) })),
+              panelAfterFacts: (s.panel.afterFacts ?? []).map((f) => ({
+                label: zh(f.label),
+                value: zh(f.value),
+              })),
+            }
+          : {}),
       }
     case 'statement':
       return { ...base, body: zh(s.body), statement: zh(s.statement) }
@@ -488,6 +576,13 @@ function altFor(data, file) {
     }
     for (const st of s.steps ?? []) {
       if (st.image === file) return { en: en(st.imageAlt), zh: zh(st.imageAlt) ?? en(st.imageAlt) }
+    }
+    if (s.panel?.image === file) {
+      const a = s.panel.imageAlt
+      return { en: en(a), zh: zh(a) ?? en(a) }
+    }
+    for (const r of s.panel?.beforeRows ?? []) {
+      if (r.image === file) return { en: en(r.imageAlt), zh: zh(r.imageAlt) ?? en(r.imageAlt) }
     }
   }
   return { en: en(data.title), zh: zh(data.title) ?? en(data.title) }

@@ -566,6 +566,20 @@ export interface CaseStudy {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * A row of value + caption under the cards, for how the numbers were obtained. Optional.
+             */
+            facts?:
+              | {
+                  value: string;
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Small print under the block, e.g. "results are project-specific". Optional.
+             */
+            note?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'caseCards';
@@ -630,6 +644,62 @@ export interface CaseStudy {
                   area: string;
                   before: string;
                   after: string;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * Turns on the illustrated before/after panel above the table. Leave empty for table only.
+             */
+            panelImage?: (number | null) | Media;
+            /**
+             * e.g. "BEFORE".
+             */
+            panelBeforeLabel?: string | null;
+            panelBeforeTitle?: string | null;
+            /**
+             * Two situations that used to look identical to the controller.
+             */
+            panelBeforeRows?:
+              | {
+                  /**
+                   * Optional. Without one, the symbol text is shown in a bordered square instead.
+                   */
+                  image?: (number | null) | Media;
+                  /**
+                   * e.g. "COW" / "PERSON".
+                   */
+                  symbol: string;
+                  text: string;
+                  note?: string | null;
+                  /**
+                   * e.g. "TRIGGER".
+                   */
+                  tag?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            panelBeforeResultLabel?: string | null;
+            panelBeforeResultValue?: string | null;
+            panelAfterLabel?: string | null;
+            panelAfterTitle?: string | null;
+            /**
+             * Small tags laid over the image, e.g. "COW · 0.99".
+             */
+            panelImageTags?:
+              | {
+                  text: string;
+                  corner?: ('bottomLeft' | 'topRight' | 'topLeft') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            /**
+             * The decision the control layer reaches. Mark the last one as the outcome.
+             */
+            panelAfterFacts?:
+              | {
+                  label: string;
+                  value: string;
+                  highlight?: boolean | null;
                   id?: string | null;
                 }[]
               | null;
@@ -1146,6 +1216,14 @@ export interface CaseStudiesSelect<T extends boolean = true> {
                     text?: T;
                     id?: T;
                   };
+              facts?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              note?: T;
               id?: T;
               blockName?: T;
             };
@@ -1183,6 +1261,38 @@ export interface CaseStudiesSelect<T extends boolean = true> {
                     area?: T;
                     before?: T;
                     after?: T;
+                    id?: T;
+                  };
+              panelImage?: T;
+              panelBeforeLabel?: T;
+              panelBeforeTitle?: T;
+              panelBeforeRows?:
+                | T
+                | {
+                    image?: T;
+                    symbol?: T;
+                    text?: T;
+                    note?: T;
+                    tag?: T;
+                    id?: T;
+                  };
+              panelBeforeResultLabel?: T;
+              panelBeforeResultValue?: T;
+              panelAfterLabel?: T;
+              panelAfterTitle?: T;
+              panelImageTags?:
+                | T
+                | {
+                    text?: T;
+                    corner?: T;
+                    id?: T;
+                  };
+              panelAfterFacts?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    highlight?: T;
                     id?: T;
                   };
               id?: T;

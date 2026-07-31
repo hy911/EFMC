@@ -209,6 +209,47 @@ export const CaseCardsBlock: Block = {
         },
       ],
     },
+    {
+      // 数据小格：卡片下方一排「数值 + 说明」，用来交代口径（测试窗口、采样间隔、仪器台数）
+      name: 'facts',
+      label: { en: 'Method Facts', zh: '口径小格' },
+      type: 'array',
+      maxRows: 4,
+      admin: {
+        description: {
+          en: 'A row of value + caption under the cards, for how the numbers were obtained. Optional.',
+          zh: '卡片下方一排「数值 + 说明」，交代数据是怎么来的；可留空。',
+        },
+      },
+      fields: [
+        {
+          name: 'value',
+          label: { en: 'Value', zh: '数值' },
+          type: 'text',
+          required: true,
+          localized: true,
+        },
+        {
+          name: 'label',
+          label: { en: 'Caption', zh: '说明' },
+          type: 'text',
+          required: true,
+          localized: true,
+        },
+      ],
+    },
+    {
+      name: 'note',
+      label: { en: 'Fine Print', zh: '小字说明' },
+      type: 'textarea',
+      localized: true,
+      admin: {
+        description: {
+          en: 'Small print under the block, e.g. "results are project-specific". Optional.',
+          zh: '区块最下方的小字，如「结果因项目而异」；可留空。',
+        },
+      },
+    },
   ],
 }
 
@@ -352,6 +393,192 @@ export const CaseCompareBlock: Block = {
           type: 'text',
           required: true,
           localized: true,
+        },
+      ],
+    },
+    /* ---------- 图示面板（可选）：表格之上的「改造前 / 改造后」两块卡 ---------- */
+    /* 整块以 panelImage 为开关：不传图就只出表格，老案例不受影响。 */
+    {
+      name: 'panelImage',
+      label: { en: 'Panel: After Image', zh: '图示：改造后画面' },
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: {
+          en: 'Turns on the illustrated before/after panel above the table. Leave empty for table only.',
+          zh: '传了图才会在表格上方出现「改造前 / 改造后」图示面板；留空则只有表格。',
+        },
+      },
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'panelBeforeLabel',
+          label: { en: 'Panel: Before Label', zh: '图示：左卡角标' },
+          type: 'text',
+          localized: true,
+          admin: { description: { en: 'e.g. "BEFORE".', zh: '如「改造前」。' } },
+        },
+        {
+          name: 'panelBeforeTitle',
+          label: { en: 'Panel: Before Title', zh: '图示：左卡标题' },
+          type: 'text',
+          localized: true,
+        },
+      ],
+    },
+    {
+      name: 'panelBeforeRows',
+      label: { en: 'Panel: Before Cases', zh: '图示：左卡情形' },
+      type: 'array',
+      maxRows: 3,
+      admin: {
+        description: {
+          en: 'Two situations that used to look identical to the controller.',
+          zh: '在旧逻辑下看起来完全一样的两种情形。',
+        },
+      },
+      fields: [
+        {
+          name: 'image',
+          label: { en: 'Thumbnail', zh: '缩略图' },
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: {
+              en: 'Optional. Without one, the symbol text is shown in a bordered square instead.',
+              zh: '可留空；不传就在方框里显示下面的符号文字。',
+            },
+          },
+        },
+        {
+          name: 'symbol',
+          label: { en: 'Symbol', zh: '符号文字' },
+          type: 'text',
+          required: true,
+          localized: true,
+          admin: { description: { en: 'e.g. "COW" / "PERSON".', zh: '如「牛」「人」。' } },
+        },
+        {
+          name: 'text',
+          label: { en: 'Text', zh: '情形' },
+          type: 'text',
+          required: true,
+          localized: true,
+        },
+        {
+          name: 'note',
+          label: { en: 'Note', zh: '副说明' },
+          type: 'text',
+          localized: true,
+        },
+        {
+          name: 'tag',
+          label: { en: 'Outcome Tag', zh: '结果角标' },
+          type: 'text',
+          localized: true,
+          admin: { description: { en: 'e.g. "TRIGGER".', zh: '如「触发」。' } },
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'panelBeforeResultLabel',
+          label: { en: 'Panel: Before Result Label', zh: '图示：左卡结论小标' },
+          type: 'text',
+          localized: true,
+        },
+        {
+          name: 'panelBeforeResultValue',
+          label: { en: 'Panel: Before Result', zh: '图示：左卡结论' },
+          type: 'text',
+          localized: true,
+        },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'panelAfterLabel',
+          label: { en: 'Panel: After Label', zh: '图示：右卡角标' },
+          type: 'text',
+          localized: true,
+        },
+        {
+          name: 'panelAfterTitle',
+          label: { en: 'Panel: After Title', zh: '图示：右卡标题' },
+          type: 'text',
+          localized: true,
+        },
+      ],
+    },
+    {
+      name: 'panelImageTags',
+      label: { en: 'Panel: Image Overlays', zh: '图示：画面浮标' },
+      type: 'array',
+      maxRows: 3,
+      admin: {
+        description: {
+          en: 'Small tags laid over the image, e.g. "COW · 0.99".',
+          zh: '浮在画面上的小标签，如「COW · 0.99」。',
+        },
+      },
+      fields: [
+        {
+          name: 'text',
+          label: { en: 'Text', zh: '文字' },
+          type: 'text',
+          required: true,
+          localized: true,
+        },
+        {
+          name: 'corner',
+          label: { en: 'Corner', zh: '位置' },
+          type: 'select',
+          defaultValue: 'bottomLeft',
+          options: [
+            { label: { en: 'Bottom left', zh: '左下' }, value: 'bottomLeft' },
+            { label: { en: 'Top right', zh: '右上' }, value: 'topRight' },
+            { label: { en: 'Top left', zh: '左上' }, value: 'topLeft' },
+          ],
+        },
+      ],
+    },
+    {
+      name: 'panelAfterFacts',
+      label: { en: 'Panel: After Readout', zh: '图示：右卡读数' },
+      type: 'array',
+      maxRows: 3,
+      admin: {
+        description: {
+          en: 'The decision the control layer reaches. Mark the last one as the outcome.',
+          zh: '控制层得出的判断；把最终结论那一格勾上「结论格」。',
+        },
+      },
+      fields: [
+        {
+          name: 'label',
+          label: { en: 'Label', zh: '小标' },
+          type: 'text',
+          required: true,
+          localized: true,
+        },
+        {
+          name: 'value',
+          label: { en: 'Value', zh: '读数' },
+          type: 'text',
+          required: true,
+          localized: true,
+        },
+        {
+          name: 'highlight',
+          label: { en: 'Outcome cell', zh: '结论格' },
+          type: 'checkbox',
+          defaultValue: false,
         },
       ],
     },
