@@ -34,6 +34,9 @@
   --color-line: #e7eaf0;
   /* 浅灰蓝区块背景 */
   --color-mist: #f5f7fb;
+  /* 案例章节的两档浅蓝底：wash 偏灰，wash-blue 更蓝一点 */
+  --color-wash: #f1f6fc;
+  --color-wash-blue: #eaf3ff;
   /* 表单输入框描边 */
   --color-input: #d4dae3;
 

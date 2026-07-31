@@ -54,6 +54,8 @@ function validate(data) {
   if (!data.slug || !/^[a-z0-9-]+$/.test(data.slug))
     at('slug', '必填，只能用小写字母、数字和连字符')
   if (!isText(data.title)) at('title', '必填，需要 { en, zh }')
+  if (data.titleAccent !== undefined && !isText(data.titleAccent))
+    at('titleAccent', '写了就要 { en, zh }')
   if (!isText(data.excerpt)) at('excerpt', '必填，需要 { en, zh }（列表卡片和页头导语都用它）')
   if (!data.cover) at('cover', '必填，封面图文件名')
   if (!Array.isArray(data.sections) || data.sections.length === 0)
@@ -80,9 +82,16 @@ function validate(data) {
       at(`${p}.kicker`, '必填，需要 { en, zh }（章节编号前台自动加，别自己写）')
     if (!isText(s.heading)) at(`${p}.heading`, '必填，需要 { en, zh }')
     if (s.intro !== undefined && !isText(s.intro)) at(`${p}.intro`, '写了就要 { en, zh }')
+    if (s.theme && !['auto', 'white', 'wash', 'washBlue', 'dark'].includes(s.theme))
+      at(`${p}.theme`, `只能是 auto / white / wash / washBlue / dark，收到 "${s.theme}"`)
+    if (s.themeImage && s.theme !== 'dark')
+      at(`${p}.themeImage`, '只有 theme 为 dark 时才有底纹照片')
 
     switch (s.type) {
       case 'split':
+        for (const k of ['quoteLabel', 'quoteFooter']) {
+          if (s[k] !== undefined && !isText(s[k])) at(`${p}.${k}`, '写了就要 { en, zh }')
+        }
         if (!Array.isArray(s.points) || s.points.length === 0) at(`${p}.points`, '至少一条')
         for (const [j, pt] of (s.points ?? []).entries()) {
           if (!isText(pt.label)) at(`${p}.points[${j}].label`, '需要 { en, zh }')
@@ -96,8 +105,17 @@ function validate(data) {
           at(`${p}.variant`, `只能是 full 或 side，收到 "${s.variant}"`)
         break
       case 'cards':
-        if (s.layout && !['uniform', 'bento'].includes(s.layout))
-          at(`${p}.layout`, `只能是 uniform 或 bento，收到 "${s.layout}"`)
+        if (s.layout && !['uniform', 'bento', 'metrics'].includes(s.layout))
+          at(`${p}.layout`, `只能是 uniform / bento / metrics，收到 "${s.layout}"`)
+        if (s.layout === 'metrics') {
+          for (const [j, c] of (s.cards ?? []).entries()) {
+            if (!isText(c.value)) at(`${p}.cards[${j}].value`, 'metrics 版式每张卡都要大号数值')
+          }
+          if (s.sideImage && !isText(s.sideImageAlt))
+            at(`${p}.sideImageAlt`, '有 sideImage 就必须有 alt')
+          if (isText(s.sideImageValue) && !s.sideImage)
+            at(`${p}.sideImage`, '填了角标数值就要给佐证图')
+        }
         if (s.layout === 'bento' && (s.cards ?? []).filter((c) => c.image).length < 4)
           at(`${p}.layout`, 'bento 拼贴要 4 张以上带图卡片，否则会排得参差不齐')
         if (!Array.isArray(s.cards) || s.cards.length === 0) at(`${p}.cards`, '至少一张')
@@ -114,6 +132,12 @@ function validate(data) {
         if (s.note !== undefined && !isText(s.note)) at(`${p}.note`, '写了就要 { en, zh }')
         break
       case 'steps': {
+        if (s.style && !['strip', 'flow', 'grid'].includes(s.style))
+          at(`${p}.style`, `只能是 strip / flow / grid，收到 "${s.style}"`)
+        for (const [j, st] of (s.steps ?? []).entries()) {
+          if (st.tone && !['accent', 'flag', 'go', 'navy'].includes(st.tone))
+            at(`${p}.steps[${j}].tone`, '只能是 accent / flag / go / navy')
+        }
         if (!Array.isArray(s.steps) || s.steps.length < 2 || s.steps.length > 6)
           at(`${p}.steps`, '2–6 步（桌面端一行最多 6 个）')
         for (const [j, st] of (s.steps ?? []).entries()) {
@@ -187,6 +211,8 @@ function collectImages(data) {
     if (s.image) files.add(s.image)
     for (const c of s.cards ?? []) if (c.image) files.add(c.image)
     for (const st of s.steps ?? []) if (st.image) files.add(st.image)
+    if (s.themeImage) files.add(s.themeImage)
+    if (s.sideImage) files.add(s.sideImage)
     if (s.panel?.image) files.add(s.panel.image)
     for (const r of s.panel?.beforeRows ?? []) if (r.image) files.add(r.image)
   }
@@ -210,12 +236,17 @@ function sectionToBlockEn(s, media) {
     kicker: en(s.kicker),
     heading: en(s.heading),
     intro: en(s.intro),
+    theme: s.theme ?? 'auto',
+    themeImage: s.themeImage ? media[s.themeImage] : undefined,
+    accentEdge: s.accentEdge === true,
   }
   switch (s.type) {
     case 'split':
       return {
         ...base,
         quote: en(s.quote),
+        quoteLabel: en(s.quoteLabel),
+        quoteFooter: en(s.quoteFooter),
         points: s.points.map((p) => ({ label: en(p.label), text: en(p.text) })),
       }
     case 'figure':
@@ -233,18 +264,24 @@ function sectionToBlockEn(s, media) {
           image: c.image ? media[c.image] : undefined,
           tag: en(c.tag),
           title: en(c.title),
+          value: en(c.value),
           text: en(c.text),
         })),
+        sideImage: s.sideImage ? media[s.sideImage] : undefined,
+        sideImageLabel: en(s.sideImageLabel),
+        sideImageValue: en(s.sideImageValue),
         facts: (s.facts ?? []).map((f) => ({ value: en(f.value), label: en(f.label) })),
         note: en(s.note),
       }
     case 'steps':
       return {
         ...base,
+        style: s.style ?? 'strip',
         cellLabel: en(s.cellLabel),
         steps: s.steps.map((st) => ({
           image: st.image ? media[st.image] : undefined,
           title: en(st.title),
+          tone: st.tone ?? 'accent',
           text: en(st.text),
         })),
         proofValue: en(s.proofValue),
@@ -298,6 +335,8 @@ function sectionToZh(s) {
       return {
         ...base,
         quote: zh(s.quote),
+        quoteLabel: zh(s.quoteLabel),
+        quoteFooter: zh(s.quoteFooter),
         points: s.points.map((p) => ({ label: zh(p.label), text: zh(p.text) })),
       }
     case 'figure':
@@ -305,7 +344,14 @@ function sectionToZh(s) {
     case 'cards':
       return {
         ...base,
-        cards: s.cards.map((c) => ({ tag: zh(c.tag), title: zh(c.title), text: zh(c.text) })),
+        cards: s.cards.map((c) => ({
+          tag: zh(c.tag),
+          title: zh(c.title),
+          value: zh(c.value),
+          text: zh(c.text),
+        })),
+        sideImageLabel: zh(s.sideImageLabel),
+        sideImageValue: zh(s.sideImageValue),
         facts: (s.facts ?? []).map((f) => ({ value: zh(f.value), label: zh(f.label) })),
         note: zh(s.note),
       }
@@ -481,6 +527,7 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
 
   const payloadEn = {
     title: data.title.en,
+    titleAccent: en(data.titleAccent),
     slug: data.slug,
     excerpt: data.excerpt.en,
     coverImage: media[data.cover],
@@ -516,6 +563,7 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     method: 'PATCH',
     body: {
       title: data.title.zh,
+      titleAccent: zh(data.titleAccent),
       excerpt: data.excerpt.zh,
       location: zh(data.location),
       metrics: (saved.metrics ?? []).map((row, i) =>
@@ -587,6 +635,14 @@ function altFor(data, file) {
     }
     for (const st of s.steps ?? []) {
       if (st.image === file) return { en: en(st.imageAlt), zh: zh(st.imageAlt) ?? en(st.imageAlt) }
+    }
+    if (s.themeImage === file) {
+      const a = s.themeImageAlt ?? data.title
+      return { en: en(a), zh: zh(a) ?? en(a) }
+    }
+    if (s.sideImage === file) {
+      const a = s.sideImageAlt
+      return { en: en(a), zh: zh(a) ?? en(a) }
     }
     if (s.panel?.image === file) {
       const a = s.panel.imageAlt

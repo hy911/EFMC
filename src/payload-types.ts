@@ -448,6 +448,10 @@ export interface CaseStudy {
   id: number;
   title: string;
   /**
+   * Optional. Shown under the title in pale blue — split the headline where it naturally breaks, e.g. "Recognition" / "before actuation."
+   */
+  titleAccent?: string | null;
+  /**
    * URL path segment. Auto-generated from the title if left empty.
    */
   slug: string;
@@ -495,9 +499,29 @@ export interface CaseStudy {
              */
             intro?: string | null;
             /**
-             * Client requirement in their own words. Optional; quotation marks are added by the page.
+             * Leave on Auto unless this section needs to stand out. Two navy sections in a row read as one block.
+             */
+            theme?: ('auto' | 'white' | 'wash' | 'washBlue' | 'dark') | null;
+            /**
+             * Optional photo behind the navy wash. Use a wide, low-detail shot — text sits on top of it.
+             */
+            themeImage?: (number | null) | Media;
+            /**
+             * A 9px gradient bar down the left edge of the section. Use once per page at most.
+             */
+            accentEdge?: boolean | null;
+            /**
+             * Client requirement in their own words, shown on a navy card. Optional; quotation marks are added by the page.
              */
             quote?: string | null;
+            /**
+             * Bottom of the quote card, e.g. "The client’s core requirement".
+             */
+            quoteLabel?: string | null;
+            /**
+             * One line under the label, e.g. "01 / Classify before spraying".
+             */
+            quoteFooter?: string | null;
             points?:
               | {
                   label: string;
@@ -522,6 +546,18 @@ export interface CaseStudy {
              * One or two sentences under the heading, before the content below. Optional.
              */
             intro?: string | null;
+            /**
+             * Leave on Auto unless this section needs to stand out. Two navy sections in a row read as one block.
+             */
+            theme?: ('auto' | 'white' | 'wash' | 'washBlue' | 'dark') | null;
+            /**
+             * Optional photo behind the navy wash. Use a wide, low-detail shot — text sits on top of it.
+             */
+            themeImage?: (number | null) | Media;
+            /**
+             * A 9px gradient bar down the left edge of the section. Use once per page at most.
+             */
+            accentEdge?: boolean | null;
             /**
              * Evidence mode merges into the section above (no number of its own) and puts the text in a navy panel beside the image.
              */
@@ -552,9 +588,33 @@ export interface CaseStudy {
              */
             intro?: string | null;
             /**
-             * Bento needs 4+ cards with images to look deliberate; with fewer it just looks uneven.
+             * Leave on Auto unless this section needs to stand out. Two navy sections in a row read as one block.
              */
-            layout?: ('uniform' | 'bento') | null;
+            theme?: ('auto' | 'white' | 'wash' | 'washBlue' | 'dark') | null;
+            /**
+             * Optional photo behind the navy wash. Use a wide, low-detail shot — text sits on top of it.
+             */
+            themeImage?: (number | null) | Media;
+            /**
+             * A 9px gradient bar down the left edge of the section. Use once per page at most.
+             */
+            accentEdge?: boolean | null;
+            /**
+             * Bento needs 4+ cards with images to look deliberate; with fewer it just looks uneven. Metrics is for test results — fill in each card’s Figure.
+             */
+            layout?: ('uniform' | 'bento' | 'metrics') | null;
+            /**
+             * Photo beside the figures — a screenshot from the test itself reads best.
+             */
+            sideImage?: (number | null) | Media;
+            /**
+             * e.g. "Low-light test".
+             */
+            sideImageLabel?: string | null;
+            /**
+             * e.g. "35–40 lux".
+             */
+            sideImageValue?: string | null;
             /**
              * With images: two per row, image on the left. Without images: three per row.
              */
@@ -566,6 +626,10 @@ export interface CaseStudy {
                    */
                   tag?: string | null;
                   title: string;
+                  /**
+                   * Only used by the Metrics layout, e.g. "99.9%".
+                   */
+                  value?: string | null;
                   text: string;
                   id?: string | null;
                 }[]
@@ -602,6 +666,22 @@ export interface CaseStudy {
              */
             intro?: string | null;
             /**
+             * Leave on Auto unless this section needs to stand out. Two navy sections in a row read as one block.
+             */
+            theme?: ('auto' | 'white' | 'wash' | 'washBlue' | 'dark') | null;
+            /**
+             * Optional photo behind the navy wash. Use a wide, low-detail shot — text sits on top of it.
+             */
+            themeImage?: (number | null) | Media;
+            /**
+             * A 9px gradient bar down the left edge of the section. Use once per page at most.
+             */
+            accentEdge?: boolean | null;
+            /**
+             * Strip suits a data path. Flow suits a fault sequence — set each step’s Tone. Grid suits a delivery checklist.
+             */
+            style?: ('strip' | 'flow' | 'grid') | null;
+            /**
              * Tiny label in the top-right of every step, e.g. "SYSTEM SIGNAL". Optional.
              */
             cellLabel?: string | null;
@@ -615,6 +695,10 @@ export interface CaseStudy {
                    */
                   image?: (number | null) | Media;
                   title: string;
+                  /**
+                   * Only used by the State flow layout.
+                   */
+                  tone?: ('accent' | 'flag' | 'go' | 'navy') | null;
                   text: string;
                   id?: string | null;
                 }[]
@@ -644,6 +728,18 @@ export interface CaseStudy {
              * One or two sentences under the heading, before the content below. Optional.
              */
             intro?: string | null;
+            /**
+             * Leave on Auto unless this section needs to stand out. Two navy sections in a row read as one block.
+             */
+            theme?: ('auto' | 'white' | 'wash' | 'washBlue' | 'dark') | null;
+            /**
+             * Optional photo behind the navy wash. Use a wide, low-detail shot — text sits on top of it.
+             */
+            themeImage?: (number | null) | Media;
+            /**
+             * A 9px gradient bar down the left edge of the section. Use once per page at most.
+             */
+            accentEdge?: boolean | null;
             labelArea: string;
             labelBefore: string;
             labelAfter: string;
@@ -728,6 +824,18 @@ export interface CaseStudy {
              * One or two sentences under the heading, before the content below. Optional.
              */
             intro?: string | null;
+            /**
+             * Leave on Auto unless this section needs to stand out. Two navy sections in a row read as one block.
+             */
+            theme?: ('auto' | 'white' | 'wash' | 'washBlue' | 'dark') | null;
+            /**
+             * Optional photo behind the navy wash. Use a wide, low-detail shot — text sits on top of it.
+             */
+            themeImage?: (number | null) | Media;
+            /**
+             * A 9px gradient bar down the left edge of the section. Use once per page at most.
+             */
+            accentEdge?: boolean | null;
             body?: string | null;
             /**
              * The one sentence the reader should remember. Rendered large, centred, on navy.
@@ -1157,6 +1265,7 @@ export interface PagesSelect<T extends boolean = true> {
  */
 export interface CaseStudiesSelect<T extends boolean = true> {
   title?: T;
+  titleAccent?: T;
   slug?: T;
   excerpt?: T;
   coverImage?: T;
@@ -1186,7 +1295,12 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              theme?: T;
+              themeImage?: T;
+              accentEdge?: T;
               quote?: T;
+              quoteLabel?: T;
+              quoteFooter?: T;
               points?:
                 | T
                 | {
@@ -1203,6 +1317,9 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              theme?: T;
+              themeImage?: T;
+              accentEdge?: T;
               variant?: T;
               image?: T;
               banner?: T;
@@ -1215,13 +1332,20 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              theme?: T;
+              themeImage?: T;
+              accentEdge?: T;
               layout?: T;
+              sideImage?: T;
+              sideImageLabel?: T;
+              sideImageValue?: T;
               cards?:
                 | T
                 | {
                     image?: T;
                     tag?: T;
                     title?: T;
+                    value?: T;
                     text?: T;
                     id?: T;
                   };
@@ -1242,12 +1366,17 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              theme?: T;
+              themeImage?: T;
+              accentEdge?: T;
+              style?: T;
               cellLabel?: T;
               steps?:
                 | T
                 | {
                     image?: T;
                     title?: T;
+                    tone?: T;
                     text?: T;
                     id?: T;
                   };
@@ -1262,6 +1391,9 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              theme?: T;
+              themeImage?: T;
+              accentEdge?: T;
               labelArea?: T;
               labelBefore?: T;
               labelAfter?: T;
@@ -1314,6 +1446,9 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              theme?: T;
+              themeImage?: T;
+              accentEdge?: T;
               body?: T;
               statement?: T;
               id?: T;

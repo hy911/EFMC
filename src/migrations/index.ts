@@ -7,6 +7,7 @@ import * as migration_20260730_084438_case_section_intro from './20260730_084438
 import * as migration_20260730_092040_case_cards_layout from './20260730_092040_case_cards_layout';
 import * as migration_20260731_011318_case_contrast_panel from './20260731_011318_case_contrast_panel';
 import * as migration_20260731_020850_case_figure_variant from './20260731_020850_case_figure_variant';
+import * as migration_20260731_023222_case_section_themes from './20260731_023222_case_section_themes';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260731_020850_case_figure_variant.up,
     down: migration_20260731_020850_case_figure_variant.down,
-    name: '20260731_020850_case_figure_variant'
+    name: '20260731_020850_case_figure_variant',
+  },
+  {
+    up: migration_20260731_023222_case_section_themes.up,
+    down: migration_20260731_023222_case_section_themes.down,
+    name: '20260731_023222_case_section_themes'
   },
 ];

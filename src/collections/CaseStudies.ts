@@ -40,6 +40,19 @@ export const CaseStudies: CollectionConfig = {
       required: true,
       localized: true,
     },
+    {
+      // 页头大标题的第二行，用浅蓝显示。填了就把 title 当第一行，两行分色排版
+      name: 'titleAccent',
+      label: { en: 'Title, second line', zh: '标题第二行' },
+      type: 'text',
+      localized: true,
+      admin: {
+        description: {
+          en: 'Optional. Shown under the title in pale blue — split the headline where it naturally breaks, e.g. "Recognition" / "before actuation."',
+          zh: '可留空。填了就在标题下方用浅蓝显示，按标题本来的断句拆，如「先认出来」/「再动作」。',
+        },
+      },
+    },
     slugField('title'),
     {
       name: 'excerpt',

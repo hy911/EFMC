@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 import { Container } from '@/components/ui/Container'
 import { MediaImage } from '@/components/ui/MediaImage'
 import type { CaseStudy } from '@/payload-types'
@@ -8,8 +10,56 @@ type CaseBlock = NonNullable<CaseStudy['sections']>[number]
 /** 章节序号：01 · 客户的要求 */
 const num = (i: number) => String(i + 1).padStart(2, '0')
 
-/** 章节留白：设计稿是 100px，窄屏 70px */
-const SECTION = 'py-[70px] lg:py-[100px]'
+/** 章节留白：设计稿是 112px，窄屏 70px */
+const SECTION = 'py-[70px] lg:py-[112px]'
+
+/** 底色档位：auto 走交替，其余由这一节自己指定 */
+const THEMES: Record<string, { bg: string; dark: boolean }> = {
+  white: { bg: 'bg-white', dark: false },
+  wash: { bg: 'bg-wash', dark: false },
+  washBlue: { bg: 'bg-wash-blue', dark: false },
+  dark: { bg: 'bg-navy', dark: true },
+}
+
+/**
+ * 章节外壳：底色、左缘强调条、深蓝底上的背景照片都在这里，
+ * 各版式只管里面的内容，不用各自处理一遍。
+ */
+function Section({
+  bg,
+  dark,
+  photo,
+  accentEdge,
+  className,
+  children,
+}: {
+  bg: string
+  dark: boolean
+  photo?: CaseFigure['image'] | null
+  accentEdge?: boolean | null
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className={`relative overflow-hidden ${bg}`}>
+      {dark && photo && (
+        <>
+          <div className="absolute inset-0 opacity-30">
+            <MediaImage media={photo} size="feature" fill sizes="100vw" />
+          </div>
+          <div className="absolute inset-0 bg-linear-to-b from-navy/97 to-navy-deep/98" />
+        </>
+      )}
+      {accentEdge && (
+        <i
+          className="absolute inset-y-0 left-0 z-[1] w-[9px] bg-linear-to-b from-accent to-accent-soft"
+          aria-hidden="true"
+        />
+      )}
+      <Container className={`relative ${className ?? SECTION}`}>{children}</Container>
+    </section>
+  )
+}
 
 /**
  * 章节头：左侧方框编号 + 右侧小标/大标题/引言。
@@ -68,6 +118,7 @@ function SectionHead({
 }
 
 type CompareBlock = Extract<CaseBlock, { blockType: 'caseCompare' }>
+type CaseFigure = Extract<CaseBlock, { blockType: 'caseFigure' }>
 
 /**
  * 「改造前 / 改造后」图示面板：左卡列出旧逻辑下无法区分的几种情形，
@@ -215,255 +266,493 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
     merged: boolean
     number: string | null
     bg: string
+    dark: boolean
     pad: string
   }[] = []
   let counter = 0
-  let lastBg = 'bg-white'
+  let lastBg: string = 'bg-white'
+  let lastDark: boolean = false
   for (const [i, block] of blocks.entries()) {
     const merged = isMerged(block)
     const numbered = !merged && block.blockType !== 'caseStatement'
     if (numbered) counter += 1
-    const bg = merged ? lastBg : counter % 2 === 0 ? 'bg-mist' : 'bg-white'
-    if (!merged) lastBg = bg
+    // 收尾块固定深蓝；其余没指定底色时按序号交替
+    const picked =
+      block.blockType === 'caseStatement'
+        ? THEMES.dark
+        : THEMES[block.theme ?? 'auto'] ||
+          (counter % 2 === 0 ? { bg: 'bg-wash', dark: false } : { bg: 'bg-white', dark: false })
+    const bg: string = merged ? lastBg : picked.bg
+    const dark: boolean = merged ? lastDark : picked.dark
+    if (!merged) {
+      lastBg = bg
+      lastDark = dark
+    }
     // 下一块是佐证图时本节不收底，两者之间只留 54px，读起来才是同一节
-    const pad = blocks[i + 1] && isMerged(blocks[i + 1]) ? 'pt-[70px] lg:pt-[100px]' : SECTION
-    laid.push({ block, merged, number: numbered ? num(counter - 1) : null, bg, pad })
+    const pad = blocks[i + 1] && isMerged(blocks[i + 1]) ? 'pt-[70px] lg:pt-[112px]' : SECTION
+    laid.push({ block, merged, number: numbered ? num(counter - 1) : null, bg, dark, pad })
   }
 
   return (
     <>
-      {laid.map(({ block, merged, number, bg, pad }) => {
+      {laid.map(({ block, merged, number, bg, dark, pad }) => {
+        const shell = {
+          bg,
+          dark,
+          photo: block.blockType === 'caseStatement' ? null : block.themeImage,
+          accentEdge: block.blockType === 'caseStatement' ? false : block.accentEdge,
+        }
+
         switch (block.blockType) {
-          /* 问题陈述：左标题 右引语+清单 */
+          /* 问题陈述：左侧深蓝引语卡，右侧问题清单 */
           case 'caseSplit':
             return (
-              <section key={block.id} className={bg}>
-                <Container className={pad}>
-                  <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
-                    <div>
-                      <SectionHead
-                        number={number}
-                        kicker={block.kicker}
-                        heading={block.heading}
-                        intro={block.intro}
+              <Section key={block.id} {...shell} className={pad}>
+                <SectionHead
+                  number={number}
+                  kicker={block.kicker}
+                  heading={block.heading}
+                  intro={block.intro}
+                  dark={dark}
+                />
+                <div className="grid grid-cols-1 items-stretch gap-10 lg:grid-cols-[1.06fr_0.94fr] lg:gap-18">
+                  {block.quote && (
+                    <div className="relative flex min-h-[430px] flex-col justify-between overflow-hidden bg-navy p-9 text-white shadow-[0_22px_70px_rgba(6,28,59,0.14)] lg:p-13">
+                      {/* 右下角的描边圆环，纯装饰 */}
+                      <i
+                        className="absolute -right-[130px] -bottom-[160px] h-[330px] w-[330px] rounded-full border border-sky/25 shadow-[0_0_0_58px_rgba(79,141,242,0.04)]"
+                        aria-hidden="true"
                       />
-                    </div>
-                    <div>
-                      {block.quote && (
-                        <p className="m-0 border-l-[5px] border-accent pl-7 font-display text-[26px] leading-[1.38] font-bold text-navy sm:text-[30px]">
-                          “{block.quote}”
-                        </p>
+                      <span className="relative z-[1] h-11 font-display text-[80px] leading-[0.8] text-accent-soft">
+                        “
+                      </span>
+                      <p className="relative z-[1] m-0 mt-5 mb-11 max-w-[610px] text-[25px] leading-[1.38] font-medium sm:text-[30px] lg:text-[34px]">
+                        {block.quote}
+                      </p>
+                      {(block.quoteLabel || block.quoteFooter) && (
+                        <div className="relative z-[1] border-t border-white/17 pt-5">
+                          <span className="block text-[9px] tracking-[0.16em] text-fog uppercase">
+                            {block.quoteLabel}
+                          </span>
+                          <b className="mt-1.5 block text-[11px] tracking-[0.08em] text-accent-soft uppercase">
+                            {block.quoteFooter}
+                          </b>
+                        </div>
                       )}
-                      <div className={block.quote ? 'mt-9' : ''}>
-                        {(block.points ?? []).map((point) => (
-                          <div key={point.id} className="border-t border-line pt-[18px] pb-[18px]">
-                            <strong className="mb-1.5 block text-[16px] font-semibold text-navy">
-                              {point.label}
-                            </strong>
-                            <span className="block text-[16px] leading-[1.65] text-steel">
-                              {point.text}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
                     </div>
+                  )}
+                  <div className="grid content-stretch">
+                    {(block.points ?? []).map((point, p) => (
+                      <article
+                        key={point.id}
+                        className={`grid grid-cols-[38px_minmax(0,1fr)] items-start gap-5 border-t py-[30px] last:border-b ${
+                          dark ? 'border-white/15' : 'border-line'
+                        }`}
+                      >
+                        <b className="text-[11px] tracking-[0.12em] text-accent">{num(p)}</b>
+                        <div>
+                          <h3
+                            className={`m-0 text-[19px] leading-[1.3] font-semibold ${dark ? 'text-white' : 'text-navy'}`}
+                          >
+                            {point.label}
+                          </h3>
+                          <p
+                            className={`mt-2.5 mb-0 text-[15px] leading-[1.65] ${dark ? 'text-cloud' : 'text-steel'}`}
+                          >
+                            {point.text}
+                          </p>
+                        </div>
+                      </article>
+                    ))}
                   </div>
-                </Container>
-              </section>
+                </div>
+              </Section>
             )
 
           /* 佐证图：图片 + 右侧深蓝说明面板，接在上一节末尾，不单独编号 */
           case 'caseFigure':
             if (merged)
               return (
-                <section key={block.id} className={bg}>
-                  <Container className="pt-[54px] pb-[70px] lg:pb-[100px]">
-                    <figure className="m-0 grid grid-cols-1 bg-navy text-white shadow-[0_22px_70px_rgba(6,28,59,0.08)] lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,0.45fr)]">
-                      <div className="relative min-h-[260px] lg:min-h-[430px]">
-                        <MediaImage
-                          media={block.image}
-                          size="feature"
-                          fill
-                          sizes="(min-width: 1024px) 800px, 100vw"
-                        />
-                      </div>
-                      <figcaption className="flex flex-col justify-end p-8 lg:border-l lg:border-white/15 lg:p-[42px]">
-                        <span className="text-[9px] font-extrabold tracking-[0.17em] text-sky uppercase">
-                          {block.kicker}
-                        </span>
-                        <strong className="mt-3.5 block font-display text-[19px] leading-[1.3] font-bold">
-                          {block.heading}
-                        </strong>
-                        {block.intro && (
-                          <p className="mt-4 mb-0 text-[15px] leading-[1.65] text-cloud">
-                            {block.intro}
-                          </p>
-                        )}
-                      </figcaption>
-                    </figure>
-                    {block.banner && (
-                      <div className="mt-8 bg-navy px-[30px] py-[22px] text-center font-display text-[18px] leading-[1.45] font-bold text-white sm:text-[21px]">
-                        {block.banner}
-                      </div>
-                    )}
-                  </Container>
-                </section>
-              )
-            return (
-              <section key={block.id} className={bg}>
-                <Container className={pad}>
-                  <SectionHead
-                    number={number}
-                    kicker={block.kicker}
-                    heading={block.heading}
-                    intro={block.intro}
-                  />
-                  {/* 示意图按原始比例展示、不裁切；用原图而非 feature（1280px 在 2 倍屏上会糊） */}
-                  <div className="border border-line bg-white p-2 sm:p-[22px]">
-                    <MediaImage
-                      media={block.image}
-                      sizes="(min-width: 1240px) 1136px, 100vw"
-                      quality={90}
-                    />
-                  </div>
+                <Section
+                  key={block.id}
+                  {...shell}
+                  className="pt-[54px] pb-[70px] lg:pb-[112px]"
+                >
+                  <figure className="m-0 grid grid-cols-1 bg-navy text-white shadow-[0_22px_70px_rgba(6,28,59,0.08)] lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,0.45fr)]">
+                    <div className="relative min-h-[260px] lg:min-h-[430px]">
+                      <MediaImage
+                        media={block.image}
+                        size="feature"
+                        fill
+                        sizes="(min-width: 1024px) 800px, 100vw"
+                      />
+                    </div>
+                    <figcaption className="flex flex-col justify-end p-8 lg:border-l lg:border-white/15 lg:p-[42px]">
+                      <span className="text-[9px] font-extrabold tracking-[0.17em] text-sky uppercase">
+                        {block.kicker}
+                      </span>
+                      <strong className="mt-3.5 block font-display text-[19px] leading-[1.3] font-bold">
+                        {block.heading}
+                      </strong>
+                      {block.intro && (
+                        <p className="mt-4 mb-0 text-[15px] leading-[1.65] text-cloud">
+                          {block.intro}
+                        </p>
+                      )}
+                    </figcaption>
+                  </figure>
                   {block.banner && (
                     <div className="mt-8 bg-navy px-[30px] py-[22px] text-center font-display text-[18px] leading-[1.45] font-bold text-white sm:text-[21px]">
                       {block.banner}
                     </div>
                   )}
-                </Container>
-              </section>
+                </Section>
+              )
+            return (
+              <Section key={block.id} {...shell} className={pad}>
+                <SectionHead
+                  number={number}
+                  kicker={block.kicker}
+                  heading={block.heading}
+                  intro={block.intro}
+                  dark={dark}
+                />
+                {/* 示意图按原始比例展示、不裁切；用原图而非 feature（1280px 在 2 倍屏上会糊） */}
+                <div
+                  className={`border p-2 sm:p-[22px] ${dark ? 'border-white/20 bg-navy-deep' : 'border-line bg-white'}`}
+                >
+                  <MediaImage
+                    media={block.image}
+                    sizes="(min-width: 1240px) 1136px, 100vw"
+                    quality={90}
+                  />
+                </div>
+                {block.banner && (
+                  <div className="mt-8 bg-navy px-[30px] py-[22px] text-center font-display text-[18px] leading-[1.45] font-bold text-white sm:text-[21px]">
+                    {block.banner}
+                  </div>
+                )}
+              </Section>
             )
 
-          /* 卡片网格：有图两栏（图在左），无图三栏；拼贴时首末两张通栏 */
+          /* 卡片网格：有图两栏（图在左），无图三栏；拼贴时首末两张通栏；数据版式左读数右佐证 */
           case 'caseCards': {
             const cards = block.cards ?? []
             const withImages = cards.some((card) => card.image)
             // 拼贴要有图、且至少 4 张才成立，否则退回等宽网格
             const bento = block.layout === 'bento' && withImages && cards.length >= 4
-            return (
-              <section key={block.id} className={bg}>
-                <Container className={pad}>
+
+            /* 数据版式：左侧读数卡竖排，右侧一张佐证图 + 口径小格 + 小字 */
+            if (block.layout === 'metrics')
+              return (
+                <Section key={block.id} {...shell} className={pad}>
                   <SectionHead
                     number={number}
                     kicker={block.kicker}
                     heading={block.heading}
                     intro={block.intro}
+                    dark={dark}
                   />
-                  <div
-                    className={`grid grid-cols-1 gap-7 ${
-                      withImages ? 'lg:grid-cols-2' : 'sm:grid-cols-3'
-                    }`}
-                  >
-                    {cards.map((card, c) => {
-                      const spans = bento && (c === 0 || c === cards.length - 1)
-                      return (
+                  <div className="grid grid-cols-1 gap-[34px] lg:grid-cols-[minmax(360px,0.72fr)_minmax(0,1.28fr)]">
+                    <div className="grid content-start gap-3.5">
+                      {cards.map((card) => (
                         <article
                           key={card.id}
-                          className={[
-                            withImages
-                              ? 'grid grid-cols-1 gap-7 border-t border-line pt-[26px]'
-                              : 'border-t-4 border-accent pt-[22px]',
-                            // 通栏卡：横跨两列，图片给到更大的比例
-                            spans
-                              ? 'lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_380px]'
-                              : withImages
-                                ? 'sm:grid-cols-[190px_1fr]'
-                                : '',
-                          ]
-                            .filter(Boolean)
-                            .join(' ')}
+                          className="grid min-h-[158px] grid-cols-[minmax(0,1fr)_auto] items-end border border-l-4 border-line border-l-accent bg-white p-[27px]"
                         >
-                          {card.image && (
-                            <div
-                              className={`relative bg-mist ${
-                                spans ? 'h-[240px] lg:h-[320px]' : 'h-[210px] sm:h-[155px]'
-                              }`}
-                            >
-                              <MediaImage
-                                media={card.image}
-                                size={spans ? 'feature' : 'card'}
-                                fill
-                                sizes={spans ? '740px' : '380px'}
-                              />
-                            </div>
-                          )}
-                          <div className={spans ? 'lg:self-center' : ''}>
-                            {card.tag && (
-                              <div className="mb-2 text-[12px] font-bold tracking-[0.16em] text-accent uppercase">
-                                {card.tag}
-                              </div>
-                            )}
-                            <h3 className="m-0 font-display text-[24px] leading-[1.25] font-bold text-navy">
+                          <div>
+                            <span className="block text-[14px] font-bold text-navy">
                               {card.title}
-                            </h3>
-                            <p className="mt-3.5 mb-0 text-[16px] leading-[1.65] text-steel">
-                              {card.text}
-                            </p>
+                            </span>
+                            {card.tag && (
+                              <small className="mt-1.5 block text-[11px] text-steel">
+                                {card.tag}
+                              </small>
+                            )}
                           </div>
+                          {card.value && (
+                            <strong className="font-display text-[38px] leading-[0.9] font-bold tracking-[-0.045em] text-accent sm:text-[48px]">
+                              {card.value}
+                            </strong>
+                          )}
+                          <p className="col-span-full mt-[22px] mb-0 border-t border-line pt-[13px] text-[11px] text-steel">
+                            {card.text}
+                          </p>
                         </article>
-                      )
-                    })}
-                  </div>
-                  {/* 口径小格：数据是怎么测出来的（窗口、间隔、仪器台数） */}
-                  {(block.facts?.length ?? 0) > 0 && (
-                    <div className="mt-10 grid grid-cols-2 gap-x-7 gap-y-6 sm:grid-cols-4">
-                      {block.facts!.map((fact) => (
-                        <div key={fact.id} className="border-t border-line pt-4">
-                          <b className="block font-display text-[22px] leading-none font-bold text-navy">
-                            {fact.value}
-                          </b>
-                          <span className="mt-2 block text-[13px] leading-[1.5] text-steel">
-                            {fact.label}
-                          </span>
-                        </div>
                       ))}
                     </div>
-                  )}
-                  {block.note && (
-                    <p className="mt-8 mb-0 max-w-[760px] text-[13px] leading-[1.6] text-steel">
-                      {block.note}
-                    </p>
-                  )}
-                </Container>
-              </section>
+                    <div className="min-w-0 bg-navy text-white">
+                      {block.sideImage && (
+                        <div className="relative h-[240px] lg:h-[330px]">
+                          <MediaImage
+                            media={block.sideImage}
+                            size="feature"
+                            fill
+                            sizes="(min-width: 1024px) 720px, 100vw"
+                          />
+                          {block.sideImageValue && (
+                            <div className="absolute right-6 bottom-6 z-[2] bg-navy/88 px-3.5 py-2.5">
+                              <small className="block text-[8px] tracking-[0.14em] text-sky uppercase">
+                                {block.sideImageLabel}
+                              </small>
+                              <strong className="mt-1 block font-display text-[17px] leading-none font-bold">
+                                {block.sideImageValue}
+                              </strong>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {(block.facts?.length ?? 0) > 0 && (
+                        <div className="grid grid-cols-1 gap-px bg-white/12 sm:grid-cols-3">
+                          {block.facts!.map((fact) => (
+                            <div key={fact.id} className="bg-navy px-6 py-[22px]">
+                              <b className="block font-display text-[19px] leading-none font-bold">
+                                {fact.value}
+                              </b>
+                              <span className="mt-2 block text-[11px] leading-[1.5] text-cloud">
+                                {fact.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {block.note && (
+                        <p className="m-0 border-t border-white/12 px-6 py-[22px] text-[11px] leading-[1.65] text-cloud">
+                          {block.note}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Section>
+              )
+
+            return (
+              <Section key={block.id} {...shell} className={pad}>
+                <SectionHead
+                  number={number}
+                  kicker={block.kicker}
+                  heading={block.heading}
+                  intro={block.intro}
+                  dark={dark}
+                />
+                <div
+                  className={`grid grid-cols-1 gap-7 ${
+                    withImages ? 'lg:grid-cols-2' : 'sm:grid-cols-3'
+                  }`}
+                >
+                  {cards.map((card, c) => {
+                    const spans = bento && (c === 0 || c === cards.length - 1)
+                    return (
+                      <article
+                        key={card.id}
+                        className={[
+                          withImages
+                            ? `grid grid-cols-1 gap-7 ${dark ? 'border border-sky/20 bg-navy-deep/70 p-5' : 'border-t border-line pt-[26px]'}`
+                            : `pt-[22px] ${dark ? 'border-t-4 border-accent-soft' : 'border-t-4 border-accent'}`,
+                          // 通栏卡：横跨两列，图片给到更大的比例
+                          spans
+                            ? 'lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_380px]'
+                            : withImages
+                              ? 'sm:grid-cols-[190px_1fr]'
+                              : '',
+                        ]
+                          .filter(Boolean)
+                          .join(' ')}
+                      >
+                        {card.image && (
+                          <div
+                            className={`relative ${dark ? 'bg-navy' : 'bg-mist'} ${
+                              spans ? 'h-[240px] lg:h-[320px]' : 'h-[210px] sm:h-[155px]'
+                            }`}
+                          >
+                            <MediaImage
+                              media={card.image}
+                              size={spans ? 'feature' : 'card'}
+                              fill
+                              sizes={spans ? '740px' : '380px'}
+                            />
+                          </div>
+                        )}
+                        <div className={spans ? 'lg:self-center' : ''}>
+                          {card.tag && (
+                            <div
+                              className={`mb-2 text-[12px] font-bold tracking-[0.16em] uppercase ${dark ? 'text-sky' : 'text-accent'}`}
+                            >
+                              {card.tag}
+                            </div>
+                          )}
+                          <h3
+                            className={`m-0 font-display text-[24px] leading-[1.25] font-bold ${dark ? 'text-white' : 'text-navy'}`}
+                          >
+                            {card.title}
+                          </h3>
+                          <p
+                            className={`mt-3.5 mb-0 text-[16px] leading-[1.65] ${dark ? 'text-cloud' : 'text-steel'}`}
+                          >
+                            {card.text}
+                          </p>
+                        </div>
+                      </article>
+                    )
+                  })}
+                </div>
+                {/* 口径小格：数据是怎么测出来的（窗口、间隔、仪器台数） */}
+                {(block.facts?.length ?? 0) > 0 && (
+                  <div className="mt-10 grid grid-cols-2 gap-x-7 gap-y-6 sm:grid-cols-4">
+                    {block.facts!.map((fact) => (
+                      <div
+                        key={fact.id}
+                        className={`border-t pt-4 ${dark ? 'border-white/15' : 'border-line'}`}
+                      >
+                        <b
+                          className={`block font-display text-[22px] leading-none font-bold ${dark ? 'text-white' : 'text-navy'}`}
+                        >
+                          {fact.value}
+                        </b>
+                        <span
+                          className={`mt-2 block text-[13px] leading-[1.5] ${dark ? 'text-cloud' : 'text-steel'}`}
+                        >
+                          {fact.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {block.note && (
+                  <p
+                    className={`mt-8 mb-0 max-w-[760px] text-[13px] leading-[1.6] ${dark ? 'text-cloud' : 'text-steel'}`}
+                  >
+                    {block.note}
+                  </p>
+                )}
+              </Section>
             )
           }
 
-          /* 步骤条 */
-          case 'caseSteps':
+          /* 步骤：三种版式 —— 流程带 / 状态流 / 网格 */
+          case 'caseSteps': {
+            const steps = block.steps ?? []
+            const style = block.style ?? 'strip'
+            const TONES: Record<string, string> = {
+              accent: 'bg-accent',
+              flag: 'bg-flag',
+              go: 'bg-go',
+              navy: 'bg-navy',
+            }
             return (
-              <section key={block.id} className={bg}>
-                <Container className={pad}>
-                  <SectionHead
-                    number={number}
-                    kicker={block.kicker}
-                    heading={block.heading}
-                    intro={block.intro}
-                  />
-                  {/*
-                    宽屏是一条横贯的流程带：整条上下两根横线，格与格之间竖线分隔，
-                    接缝上再压一颗 › 圆点。分隔线只在「一行放得下全部步骤」时才成立
-                    —— 换行后判断不出哪一格是行尾（每个断点列数不同），所以 lg 以下
-                    改成每格自带顶线，行列怎么变都不会错位。
-                  */}
-                  {(() => {
-                    const steps = block.steps ?? []
+              <Section key={block.id} {...shell} className={pad}>
+                <SectionHead
+                  number={number}
+                  kicker={block.kicker}
+                  heading={block.heading}
+                  intro={block.intro}
+                  dark={dark}
+                />
+
+                {/* 状态流：一排彩色圆徽章，用颜色说明每一步处在什么状态 */}
+                {style === 'flow' && (
+                  <div
+                    className={`grid grid-cols-1 items-center gap-y-7 border-y py-7 sm:grid-cols-2 lg:grid-cols-[1fr_28px_1fr_28px_1fr_28px_1fr] lg:gap-y-0 ${dark ? 'border-white/15' : 'border-line'}`}
+                  >
+                    {steps.map((step, s) => (
+                      <Fragment key={step.id}>
+                        <article className="grid min-w-0 grid-cols-[46px_minmax(0,1fr)] items-start gap-[15px]">
+                          <span
+                            className={`grid h-[42px] w-[42px] place-items-center rounded-full text-[9px] font-extrabold text-white ${TONES[step.tone ?? 'accent']}`}
+                          >
+                            {num(s)}
+                          </span>
+                          <div>
+                            <small
+                              className={`block text-[8px] font-extrabold tracking-[0.13em] uppercase ${dark ? 'text-sky' : 'text-accent'}`}
+                            >
+                              {step.title}
+                            </small>
+                            <h3
+                              className={`m-0 mt-2 text-[15px] leading-[1.4] font-semibold ${dark ? 'text-white' : 'text-navy'}`}
+                            >
+                              {step.text}
+                            </h3>
+                          </div>
+                        </article>
+                        {s < steps.length - 1 && (
+                          <i
+                            className="hidden text-center text-[27px] leading-none text-[#a7bdd1] not-italic lg:block"
+                            aria-hidden="true"
+                          >
+                            ›
+                          </i>
+                        )}
+                      </Fragment>
+                    ))}
+                  </div>
+                )}
+
+                {/* 网格：每行三个，顶部一条强调线，格子靠右/下细线分隔 */}
+                {style === 'grid' && (
+                  <div
+                    className={`grid grid-cols-1 border-t-2 sm:grid-cols-2 lg:grid-cols-3 ${dark ? 'border-accent-soft' : 'border-accent'}`}
+                  >
+                    {steps.map((step, s) => (
+                      <article
+                        key={step.id}
+                        className={`min-h-[230px] border-b p-8 ${dark ? 'border-white/15 bg-navy-deep/60' : 'border-line bg-white'} ${
+                          dark ? 'lg:not-nth-[3n]:border-r' : 'lg:not-nth-[3n]:border-r'
+                        } ${dark ? 'lg:border-r-white/15' : 'lg:border-r-line'}`}
+                      >
+                        <span
+                          className={`mb-9 block text-[10px] font-extrabold tracking-[0.12em] ${dark ? 'text-sky' : 'text-accent'}`}
+                        >
+                          {num(s)}
+                        </span>
+                        <h3
+                          className={`m-0 text-[19px] leading-[1.3] font-semibold ${dark ? 'text-white' : 'text-navy'}`}
+                        >
+                          {step.title}
+                        </h3>
+                        <p
+                          className={`mt-3 mb-0 text-[13px] leading-[1.6] ${dark ? 'text-cloud' : 'text-steel'}`}
+                        >
+                          {step.text}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {/*
+                  流程带：整条上下两根横线，格与格之间竖线分隔，接缝上再压一颗 › 圆点。
+                  分隔线只在「一行放得下全部步骤」时才成立 —— 换行后判断不出哪一格是
+                  行尾（每个断点列数不同），所以 lg 以下改成每格自带顶线，行列怎么变
+                  都不会错位。
+                */}
+                {style === 'strip' &&
+                  (() => {
                     const cols =
-                      { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-6' }[
-                        steps.length
-                      ] ?? 'lg:grid-cols-6'
+                      {
+                        2: 'lg:grid-cols-2',
+                        3: 'lg:grid-cols-3',
+                        4: 'lg:grid-cols-4',
+                        5: 'lg:grid-cols-5',
+                        6: 'lg:grid-cols-6',
+                      }[steps.length] ?? 'lg:grid-cols-6'
                     return (
                       <div
-                        className={`grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:gap-y-0 lg:border-y lg:border-line ${cols}`}
+                        className={`grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:gap-y-0 lg:border-y ${dark ? 'lg:border-white/15' : 'lg:border-line'} ${cols}`}
                       >
                         {steps.map((step, s) => (
                           <article
                             key={step.id}
-                            className="relative min-w-0 max-lg:border-t-2 max-lg:border-accent max-lg:pt-[26px] lg:min-h-[360px] lg:px-4 lg:pt-[22px] lg:pb-[27px] lg:not-last:border-r lg:not-last:border-line"
+                            className={`relative min-w-0 max-lg:border-t-2 max-lg:pt-[26px] lg:min-h-[360px] lg:px-4 lg:pt-[22px] lg:pb-[27px] lg:not-last:border-r ${
+                              dark
+                                ? 'max-lg:border-accent-soft lg:not-last:border-white/15'
+                                : 'max-lg:border-accent lg:not-last:border-line'
+                            }`}
                           >
                             <div className="flex items-center justify-between gap-2.5 lg:mb-4">
-                              <span className="text-[10px] font-extrabold tracking-[0.13em] text-accent">
+                              <span
+                                className={`text-[10px] font-extrabold tracking-[0.13em] ${dark ? 'text-sky' : 'text-accent'}`}
+                              >
                                 {num(s)}
                               </span>
                               {block.cellLabel && (
@@ -473,7 +762,9 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                               )}
                             </div>
                             {step.image && (
-                              <div className="relative mt-4 h-[150px] overflow-hidden border border-[#c7d7e6] bg-mist lg:mt-0 lg:mb-[26px] lg:h-[112px]">
+                              <div
+                                className={`relative mt-4 h-[150px] overflow-hidden border lg:mt-0 lg:mb-[26px] lg:h-[112px] ${dark ? 'border-white/20 bg-navy' : 'border-[#c7d7e6] bg-mist'}`}
+                              >
                                 <MediaImage media={step.image} size="card" fill sizes="240px" />
                                 <span
                                   className="pointer-events-none absolute inset-[9px] z-[2] border border-accent-soft/30"
@@ -484,16 +775,20 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                                 </span>
                               </div>
                             )}
-                            <strong className="mt-2.5 block text-[17px] leading-[1.3] font-semibold text-navy lg:mt-0">
+                            <strong
+                              className={`mt-2.5 block text-[17px] leading-[1.3] font-semibold lg:mt-0 ${dark ? 'text-white' : 'text-navy'}`}
+                            >
                               {step.title}
                             </strong>
-                            <span className="mt-3 block text-[13px] leading-[1.6] text-steel">
+                            <span
+                              className={`mt-3 block text-[13px] leading-[1.6] ${dark ? 'text-cloud' : 'text-steel'}`}
+                            >
                               {step.text}
                             </span>
                             {/* 接缝上的箭头：只在单排时出现，换行后没有接缝可压 */}
                             {s < steps.length - 1 && (
                               <b
-                                className="absolute top-[47px] -right-3 z-[2] hidden h-[23px] w-[23px] place-items-center rounded-full border border-[#adc4da] bg-white text-[17px] leading-none text-accent lg:grid"
+                                className={`absolute top-[47px] -right-3 z-[2] hidden h-[23px] w-[23px] place-items-center rounded-full border text-[17px] leading-none lg:grid ${dark ? 'border-white/25 bg-navy text-sky' : 'border-[#adc4da] bg-white text-accent'}`}
                                 aria-hidden="true"
                               >
                                 ›
@@ -504,91 +799,107 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                       </div>
                     )
                   })()}
-                  {/* 佐证条：一个数值 + 出处说明，如「5 秒（上一版为 5 分钟）」 */}
-                  {block.proofValue && (
-                    <div className="mt-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 bg-navy px-[30px] py-[26px]">
-                      <strong className="font-display text-[34px] leading-none font-bold text-white">
-                        {block.proofValue}
-                      </strong>
-                      {block.proofNote && (
-                        <p className="m-0 max-w-[620px] text-[15px] leading-[1.6] text-cloud">
-                          {block.proofNote}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </Container>
-              </section>
-            )
 
-          /* 前后对比表（可选：表格上方再放一组「改造前 / 改造后」图示卡） */
-          case 'caseCompare':
-            return (
-              <section key={block.id} className={bg}>
-                <Container className={pad}>
-                  <SectionHead
-                    number={number}
-                    kicker={block.kicker}
-                    heading={block.heading}
-                    intro={block.intro}
-                  />
-                  {block.panelImage && <ContrastPanel block={block} />}
-                  {/* 窄屏横向滚动，页面本身不出现横向滚动条 */}
-                  <div className={`overflow-x-auto ${block.panelImage ? 'mt-11' : ''}`}>
-                    <table className="w-full min-w-[760px] border-collapse text-left">
-                      <thead>
-                        <tr>
-                          {[block.labelArea, block.labelBefore, block.labelAfter].map((label) => (
-                            <th
-                              key={label}
-                              className="border-b border-line p-[18px] text-[12px] font-bold tracking-[0.1em] text-accent uppercase"
-                            >
-                              {label}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(block.rows ?? []).map((row) => (
-                          <tr key={row.id}>
-                            <td className="w-[22%] border-b border-line p-[18px] align-top text-[16px] font-bold text-navy">
-                              {row.area}
-                            </td>
-                            <td className="w-[39%] border-b border-line p-[18px] align-top text-[16px] text-steel">
-                              {row.before}
-                            </td>
-                            <td className="border-b border-line p-[18px] align-top text-[16px] font-bold text-navy">
-                              {row.after}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </Container>
-              </section>
-            )
-
-          /* 深蓝收尾 */
-          case 'caseStatement':
-            return (
-              <section key={block.id} className="bg-navy text-white">
-                <Container className="py-[80px] text-center lg:py-[110px]">
-                  <div className="mx-auto max-w-[980px]">
-                    <SectionHead
-                      number={number}
-                      kicker={block.kicker}
-                      heading={block.heading}
-                      intro={block.intro}
-                      dark
-                    />
-                    {block.body && (
-                      <p className="mx-auto mt-6 mb-0 max-w-[740px] text-[19px] leading-[1.65] text-cloud">
-                        {block.body}
+                {/* 佐证条：一个数值 + 出处说明，如「5 秒（上一版为 5 分钟）」 */}
+                {block.proofValue && (
+                  <div className="mt-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 border-l-4 border-accent bg-navy px-[30px] py-[26px]">
+                    <strong className="font-display text-[34px] leading-none font-bold text-white">
+                      {block.proofValue}
+                    </strong>
+                    {block.proofNote && (
+                      <p className="m-0 max-w-[620px] text-[15px] leading-[1.6] text-cloud">
+                        {block.proofNote}
                       </p>
                     )}
-                    <div className="mx-auto mt-13 max-w-[980px] border-t border-white/22 pt-[42px] font-display text-[25px] leading-[1.28] font-bold sm:text-[34px] lg:text-[42px]">
-                      {block.statement}
+                  </div>
+                )}
+              </Section>
+            )
+          }
+
+          /* 前后对比表（可选：表格上方再放一组「改造前 / 改造后」图示卡） */
+          case 'caseCompare': {
+            const line = dark ? 'border-white/15' : 'border-line'
+            return (
+              <Section key={block.id} {...shell} className={pad}>
+                <SectionHead
+                  number={number}
+                  kicker={block.kicker}
+                  heading={block.heading}
+                  intro={block.intro}
+                  dark={dark}
+                />
+                {block.panelImage && <ContrastPanel block={block} />}
+                {/* 窄屏横向滚动，页面本身不出现横向滚动条 */}
+                <div className={`overflow-x-auto ${block.panelImage ? 'mt-11' : ''}`}>
+                  <table className="w-full min-w-[760px] border-collapse text-left">
+                    <thead>
+                      <tr>
+                        {[block.labelArea, block.labelBefore, block.labelAfter].map((label) => (
+                          <th
+                            key={label}
+                            className={`border-b p-[18px] text-[12px] font-bold tracking-[0.1em] uppercase ${line} ${dark ? 'text-sky' : 'text-accent'}`}
+                          >
+                            {label}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(block.rows ?? []).map((row) => (
+                        <tr key={row.id}>
+                          <td
+                            className={`w-[22%] border-b p-[18px] align-top text-[16px] font-bold ${line} ${dark ? 'text-white' : 'text-navy'}`}
+                          >
+                            {row.area}
+                          </td>
+                          <td
+                            className={`w-[39%] border-b p-[18px] align-top text-[16px] ${line} ${dark ? 'text-cloud' : 'text-steel'}`}
+                          >
+                            {row.before}
+                          </td>
+                          <td
+                            className={`border-b p-[18px] align-top text-[16px] font-bold ${line} ${dark ? 'text-white' : 'text-navy'}`}
+                          >
+                            {row.after}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Section>
+            )
+          }
+
+          /* 深蓝收尾：左标题、右正文 + 大字引语 */
+          case 'caseStatement':
+            return (
+              <section key={block.id} className="relative overflow-hidden bg-navy text-white">
+                {/* 右上角的描边圆环，纯装饰 */}
+                <i
+                  className="absolute -top-[250px] -right-[110px] h-[560px] w-[560px] rounded-full border border-sky/20 shadow-[0_0_0_70px_rgba(79,141,242,0.03),0_0_0_140px_rgba(79,141,242,0.02)]"
+                  aria-hidden="true"
+                />
+                <Container className="relative py-[80px] lg:py-[118px]">
+                  <div className="grid grid-cols-1 gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-25">
+                    <div>
+                      <p className="m-0 text-[12px] font-bold tracking-[0.18em] text-sky uppercase">
+                        {block.kicker}
+                      </p>
+                      <h2 className="mt-2.5 mb-0 font-display text-[34px] leading-[1.06] font-bold tracking-[-0.045em] text-white sm:text-[42px] lg:text-[52px]">
+                        {block.heading}
+                      </h2>
+                    </div>
+                    <div>
+                      {block.body && (
+                        <p className="m-0 mb-[42px] max-w-[610px] text-[17px] leading-[1.75] text-cloud">
+                          {block.body}
+                        </p>
+                      )}
+                      <blockquote className="m-0 border-t border-white/18 pt-7 text-[23px] leading-[1.35] font-normal tracking-[-0.03em] text-cloud sm:text-[30px] lg:text-[36px]">
+                        {block.statement}
+                      </blockquote>
                     </div>
                   </div>
                 </Container>

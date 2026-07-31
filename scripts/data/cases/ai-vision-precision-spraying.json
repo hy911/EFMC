@@ -8,8 +8,8 @@
     "wincc-hmi-scada-programming-service"
   ],
   "title": {
-    "en": "Recognition Before Actuation",
-    "zh": "先认出来，再动作"
+    "en": "Recognition",
+    "zh": "先认出来"
   },
   "excerpt": {
     "en": "We upgraded sensor-activated dairy cooling into a vision-led decision system — so the control layer can tell a cow from a person before opening the corresponding spray valve.",
@@ -108,7 +108,16 @@
             "zh": "没有画面佐证，管理者复核一次触发、调整一个分区或解释一起事件时都没有依据。"
           }
         }
-      ]
+      ],
+      "theme": "white",
+      "quoteLabel": {
+        "en": "The client’s core requirement",
+        "zh": "客户的核心诉求"
+      },
+      "quoteFooter": {
+        "en": "01 / Classify before spraying",
+        "zh": "01 / 先分类，再喷淋"
+      }
     },
     {
       "type": "compare",
@@ -318,7 +327,9 @@
             "highlight": true
           }
         ]
-      }
+      },
+      "theme": "wash",
+      "accentEdge": true
     },
     {
       "type": "steps",
@@ -429,7 +440,8 @@
       "cellLabel": {
         "en": "System signal",
         "zh": "系统信号"
-      }
+      },
+      "theme": "white"
     },
     {
       "type": "figure",
@@ -548,7 +560,13 @@
         "en": "The project combines visual acquisition, edge intelligence, deterministic PLC control and operational visibility.",
         "zh": "这个项目把视觉采集、边缘智能、确定性的 PLC 控制与运行可见性组合在一起。"
       },
-      "layout": "bento"
+      "layout": "bento",
+      "theme": "dark",
+      "themeImage": "hero-barn.jpg",
+      "themeImageAlt": {
+        "en": "Dairy barn interior",
+        "zh": "牛舍内景"
+      }
     },
     {
       "type": "cards",
@@ -567,12 +585,16 @@
             "zh": "照度 > 500 lux"
           },
           "title": {
-            "en": "Daylight / overcast · 99.9%",
-            "zh": "白天 / 阴天 · 99.9%"
+            "en": "Daylight / overcast",
+            "zh": "白天 / 阴天"
           },
           "text": {
             "en": "Reported missed-detection rate 0.01%.",
             "zh": "报告记录的漏检率 0.01%。"
+          },
+          "value": {
+            "en": "99.9%",
+            "zh": "99.9%"
           }
         },
         {
@@ -581,12 +603,16 @@
             "zh": "照度 45–49 lux"
           },
           "title": {
-            "en": "Night · Level 1 · 99.5%",
-            "zh": "夜间 · 一档 · 99.5%"
+            "en": "Night · Level 1",
+            "zh": "夜间 · 一档"
           },
           "text": {
             "en": "Reported missed-detection rate 0.03%.",
             "zh": "报告记录的漏检率 0.03%。"
+          },
+          "value": {
+            "en": "99.5%",
+            "zh": "99.5%"
           }
         },
         {
@@ -595,12 +621,16 @@
             "zh": "照度 35–40 lux"
           },
           "title": {
-            "en": "Night · Level 2 · 99.2%",
-            "zh": "夜间 · 二档 · 99.2%"
+            "en": "Night · Level 2",
+            "zh": "夜间 · 二档"
           },
           "text": {
             "en": "Reported missed-detection rate 0.05%.",
             "zh": "报告记录的漏检率 0.05%。"
+          },
+          "value": {
+            "en": "99.2%",
+            "zh": "99.2%"
           }
         }
       ],
@@ -643,6 +673,21 @@
       "note": {
         "en": "Project-specific results. Recognition performance depends on camera placement, lighting, the barn environment and the quality of the farm-specific training dataset.",
         "zh": "以上为本项目的实测结果。识别表现取决于相机位置、光照、牛舍环境，以及针对该牧场训练的数据集质量。"
+      },
+      "theme": "washBlue",
+      "layout": "metrics",
+      "sideImage": "ai-detection.png",
+      "sideImageAlt": {
+        "en": "Night recognition view used for the low-light test",
+        "zh": "低照度测试所用的夜间识别画面"
+      },
+      "sideImageLabel": {
+        "en": "Low-light test",
+        "zh": "低照度测试"
+      },
+      "sideImageValue": {
+        "en": "35–40 lux",
+        "zh": "35–40 lux"
       }
     },
     {
@@ -664,7 +709,8 @@
           "text": {
             "en": "Camera connection is checked continuously.",
             "zh": "持续检查摄像头连接状态。"
-          }
+          },
+          "tone": "accent"
         },
         {
           "title": {
@@ -674,7 +720,8 @@
           "text": {
             "en": "Fault or disconnection is identified.",
             "zh": "识别出故障或断连。"
-          }
+          },
+          "tone": "flag"
         },
         {
           "title": {
@@ -684,7 +731,8 @@
           "text": {
             "en": "The sub-controller switches to local conventional mode.",
             "zh": "分控切到本地常规模式继续运行。"
-          }
+          },
+          "tone": "go"
         },
         {
           "title": {
@@ -694,7 +742,8 @@
           "text": {
             "en": "Alarm and event history notify operators.",
             "zh": "告警与事件历史通知管理者。"
-          }
+          },
+          "tone": "navy"
         }
       ],
       "intro": {
@@ -708,7 +757,9 @@
       "proofNote": {
         "en": "Camera fault response documented for the upgraded configuration, compared with 5 minutes in the preceding version.",
         "zh": "报告记载升级后配置的摄像头故障响应时间，上一版为 5 分钟。"
-      }
+      },
+      "theme": "white",
+      "style": "flow"
     },
     {
       "type": "steps",
@@ -785,7 +836,9 @@
       "intro": {
         "en": "Each stage is executed against this barn — its camera angles, its lighting and its existing control network.",
         "zh": "每一步都是针对这座牛舍做的——它的机位角度、它的光照条件、它现有的控制网络。"
-      }
+      },
+      "theme": "wash",
+      "style": "grid"
     },
     {
       "type": "statement",
@@ -820,5 +873,9 @@
       "en": "AI + PLC closed loop",
       "zh": "AI + PLC 闭环"
     }
-  ]
+  ],
+  "titleAccent": {
+    "en": "before actuation.",
+    "zh": "再动作。"
+  }
 }

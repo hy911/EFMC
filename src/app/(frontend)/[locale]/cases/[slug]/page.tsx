@@ -115,9 +115,12 @@ export default async function CaseStudyPage({ params }: Props) {
                 {industry.name}
               </div>
             )}
-            {/* 设计稿 clamp(48px, 7vw, 82px) */}
+            {/* 设计稿 clamp(48px, 7vw, 82px)；填了第二行就分两色排 */}
             <h1 className="mt-5 mb-0 max-w-[900px] font-display text-[47px] leading-[1.02] font-bold tracking-[-0.045em] sm:text-[64px] lg:text-[82px]">
               {cs.title}
+              {cs.titleAccent && (
+                <span className="block font-normal text-sky">{cs.titleAccent}</span>
+              )}
             </h1>
             <div className="my-[34px] h-1 w-[74px] bg-accent" />
             <p className="m-0 max-w-[680px] text-[18px] leading-[1.55] text-cloud sm:text-[21px]">

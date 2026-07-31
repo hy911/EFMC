@@ -21,6 +21,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 | --- | --- | --- |
 | `slug` | 是 | URL 用，小写字母/数字/连字符。如 `ai-vision-precision-spraying-dairy` |
 | `title` | 是 | `{ en, zh }`，页头大标题。名词短语，别写成一句话 |
+| `titleAccent` | 否 | `{ en, zh }`，大标题第二行，用浅蓝显示。按标题本来的断句拆，如「先认出来」/「再动作」 |
 | `excerpt` | 是 | `{ en, zh }`，1–2 句。列表卡片和页头导语共用 |
 | `cover` | 是 | 封面图文件名（只写文件名，不写路径） |
 | `coverAlt` | 否 | `{ en, zh }`，封面 alt；不写则用 title |
@@ -48,6 +49,11 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 | `kicker` | 是 | 小标，如「客户的要求」。前面的编号官网自动加 |
 | `heading` | 是 | 大标题。写成完整一句话比两个词好看 |
 | `intro` | 否 | 标题下方的一两句铺垫。**别省**——设计稿里每节标题下都有这段，缺了会显得空 |
+| `theme` | 否 | 底色：`auto`（默认，白/浅蓝交替）/ `white` / `wash` 浅蓝 / `washBlue` 蓝调 / `dark` 深蓝 |
+| `themeImage` | 否 | 只在 `theme: "dark"` 时有效，深蓝底后面的照片文件名。配 `themeImageAlt` |
+| `accentEdge` | 否 | `true` 时章节左缘加一条 9px 渐变竖条。**整页最多用一次** |
+
+底色别每节都指定。整页的节奏应该是：大部分留 `auto`，只给一两节深蓝（`dark`）让它跳出来。连着两节深蓝会糊成一片。
 
 ### `split` — 问题陈述（左标题 / 右引语 + 清单）
 
@@ -62,7 +68,14 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 }
 ```
 
-`quote` 可省。引号由页面自动加。`points` 建议 3 条。
+`quote` 填了就渲染成一张深蓝引语卡（左），问题清单排在右侧；可省。引号由页面自动加。`points` 建议 3 条。
+
+引语卡底部可以再加两行落款，都可省：
+
+```json
+"quoteLabel": { "en": "The client’s core requirement", "zh": "客户的核心诉求" },
+"quoteFooter": { "en": "01 / Classify before spraying", "zh": "01 / 先分类，再喷淋" }
+```
 
 ### `figure` — 整幅图版
 
@@ -104,6 +117,15 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 
 `layout` 可省，默认 `"uniform"` 等宽。填 `"bento"` 则首尾两张通栏、中间两张并排（大·中·中·宽），适合介绍系统分层。**bento 要 4 张以上带图卡片**，不够会被导入器拦下——少于 4 张排出来只是参差不齐，不是层次感。
 
+填 `"metrics"` 是测试结果专用版式：左边一列读数卡（左文字、右大号数字），右边一块深蓝区放佐证图 + 口径小格 + 免责小字。这时**每张卡必须有 `value`**（那个大号数字），另外可以给：
+
+```json
+"sideImage": "ai-detection.png",
+"sideImageAlt": {},
+"sideImageLabel": { "en": "Low-light test", "zh": "低照度测试" },
+"sideImageValue": { "en": "35–40 lux", "zh": "35–40 lux" }
+```
+
 `facts`（最多 4 格）是卡片下方一排「数值 + 说明」，用来交代数据口径：测试窗口、采样间隔、仪器台数这类。`note` 是整块最下方的小字，放免责或适用范围。两者都可省。**凡是给了百分比、耗时这类数字的章节，都该用 `facts` 说清这些数字是怎么测出来的**——读者会先找口径。
 
 ### `steps` — 步骤条
@@ -121,7 +143,17 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 
 2–6 步，自动编号。实施流程、故障降级流程用这个。超过 6 步请合并——一行放不下就散了。
 
-宽屏是一条横贯的流程带：整条上下两根横线，格与格之间竖线分隔，接缝上压一颗 `›` 圆点。窄屏换成每格自带顶线堆叠。
+`style` 三选一，可省（默认 `strip`）：
+
+| 值 | 长相 | 适合 |
+| --- | --- | --- |
+| `strip` | 一条横贯的流程带：上下两根横线、格间竖线、接缝上压 `›` 圆点 | 数据怎么流转 |
+| `flow` | 一排彩色圆徽章 + 文字，中间 `›` 分隔 | 故障处理链路——每步要配 `tone` |
+| `grid` | 每行三个的网格，顶部一条强调线 | 实施清单 |
+
+`flow` 版式里，每步的 `tone` 表示这一步处在什么状态：`accent` 蓝（正常运行）/ `flag` 红（发现故障）/ `go` 绿（已进入安全态）/ `navy` 深蓝（记录留痕）。**按语义选，不要按好看选**——颜色在这里是信息。
+
+窄屏一律换成每格自带顶线堆叠。
 
 `image` 可选，但**要配就每步都配**——只配一半会排得参差不齐，导入时会直接报错拦下。配了图的格子里，图片右下角会自动压一枚写着步骤名的深色角标。
 
