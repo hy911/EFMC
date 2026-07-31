@@ -92,6 +92,8 @@ function validate(data) {
       case 'figure':
         if (!s.image) at(`${p}.image`, '必填，图片文件名')
         if (!isText(s.imageAlt)) at(`${p}.imageAlt`, '必填，需要 { en, zh }（SEO 与无障碍都靠它）')
+        if (s.variant && !['full', 'side'].includes(s.variant))
+          at(`${p}.variant`, `只能是 full 或 side，收到 "${s.variant}"`)
         break
       case 'cards':
         if (s.layout && !['uniform', 'bento'].includes(s.layout))
@@ -123,6 +125,8 @@ function validate(data) {
         const withImg = (s.steps ?? []).filter((st) => st.image).length
         if (withImg > 0 && withImg < (s.steps?.length ?? 0))
           at(`${p}.steps`, `要配图就每步都配（现在 ${s.steps.length} 步里只有 ${withImg} 步有图）`)
+        if (s.cellLabel !== undefined && !isText(s.cellLabel))
+          at(`${p}.cellLabel`, '写了就要 { en, zh }')
         if (s.proofValue !== undefined && !isText(s.proofValue))
           at(`${p}.proofValue`, '写了就要 { en, zh }')
         if (isText(s.proofValue) && !isText(s.proofNote))
@@ -215,7 +219,12 @@ function sectionToBlockEn(s, media) {
         points: s.points.map((p) => ({ label: en(p.label), text: en(p.text) })),
       }
     case 'figure':
-      return { ...base, image: media[s.image], banner: en(s.banner) }
+      return {
+        ...base,
+        variant: s.variant ?? 'full',
+        image: media[s.image],
+        banner: en(s.banner),
+      }
     case 'cards':
       return {
         ...base,
@@ -232,6 +241,7 @@ function sectionToBlockEn(s, media) {
     case 'steps':
       return {
         ...base,
+        cellLabel: en(s.cellLabel),
         steps: s.steps.map((st) => ({
           image: st.image ? media[st.image] : undefined,
           title: en(st.title),
@@ -302,6 +312,7 @@ function sectionToZh(s) {
     case 'steps':
       return {
         ...base,
+        cellLabel: zh(s.cellLabel),
         steps: s.steps.map((st) => ({ title: zh(st.title), text: zh(st.text) })),
         proofValue: zh(s.proofValue),
         proofNote: zh(s.proofNote),

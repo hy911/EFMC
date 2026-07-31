@@ -108,6 +108,22 @@ export const CaseFigureBlock: Block = {
   fields: [
     ...sectionHead,
     {
+      name: 'variant',
+      label: { en: 'Layout', zh: '版式' },
+      type: 'select',
+      defaultValue: 'full',
+      options: [
+        { label: { en: 'Standalone section', zh: '独立章节' }, value: 'full' },
+        { label: { en: 'Evidence for the section above', zh: '上一节的佐证图' }, value: 'side' },
+      ],
+      admin: {
+        description: {
+          en: 'Evidence mode merges into the section above (no number of its own) and puts the text in a navy panel beside the image.',
+          zh: '佐证图会并进上一节（自己不占编号），文字放在图片右侧的深蓝面板里。',
+        },
+      },
+    },
+    {
       name: 'image',
       label: { en: 'Image', zh: '图片' },
       type: 'upload',
@@ -262,6 +278,19 @@ export const CaseStepsBlock: Block = {
   },
   fields: [
     ...sectionHead,
+    {
+      // 每格右上角那行极小的说明字，如「SYSTEM SIGNAL」；纯版式装饰，可留空
+      name: 'cellLabel',
+      label: { en: 'Cell Label', zh: '格内小标' },
+      type: 'text',
+      localized: true,
+      admin: {
+        description: {
+          en: 'Tiny label in the top-right of every step, e.g. "SYSTEM SIGNAL". Optional.',
+          zh: '每一格右上角的极小字，如「SYSTEM SIGNAL」；可留空。',
+        },
+      },
+    },
     {
       name: 'steps',
       label: { en: 'Steps', zh: '步骤' },

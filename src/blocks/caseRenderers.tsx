@@ -11,43 +11,59 @@ const num = (i: number) => String(i + 1).padStart(2, '0')
 /** 章节留白：设计稿是 100px，窄屏 70px */
 const SECTION = 'py-[70px] lg:py-[100px]'
 
-/** 章节头（小标 + 大标题 + 引言），各块共用 */
+/**
+ * 章节头：左侧方框编号 + 右侧小标/大标题/引言。
+ * number 传 null 表示这节不编号（侧栏图版、深色收尾），左栏留空占位保持对齐。
+ */
 function SectionHead({
-  index,
+  number,
   kicker,
   heading,
   intro,
   dark = false,
 }: {
-  index: number
+  number: string | null
   kicker: string
   heading: string
   intro?: string | null
   dark?: boolean
 }) {
   return (
-    <>
-      <div
-        className={`text-[12px] font-bold tracking-[0.18em] uppercase ${dark ? 'text-sky' : 'text-accent'}`}
-      >
-        {num(index)} · {kicker}
-      </div>
-      {/* 设计稿 clamp(34px, 5vw, 56px) */}
-      <h2
-        className={`mt-3.5 mb-0 max-w-[900px] font-display text-[34px] leading-[1.12] font-bold tracking-[-0.035em] sm:text-[44px] lg:text-[56px] ${
-          dark ? 'text-white' : 'text-navy'
-        }`}
-      >
-        {heading}
-      </h2>
-      {intro && (
-        <p
-          className={`mt-6 mb-0 max-w-[760px] text-[16px] leading-[1.65] ${dark ? 'text-cloud' : 'text-steel'}`}
+    <div
+      className={`mb-15 grid max-w-[980px] gap-6 ${number ? 'grid-cols-[52px_minmax(0,1fr)] sm:grid-cols-[66px_minmax(0,1fr)]' : 'grid-cols-1'}`}
+    >
+      {number && (
+        <div
+          className={`grid h-13 w-13 place-items-center border text-[11px] font-extrabold tracking-[0.1em] ${
+            dark ? 'border-white/25 text-sky' : 'border-[#bcd5ee] text-accent'
+          }`}
         >
-          {intro}
-        </p>
+          {number}
+        </div>
       )}
-    </>
+      <div>
+        <p
+          className={`m-0 text-[12px] font-bold tracking-[0.18em] uppercase ${dark ? 'text-sky' : 'text-accent'}`}
+        >
+          {kicker}
+        </p>
+        {/* 设计稿 clamp(38px, 5.2vw, 62px) */}
+        <h2
+          className={`mt-2.5 mb-0 max-w-[940px] font-display text-[34px] leading-[1.06] font-bold tracking-[-0.045em] sm:text-[46px] lg:text-[58px] ${
+            dark ? 'text-white' : 'text-navy'
+          }`}
+        >
+          {heading}
+        </h2>
+        {intro && (
+          <p
+            className={`mt-6 mb-0 max-w-[790px] text-[17px] leading-[1.75] ${dark ? 'text-cloud' : 'text-steel'}`}
+          >
+            {intro}
+          </p>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -71,7 +87,7 @@ function ContrastPanel({ block }: { block: CompareBlock }) {
   }
 
   return (
-    <div className="mt-12 grid grid-cols-1 items-center gap-y-9 lg:grid-cols-[minmax(0,0.9fr)_70px_minmax(0,1.1fr)] lg:gap-y-0">
+    <div className="grid grid-cols-1 items-center gap-y-9 lg:grid-cols-[minmax(0,0.9fr)_70px_minmax(0,1.1fr)] lg:gap-y-0">
       {/* 左：旧逻辑 */}
       <article className="border border-line bg-white shadow-[0_22px_70px_rgba(6,28,59,0.08)]">
         <div className="flex items-center justify-between gap-5 border-b border-line px-6 py-[22px]">
@@ -188,23 +204,45 @@ function ContrastPanel({ block }: { block: CompareBlock }) {
  * 字号与留白按客户认可的设计稿还原，配色换成站点品牌色。
  */
 export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
+  /*
+    编号与底色都只按「独立章节」算：佐证图（side）并进上一节、深色收尾不编号，
+    它们跳过计数，后面的章节号才不会被顶掉一位。底色同理 —— 佐证图沿用上一节
+    的底色，看起来才是同一节的一部分。
+  */
+  const isMerged = (b: CaseBlock) => b.blockType === 'caseFigure' && b.variant === 'side'
+  const laid: {
+    block: CaseBlock
+    merged: boolean
+    number: string | null
+    bg: string
+    pad: string
+  }[] = []
+  let counter = 0
+  let lastBg = 'bg-white'
+  for (const [i, block] of blocks.entries()) {
+    const merged = isMerged(block)
+    const numbered = !merged && block.blockType !== 'caseStatement'
+    if (numbered) counter += 1
+    const bg = merged ? lastBg : counter % 2 === 0 ? 'bg-mist' : 'bg-white'
+    if (!merged) lastBg = bg
+    // 下一块是佐证图时本节不收底，两者之间只留 54px，读起来才是同一节
+    const pad = blocks[i + 1] && isMerged(blocks[i + 1]) ? 'pt-[70px] lg:pt-[100px]' : SECTION
+    laid.push({ block, merged, number: numbered ? num(counter - 1) : null, bg, pad })
+  }
+
   return (
     <>
-      {blocks.map((block, i) => {
-        // 深色收尾块不参与交替，避免它前面那块也变灰、连成一片
-        const wash = block.blockType !== 'caseStatement' && i % 2 === 1
-        const bg = wash ? 'bg-mist' : 'bg-white'
-
+      {laid.map(({ block, merged, number, bg, pad }) => {
         switch (block.blockType) {
           /* 问题陈述：左标题 右引语+清单 */
           case 'caseSplit':
             return (
               <section key={block.id} className={bg}>
-                <Container className={SECTION}>
+                <Container className={pad}>
                   <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20">
                     <div>
                       <SectionHead
-                        index={i}
+                        number={number}
                         kicker={block.kicker}
                         heading={block.heading}
                         intro={block.intro}
@@ -234,19 +272,54 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
               </section>
             )
 
-          /* 整幅图版 */
+          /* 佐证图：图片 + 右侧深蓝说明面板，接在上一节末尾，不单独编号 */
           case 'caseFigure':
+            if (merged)
+              return (
+                <section key={block.id} className={bg}>
+                  <Container className="pt-[54px] pb-[70px] lg:pb-[100px]">
+                    <figure className="m-0 grid grid-cols-1 bg-navy text-white shadow-[0_22px_70px_rgba(6,28,59,0.08)] lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,0.45fr)]">
+                      <div className="relative min-h-[260px] lg:min-h-[430px]">
+                        <MediaImage
+                          media={block.image}
+                          size="feature"
+                          fill
+                          sizes="(min-width: 1024px) 800px, 100vw"
+                        />
+                      </div>
+                      <figcaption className="flex flex-col justify-end p-8 lg:border-l lg:border-white/15 lg:p-[42px]">
+                        <span className="text-[9px] font-extrabold tracking-[0.17em] text-sky uppercase">
+                          {block.kicker}
+                        </span>
+                        <strong className="mt-3.5 block font-display text-[19px] leading-[1.3] font-bold">
+                          {block.heading}
+                        </strong>
+                        {block.intro && (
+                          <p className="mt-4 mb-0 text-[15px] leading-[1.65] text-cloud">
+                            {block.intro}
+                          </p>
+                        )}
+                      </figcaption>
+                    </figure>
+                    {block.banner && (
+                      <div className="mt-8 bg-navy px-[30px] py-[22px] text-center font-display text-[18px] leading-[1.45] font-bold text-white sm:text-[21px]">
+                        {block.banner}
+                      </div>
+                    )}
+                  </Container>
+                </section>
+              )
             return (
               <section key={block.id} className={bg}>
-                <Container className={SECTION}>
+                <Container className={pad}>
                   <SectionHead
-                    index={i}
+                    number={number}
                     kicker={block.kicker}
                     heading={block.heading}
                     intro={block.intro}
                   />
                   {/* 示意图按原始比例展示、不裁切；用原图而非 feature（1280px 在 2 倍屏上会糊） */}
-                  <div className="mt-12 border border-line bg-white p-2 sm:p-[22px]">
+                  <div className="border border-line bg-white p-2 sm:p-[22px]">
                     <MediaImage
                       media={block.image}
                       sizes="(min-width: 1240px) 1136px, 100vw"
@@ -270,15 +343,15 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
             const bento = block.layout === 'bento' && withImages && cards.length >= 4
             return (
               <section key={block.id} className={bg}>
-                <Container className={SECTION}>
+                <Container className={pad}>
                   <SectionHead
-                    index={i}
+                    number={number}
                     kicker={block.kicker}
                     heading={block.heading}
                     intro={block.intro}
                   />
                   <div
-                    className={`mt-12 grid grid-cols-1 gap-7 ${
+                    className={`grid grid-cols-1 gap-7 ${
                       withImages ? 'lg:grid-cols-2' : 'sm:grid-cols-3'
                     }`}
                   >
@@ -361,50 +434,72 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
           case 'caseSteps':
             return (
               <section key={block.id} className={bg}>
-                <Container className={SECTION}>
+                <Container className={pad}>
                   <SectionHead
-                    index={i}
+                    number={number}
                     kicker={block.kicker}
                     heading={block.heading}
                     intro={block.intro}
                   />
                   {/*
-                    每格自带顶线，不用「整条顶线 + 格间竖线」那套。
-                    格间线要求判断某一格是不是行尾 / 末行，而每个断点的列数不同，
-                    CSS 判断不出来 —— 4 步排 3 列（3+1）这种非满行必然错位。
-                    每格一条线则行数、列数怎么变都成立，也和本页价值卡片一致。
-
-                    列数按步数来：配了图的格子更宽，一行最多 3 个。
+                    宽屏是一条横贯的流程带：整条上下两根横线，格与格之间竖线分隔，
+                    接缝上再压一颗 › 圆点。分隔线只在「一行放得下全部步骤」时才成立
+                    —— 换行后判断不出哪一格是行尾（每个断点列数不同），所以 lg 以下
+                    改成每格自带顶线，行列怎么变都不会错位。
                   */}
                   {(() => {
                     const steps = block.steps ?? []
-                    const withImages = steps.some((s) => s.image)
-                    const cols = withImages
-                      ? 'lg:grid-cols-3'
-                      : { 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-6' }[
-                          steps.length
-                        ] || 'lg:grid-cols-3'
+                    const cols =
+                      { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-6' }[
+                        steps.length
+                      ] ?? 'lg:grid-cols-6'
                     return (
                       <div
-                        className={`mt-13 grid grid-cols-1 gap-x-7 gap-y-10 sm:grid-cols-2 ${cols}`}
+                        className={`grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:gap-y-0 lg:border-y lg:border-line ${cols}`}
                       >
                         {steps.map((step, s) => (
-                          <div key={step.id} className="border-t-2 border-accent pt-[26px]">
-                            <b className="block text-[12px] font-bold tracking-[0.12em] text-accent">
-                              {num(s)}
-                            </b>
+                          <article
+                            key={step.id}
+                            className="relative min-w-0 max-lg:border-t-2 max-lg:border-accent max-lg:pt-[26px] lg:min-h-[360px] lg:px-4 lg:pt-[22px] lg:pb-[27px] lg:not-last:border-r lg:not-last:border-line"
+                          >
+                            <div className="flex items-center justify-between gap-2.5 lg:mb-4">
+                              <span className="text-[10px] font-extrabold tracking-[0.13em] text-accent">
+                                {num(s)}
+                              </span>
+                              {block.cellLabel && (
+                                <small className="hidden text-[7px] font-bold tracking-[0.1em] whitespace-nowrap text-fog uppercase lg:block">
+                                  {block.cellLabel}
+                                </small>
+                              )}
+                            </div>
                             {step.image && (
-                              <div className="relative mt-4 h-[150px] bg-mist">
-                                <MediaImage media={step.image} size="card" fill sizes="380px" />
+                              <div className="relative mt-4 h-[150px] overflow-hidden border border-[#c7d7e6] bg-mist lg:mt-0 lg:mb-[26px] lg:h-[112px]">
+                                <MediaImage media={step.image} size="card" fill sizes="240px" />
+                                <span
+                                  className="pointer-events-none absolute inset-[9px] z-[2] border border-accent-soft/30"
+                                  aria-hidden="true"
+                                />
+                                <span className="absolute right-2.5 bottom-2.5 z-[3] bg-navy/88 px-1.5 py-[5px] text-[8px] font-extrabold tracking-[0.1em] text-white uppercase">
+                                  {step.title}
+                                </span>
                               </div>
                             )}
-                            <strong className="mt-2.5 block text-[16px] leading-[1.3] font-semibold text-navy">
+                            <strong className="mt-2.5 block text-[17px] leading-[1.3] font-semibold text-navy lg:mt-0">
                               {step.title}
                             </strong>
-                            <span className="mt-2 block text-[13px] leading-[1.5] text-steel">
+                            <span className="mt-3 block text-[13px] leading-[1.6] text-steel">
                               {step.text}
                             </span>
-                          </div>
+                            {/* 接缝上的箭头：只在单排时出现，换行后没有接缝可压 */}
+                            {s < steps.length - 1 && (
+                              <b
+                                className="absolute top-[47px] -right-3 z-[2] hidden h-[23px] w-[23px] place-items-center rounded-full border border-[#adc4da] bg-white text-[17px] leading-none text-accent lg:grid"
+                                aria-hidden="true"
+                              >
+                                ›
+                              </b>
+                            )}
+                          </article>
                         ))}
                       </div>
                     )
@@ -430,16 +525,16 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
           case 'caseCompare':
             return (
               <section key={block.id} className={bg}>
-                <Container className={SECTION}>
+                <Container className={pad}>
                   <SectionHead
-                    index={i}
+                    number={number}
                     kicker={block.kicker}
                     heading={block.heading}
                     intro={block.intro}
                   />
                   {block.panelImage && <ContrastPanel block={block} />}
                   {/* 窄屏横向滚动，页面本身不出现横向滚动条 */}
-                  <div className="mt-11 overflow-x-auto">
+                  <div className={`overflow-x-auto ${block.panelImage ? 'mt-11' : ''}`}>
                     <table className="w-full min-w-[760px] border-collapse text-left">
                       <thead>
                         <tr>
@@ -481,7 +576,7 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                 <Container className="py-[80px] text-center lg:py-[110px]">
                   <div className="mx-auto max-w-[980px]">
                     <SectionHead
-                      index={i}
+                      number={number}
                       kicker={block.kicker}
                       heading={block.heading}
                       intro={block.intro}

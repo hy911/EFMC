@@ -69,6 +69,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 ```json
 {
   "type": "figure",
+  "variant": "full",
   "kicker": {}, "heading": {}, "intro": {},
   "image": "system-architecture.png",
   "imageAlt": { "en": "", "zh": "" },
@@ -77,6 +78,8 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 ```
 
 架构图、对比图、现场实拍用这个。`banner` 是图下方深蓝条里的一行字，适合放流程概括，可省。
+
+`variant` 可省，默认 `"full"` 独立章节，自己占一个编号。填 `"side"` 则是**上一节的佐证图**：并进上一节（不占编号，后面章节号不会被顶掉一位），文字放在图片右侧的深蓝面板里。现场实拍、截图这种「用来证明上一节说法」的图用 `side`，别单独立一节——单独立一节会让读者以为换话题了。
 
 ### `cards` — 卡片网格
 
@@ -109,6 +112,7 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 {
   "type": "steps",
   "kicker": {}, "heading": {}, "intro": {},
+  "cellLabel": { "en": "System signal", "zh": "系统信号" },
   "steps": [{ "title": {}, "text": {}, "image": "plc-panel.jpg", "imageAlt": {} }],
   "proofValue": { "en": "5 sec", "zh": "5 秒" },
   "proofNote": { "en": "这个数值的含义与出处", "zh": "..." }
@@ -117,7 +121,11 @@ node scripts/import-case-study.mjs path/to/case.json --dry-run
 
 2–6 步，自动编号。实施流程、故障降级流程用这个。超过 6 步请合并——一行放不下就散了。
 
-`image` 可选，但**要配就每步都配**——只配一半会排得参差不齐，导入时会直接报错拦下。无图时一行最多 6 步，有图时一行 3 步。
+宽屏是一条横贯的流程带：整条上下两根横线，格与格之间竖线分隔，接缝上压一颗 `›` 圆点。窄屏换成每格自带顶线堆叠。
+
+`image` 可选，但**要配就每步都配**——只配一半会排得参差不齐，导入时会直接报错拦下。配了图的格子里，图片右下角会自动压一枚写着步骤名的深色角标。
+
+`cellLabel` 是每格右上角那行极小的字（参考稿里是 `SYSTEM SIGNAL`），纯版式装饰，可留空。
 
 `proofValue` / `proofNote` 是步骤条下方的深色佐证块，放一个关键数值加出处，例如「5 秒 —— 报告记载升级后的摄像头故障响应，上一版为 5 分钟」。两个要么都填、要么都不填。
 

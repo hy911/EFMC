@@ -425,6 +425,10 @@
       "intro": {
         "en": "A thin data path links visual recognition, control decisions and real equipment status — without a single oversized step dominating the workflow.",
         "zh": "一条很轻的数据链路把视觉识别、控制判断与设备真实状态串起来，没有哪一环重到拖累整体。"
+      },
+      "cellLabel": {
+        "en": "System signal",
+        "zh": "系统信号"
       }
     },
     {
@@ -449,7 +453,8 @@
       "banner": {
         "en": "01 · See → 02 · Classify → 03 · Verify zone → 04 · Actuate",
         "zh": "01 · 看见 → 02 · 分类 → 03 · 校验分区 → 04 · 执行"
-      }
+      },
+      "variant": "side"
     },
     {
       "type": "cards",

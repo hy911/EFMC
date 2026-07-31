@@ -523,6 +523,10 @@ export interface CaseStudy {
              */
             intro?: string | null;
             /**
+             * Evidence mode merges into the section above (no number of its own) and puts the text in a navy panel beside the image.
+             */
+            variant?: ('full' | 'side') | null;
+            /**
              * Diagrams read best at 1600px wide. Export vector diagrams to PNG first.
              */
             image: number | Media;
@@ -597,6 +601,10 @@ export interface CaseStudy {
              * One or two sentences under the heading, before the content below. Optional.
              */
             intro?: string | null;
+            /**
+             * Tiny label in the top-right of every step, e.g. "SYSTEM SIGNAL". Optional.
+             */
+            cellLabel?: string | null;
             /**
              * Numbered automatically in order. Six fit one row on desktop.
              */
@@ -1195,6 +1203,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              variant?: T;
               image?: T;
               banner?: T;
               id?: T;
@@ -1233,6 +1242,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               kicker?: T;
               heading?: T;
               intro?: T;
+              cellLabel?: T;
               steps?:
                 | T
                 | {
