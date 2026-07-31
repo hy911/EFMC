@@ -135,3 +135,21 @@ CI（`.github/workflows/ci.yml`）会在每个 PR 上跑 lint → 类型检查 �
 - **可用性**：Cloudflare 自带 Health Checks（付费）或用免费的 UptimeRobot 拨测 `https://efmc-automation.com/en`
 - **流量分析**：Cloudflare Web Analytics（免费、无 cookie，仪表盘开启即可）
 - **资源**：`docker stats` 看容器 CPU/内存；Hetzner 控制台看主机负载
+
+## 清理媒体库孤儿图
+
+导入器每次 `--replace` 都重新上传全部图片，上一轮那批就此没人引用。导过几轮之后，媒体库里大半是废图，运营在「选择已有图片」时根本认不出哪张在用。
+
+```bash
+node scripts/find-orphan-media.mjs                 # 只列清单，什么都不删
+node scripts/find-orphan-media.mjs --delete        # 核对清单后才真删
+```
+
+判断方式：把每个 collection / global 按 `depth=1` 取回来，关联字段会展开成完整文档，凡是带 `filename` + `mimeType` 的对象就算一处引用。不用知道哪些字段是上传字段，嵌在 blocks、数组里的照样扫得到。
+
+两个边界，删之前想清楚：
+
+- **只扫当前已发布版 + 当前草稿。** 只被历史版本引用的图会被判成孤儿；删了不影响前台，但翻旧版本时那张图会裂开
+- **默认跳过最近 24 小时上传的图**（运营刚传完还没插进文档的不该删）。要一并处理加 `--include-recent`
+
+**新增内容 collection 时必须把它加进脚本顶部的 `COLLECTIONS`**，漏了的话它引用的图会被当成孤儿删掉。
