@@ -198,30 +198,6 @@
       }
     },
     {
-      "type": "figure",
-      "kicker": {
-        "en": "Field evidence · Night recognition view",
-        "zh": "现场实拍 · 夜间识别画面"
-      },
-      "heading": {
-        "en": "Recognition zones and detected cattle, seen from the control layer.",
-        "zh": "控制层看到的识别分区与被识别出的牛只。"
-      },
-      "intro": {
-        "en": "Independent colored areas define the recognition zones. Cattle are detected by the model before the corresponding zone status enters the PLC decision layer.",
-        "zh": "画面上不同颜色的区域就是各自独立的识别区。模型先识别出牛只，对应分区的状态才会进入 PLC 的判断环节。"
-      },
-      "image": "ai-detection.png",
-      "imageAlt": {
-        "en": "Nighttime camera view with cattle recognition boxes and independent spray zones",
-        "zh": "夜间摄像头画面：牛只识别框与各自独立的喷淋分区"
-      },
-      "banner": {
-        "en": "01 · See → 02 · Classify → 03 · Verify zone → 04 · Actuate",
-        "zh": "01 · 看见 → 02 · 分类 → 03 · 校验分区 → 04 · 执行"
-      }
-    },
-    {
       "type": "steps",
       "kicker": {
         "en": "How the system works",
@@ -326,6 +302,30 @@
       "intro": {
         "en": "A thin data path links visual recognition, control decisions and real equipment status — without a single oversized step dominating the workflow.",
         "zh": "一条很轻的数据链路把视觉识别、控制判断与设备真实状态串起来，没有哪一环重到拖累整体。"
+      }
+    },
+    {
+      "type": "figure",
+      "kicker": {
+        "en": "Field evidence · Night recognition view",
+        "zh": "现场实拍 · 夜间识别画面"
+      },
+      "heading": {
+        "en": "Recognition zones and detected cattle, seen from the control layer.",
+        "zh": "控制层看到的识别分区与被识别出的牛只。"
+      },
+      "intro": {
+        "en": "Independent colored areas define the recognition zones. Cattle are detected by the model before the corresponding zone status enters the PLC decision layer.",
+        "zh": "画面上不同颜色的区域就是各自独立的识别区。模型先识别出牛只，对应分区的状态才会进入 PLC 的判断环节。"
+      },
+      "image": "ai-detection.png",
+      "imageAlt": {
+        "en": "Nighttime camera view with cattle recognition boxes and independent spray zones",
+        "zh": "夜间摄像头画面：牛只识别框与各自独立的喷淋分区"
+      },
+      "banner": {
+        "en": "01 · See → 02 · Classify → 03 · Verify zone → 04 · Actuate",
+        "zh": "01 · 看见 → 02 · 分类 → 03 · 校验分区 → 04 · 执行"
       }
     },
     {
