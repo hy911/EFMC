@@ -1,0 +1,48 @@
+/**
+ * 后台样式补丁。
+ *
+ * Payload 自己的样式都包在 `@layer payload-default` 里，本文件不进任何 layer，
+ * 所以无需堆权重就能覆盖 —— 不要在这里写 !important。
+ */
+
+/**
+ * 媒体库缩略图放大。
+ *
+ * 默认是 `calc(var(--base) * 2)`（约 40px 见方），运营在「选择已有图片」时
+ * 根本认不出哪张是哪张，只能靠文件名猜。这里放到 96px，并让图片完整显示
+ * 而不是裁成方块 —— 认图靠的是构图，裁过之后几张机柜照片长得一模一样。
+ *
+ * 列表页和上传选择弹窗用的是同一个 .file 单元格，改一处两边都生效。
+ */
+.file {
+  align-items: center;
+  gap: calc(var(--base) * 0.5);
+
+  &__thumbnail {
+    max-width: 96px;
+    width: 96px;
+    height: 72px;
+    border-radius: var(--style-radius-s);
+    background: var(--theme-elevation-50);
+
+    img,
+    svg {
+      object-fit: contain;
+    }
+  }
+
+  &__filename {
+    // 上面加了 gap，原来的 margin 会变成双份间距
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* 窄屏（后台也有人用平板看）缩一档，免得一行塞不下 */
+@media (max-width: 1024px) {
+  .file__thumbnail {
+    max-width: 64px;
+    width: 64px;
+    height: 48px;
+  }
+}

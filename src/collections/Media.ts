@@ -10,6 +10,12 @@ import { anyone, authenticated } from '@/access'
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: { en: 'Media', zh: '媒体' }, plural: { en: 'Media', zh: '媒体库' } },
+  admin: {
+    // 媒体库是「按图找图」，翻页找比滚动找累得多；默认一页 50 条
+    pagination: { defaultLimit: 50, limits: [20, 50, 100] },
+    // 创建时间对选图没帮助，去掉给文件名和 alt 让位
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
+  },
   access: {
     read: anyone, // 图片文件公开可读
     create: authenticated,
