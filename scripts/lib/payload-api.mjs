@@ -89,13 +89,24 @@ export const richTextOf = (paragraphs) => ({
 })
 
 /** 上传图片到 media（中英 alt 各写一遍），返回 media id */
-export async function uploadMedia(filePath, altEn, altZh) {
+/**
+ * 上传一张图并写好中英 alt。
+ * focal 传 [x, y]（0–100 的百分比）时一并写入焦点 —— 被 object-cover 裁切的位置
+ * 由它决定，不给就居中裁。焦点是图片自身的属性，所有引用处共用。
+ */
+export async function uploadMedia(filePath, altEn, altZh, focal) {
   const buf = await fs.readFile(filePath)
   const name = path.basename(filePath)
   const type = /\.png$/i.test(name) ? 'image/png' : 'image/jpeg'
   const form = new FormData()
   form.append('file', new Blob([buf], { type }), name)
-  form.append('_payload', JSON.stringify({ alt: altEn }))
+  form.append(
+    '_payload',
+    JSON.stringify({
+      alt: altEn,
+      ...(focal ? { focalX: focal[0], focalY: focal[1] } : {}),
+    }),
+  )
   const created = await api('/api/media?locale=en', { method: 'POST', raw: form })
   const id = created.doc.id
   await api(`/api/media/${id}?locale=zh`, { method: 'PATCH', body: { alt: altZh } })

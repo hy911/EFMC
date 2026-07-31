@@ -691,9 +691,13 @@ export interface CaseStudy {
             steps?:
               | {
                   /**
-                   * Optional. Give every step an image or none — a half-filled row looks broken.
+                   * Optional. Give every step a visual or none — a half-filled row looks broken.
                    */
                   image?: (number | null) | Media;
+                  /**
+                   * For steps with nothing physical to photograph. Overrides the image.
+                   */
+                  pictogram?: ('none' | 'ai' | 'network') | null;
                   title: string;
                   /**
                    * Only used by the State flow layout.
@@ -1375,6 +1379,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
                 | T
                 | {
                     image?: T;
+                    pictogram?: T;
                     title?: T;
                     tone?: T;
                     text?: T;

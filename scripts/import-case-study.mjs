@@ -137,6 +137,10 @@ function validate(data) {
         for (const [j, st] of (s.steps ?? []).entries()) {
           if (st.tone && !['accent', 'flag', 'go', 'navy'].includes(st.tone))
             at(`${p}.steps[${j}].tone`, '只能是 accent / flag / go / navy')
+          if (st.pictogram && !['none', 'ai', 'network'].includes(st.pictogram))
+            at(`${p}.steps[${j}].pictogram`, '只能是 none / ai / network')
+          if (st.focal && (!Array.isArray(st.focal) || st.focal.length !== 2))
+            at(`${p}.steps[${j}].focal`, '要写成 [x, y]，两个 0–100 的数')
         }
         if (!Array.isArray(s.steps) || s.steps.length < 2 || s.steps.length > 6)
           at(`${p}.steps`, '2–6 步（桌面端一行最多 6 个）')
@@ -146,9 +150,13 @@ function validate(data) {
           if (st.image && !isText(st.imageAlt)) at(`${p}.steps[${j}].imageAlt`, '有图就必须有 alt')
         }
         // 只给一半步骤配图会排得参差不齐
-        const withImg = (s.steps ?? []).filter((st) => st.image).length
+        const hasVisual = (st) => st.image || (st.pictogram && st.pictogram !== 'none')
+        const withImg = (s.steps ?? []).filter(hasVisual).length
         if (withImg > 0 && withImg < (s.steps?.length ?? 0))
-          at(`${p}.steps`, `要配图就每步都配（现在 ${s.steps.length} 步里只有 ${withImg} 步有图）`)
+          at(
+            `${p}.steps`,
+            `要配图就每步都配，示意图也算（现在 ${s.steps.length} 步里只有 ${withImg} 步有）`,
+          )
         if (s.cellLabel !== undefined && !isText(s.cellLabel))
           at(`${p}.cellLabel`, '写了就要 { en, zh }')
         if (s.proofValue !== undefined && !isText(s.proofValue))
@@ -282,6 +290,7 @@ function sectionToBlockEn(s, media) {
           image: st.image ? media[st.image] : undefined,
           title: en(st.title),
           tone: st.tone ?? 'accent',
+          pictogram: st.pictogram ?? 'none',
           text: en(st.text),
         })),
         proofValue: en(s.proofValue),
@@ -520,8 +529,9 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
   const media = {}
   for (const file of imageFiles) {
     const alt = altFor(data, file)
+    const focal = focalFor(data, file)
     const full = await resolveAsset(assetsDir, outDir, file)
-    media[file] = await uploadMedia(full, alt.en, alt.zh)
+    media[file] = await uploadMedia(full, alt.en, alt.zh, focal)
     console.log(`  ↑ ${file} → media ${media[file]}`)
   }
 
@@ -620,6 +630,20 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
   console.log(`\n前台地址：${base}/en/cases/${data.slug}　|　${base}/zh/cases/${data.slug}`)
   if (!data.location) console.log('后台可补：项目地点。')
   if (!data.completedAt) console.log('后台可补：交付时间（月）。')
+}
+
+/** 找这张图在 JSON 里声明的裁切焦点 [x, y]；没声明就返回 undefined（居中裁） */
+function focalFor(data, file) {
+  if (file === data.cover && Array.isArray(data.coverFocal)) return data.coverFocal
+  for (const s of data.sections ?? []) {
+    for (const st of s.steps ?? []) {
+      if (st.image === file && Array.isArray(st.focal)) return st.focal
+    }
+    for (const c of s.cards ?? []) {
+      if (c.image === file && Array.isArray(c.focal)) return c.focal
+    }
+  }
+  return undefined
 }
 
 /** 找这张图在 JSON 里对应的 alt（封面用 title 兜底） */

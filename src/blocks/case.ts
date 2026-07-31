@@ -452,8 +452,26 @@ export const CaseStepsBlock: Block = {
           relationTo: 'media',
           admin: {
             description: {
-              en: 'Optional. Give every step an image or none — a half-filled row looks broken.',
-              zh: '可留空。要配就每步都配，只配一半会参差不齐。',
+              en: 'Optional. Give every step a visual or none — a half-filled row looks broken.',
+              zh: '可留空。要配就每步都配（示意图也算），只配一半会参差不齐。',
+            },
+          },
+        },
+        {
+          // 有些环节没有可拍的实物（推理、传输），放张凑数的照片不如画个示意图
+          name: 'pictogram',
+          label: { en: 'Diagram instead of photo', zh: '用示意图代替照片' },
+          type: 'select',
+          defaultValue: 'none',
+          options: [
+            { label: { en: 'None — use the photo', zh: '不用，走上面的配图' }, value: 'none' },
+            { label: { en: 'AI inference', zh: 'AI 推理' }, value: 'ai' },
+            { label: { en: 'Network transfer', zh: '网络传输' }, value: 'network' },
+          ],
+          admin: {
+            description: {
+              en: 'For steps with nothing physical to photograph. Overrides the image.',
+              zh: '给「没有实物可拍」的环节用，如推理、传输。选了就不看配图。',
             },
           },
         },

@@ -355,7 +355,11 @@
           "imageAlt": {
             "en": "Field-mounted camera capturing the feeding zone",
             "zh": "现场安装的摄像头拍摄采食区"
-          }
+          },
+          "focal": [
+            58,
+            38
+          ]
         },
         {
           "title": {
@@ -366,11 +370,7 @@
             "en": "The AI model classifies cows and evaluates the defined ROI.",
             "zh": "AI 模型对牛只分类，并判断预设的识别区。"
           },
-          "image": "ai-detection.png",
-          "imageAlt": {
-            "en": "AI model classifying cattle inside the recognition zones",
-            "zh": "AI 模型在识别区内对牛只分类"
-          }
+          "pictogram": "ai"
         },
         {
           "title": {
@@ -381,11 +381,7 @@
             "en": "Recognition results are sent to the PLC and the cloud service.",
             "zh": "识别结果送往 PLC 与云端服务。"
           },
-          "image": "hardware-upgrade.jpg",
-          "imageAlt": {
-            "en": "Edge AI computing unit transmitting recognition results",
-            "zh": "边缘 AI 计算单元上送识别结果"
-          }
+          "pictogram": "network"
         },
         {
           "title": {
@@ -400,7 +396,11 @@
           "imageAlt": {
             "en": "PLC control cabinet evaluating zone and timing conditions",
             "zh": "PLC 控制柜校验分区与时序条件"
-          }
+          },
+          "focal": [
+            50,
+            45
+          ]
         },
         {
           "title": {
@@ -415,7 +415,11 @@
           "imageAlt": {
             "en": "Solenoid valve actuating the corresponding spray position",
             "zh": "电磁阀驱动对应的喷淋位置"
-          }
+          },
+          "focal": [
+            50,
+            54
+          ]
         },
         {
           "title": {
@@ -430,7 +434,11 @@
           "imageAlt": {
             "en": "Equipment status returning to the operations layer",
             "zh": "设备状态回传运维层"
-          }
+          },
+          "focal": [
+            50,
+            50
+          ]
         }
       ],
       "intro": {

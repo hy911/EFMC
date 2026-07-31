@@ -121,6 +121,87 @@ type CompareBlock = Extract<CaseBlock, { blockType: 'caseCompare' }>
 type CaseFigure = Extract<CaseBlock, { blockType: 'caseFigure' }>
 
 /**
+ * 流程带里「没有实物可拍」那几格的示意图：推理、传输这类环节，
+ * 硬塞一张机柜照片只会误导读者以为那一步发生在某个具体设备上。
+ */
+function Pictogram({ kind }: { kind: 'ai' | 'network' }) {
+  return (
+    <svg viewBox="0 0 160 112" className="h-full w-full" role="presentation">
+      <rect width="160" height="112" fill="var(--color-navy)" />
+      {kind === 'ai' ? (
+        <>
+          <rect
+            x="46"
+            y="30"
+            width="68"
+            height="52"
+            fill="none"
+            stroke="var(--color-accent-soft)"
+            strokeWidth="1"
+            opacity="0.55"
+          />
+          <rect
+            x="54"
+            y="38"
+            width="52"
+            height="36"
+            fill="none"
+            stroke="var(--color-accent-soft)"
+            strokeWidth="1"
+            opacity="0.3"
+          />
+          <text
+            x="80"
+            y="58"
+            textAnchor="middle"
+            fill="#fff"
+            fontSize="19"
+            fontWeight="700"
+            letterSpacing="1"
+          >
+            AI
+          </text>
+          <text
+            x="80"
+            y="69"
+            textAnchor="middle"
+            fill="var(--color-accent-soft)"
+            fontSize="7"
+            fontWeight="700"
+            letterSpacing="2.5"
+          >
+            VISION
+          </text>
+        </>
+      ) : (
+        <>
+          <line
+            x1="46"
+            y1="56"
+            x2="114"
+            y2="56"
+            stroke="var(--color-accent-soft)"
+            strokeWidth="1"
+            opacity="0.5"
+          />
+          {[46, 80, 114].map((cx) => (
+            <circle
+              key={cx}
+              cx={cx}
+              cy="56"
+              r="9"
+              fill="var(--color-navy)"
+              stroke="var(--color-accent-soft)"
+              strokeWidth="1.4"
+            />
+          ))}
+        </>
+      )}
+    </svg>
+  )
+}
+
+/**
  * 「改造前 / 改造后」图示面板：左卡列出旧逻辑下无法区分的几种情形，
  * 右卡放一张识别画面 + 控制层读数。以 panelImage 为开关，没传图就整块不渲染。
  *
@@ -761,11 +842,21 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                                 </small>
                               )}
                             </div>
-                            {step.image && (
+                            {(step.image || (step.pictogram && step.pictogram !== 'none')) && (
                               <div
                                 className={`relative mt-4 h-[150px] overflow-hidden border lg:mt-0 lg:mb-[26px] lg:h-[112px] ${dark ? 'border-white/20 bg-navy' : 'border-[#c7d7e6] bg-mist'}`}
                               >
-                                <MediaImage media={step.image} size="card" fill sizes="240px" />
+                                {step.pictogram && step.pictogram !== 'none' ? (
+                                  <Pictogram kind={step.pictogram} />
+                                ) : (
+                                  <MediaImage
+                                    media={step.image}
+                                    size="card"
+                                    fill
+                                    focal
+                                    sizes="240px"
+                                  />
+                                )}
                                 <span
                                   className="pointer-events-none absolute inset-[9px] z-[2] border border-accent-soft/30"
                                   aria-hidden="true"
