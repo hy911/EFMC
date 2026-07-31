@@ -75,13 +75,9 @@ grep -o 'ADD COLUMN "[a-z_]*"' src/migrations/<name>.ts
 
 注意 import 写法：`revalidatePath` 必须从 **`next/cache.js`**（带扩展名）导入——next 包没有 exports map，裸子路径 `next/cache` 在纯 Node/tsx 环境（seed、Playwright 加载 payload 配置）解析不了。
 
-### 新增内容 collection 的固定清单
+### 新增内容 collection
 
-照 `src/collections/Products.ts` 抄，别从零写字段：
-1. slug 用 `src/fields/slug.ts` 的 `slugField()`（自带 beforeValidate 自动生成、非 localized）；SEO 用 `src/fields/seo.ts` 的 `seoField`（metaTitle/metaDescription/ogImage，前端在 `generateMetadata()` 消费）
-2. access 用 `src/access/index.ts` 的 `anyone`/`authenticated`/`noOne`，不要在 collection 里内联匿名函数
-3. 挂 `src/hooks/revalidate.ts` 的 afterChange 钩子 → 补 `src/app/sitemap.ts` → 补 `src/lib/queries.ts` 查询函数
-4. **先停 dev server**，再 `pnpm payload migrate:create <name>` + `pnpm generate:types`（两个都要，迁移文件进 git）
+照 `src/collections/Products.ts` 抄，别从零写字段。完整清单（字段复用、access、四处接线、草稿、迁移与类型）在 **`new-collection` 技能**里，用到时按需加载，不占常驻上下文。
 
 ### Payload localized 数组/blocks 的一个坑
 
@@ -116,6 +112,7 @@ Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env
 - eslint.config.mjs 用 eslint-config-next 16 的原生 flat 导出，不要退回 FlatCompat 写法（会崩）
 - CI（`.github/workflows/ci.yml`）跑真实 postgres:18 service，顺序与生产一致：lint → tsc → migrate → build → test:int → test:e2e。本地想复现 CI 失败就按这个顺序跑
 - 深入文档在 `docs/`：`DEPLOYMENT.md`（VPS/Docker/Cloudflare 全流程）、`MAINTENANCE.md`（备份/升级/排障）、`ADMIN_GUIDE.md`（给运营的后台使用说明）；`README.md` 有本地起步与二期进度
+- `.claude/` 下有本仓库的自动化：`hooks/guard-schema-edit.mjs`（dev server 在跑时拦住改 schema、拦住手改 payload-types.ts，被拦了就按提示停 dev server，别绕过）、`agents/`（`draft-leak-reviewer` 查草稿泄漏、`migration-reviewer` 查迁移）、`skills/`（`new-collection`、`import-case`、`leadgen-site`）
 
 ### 案例的草稿与预览
 

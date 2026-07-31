@@ -76,7 +76,6 @@ async function main() {
 
   // 1. 媒体全集
   const media = await fetchAll('/api/media?depth=0')
-  const byId = new Map(media.map((m) => [m.id, m]))
   console.log(`媒体库共 ${media.length} 张`)
 
   // 2. 扫引用

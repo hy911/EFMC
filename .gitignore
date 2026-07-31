@@ -56,3 +56,7 @@ selection.json
 
 # JetBrains IDE 的本地配置（.vscode/ 是共享的，故意提交，别加进来）
 .idea/
+
+# Claude Code 的本机配置：命令放行规则带本机绝对路径，因人因机而异，不共享
+# （.claude/settings.json、hooks/、agents/、skills/ 是仓库级自动化，故意提交）
+.claude/settings.local.json
