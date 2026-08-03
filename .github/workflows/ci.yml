@@ -11,11 +11,6 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # pnpm/action-setup 的 manifest 仍声明 node20（其 issue #209），
-  # 按 GitHub 官方过渡方案强制所有 JS action 跑在 Node 24 运行时
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -45,7 +40,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: pnpm/action-setup@v4
+      # v6 的默认 pnpm 是 11，但 version: 10 这个钉子不能动：
+      # package.json 的 pnpm.ignoredBuiltDependencies 只有 pnpm 10 认，
+      # 跟 Dockerfile 里 corepack prepare 钉的 10.33.0 保持一致（见 CLAUDE.md）
+      - uses: pnpm/action-setup@v6
         with:
           version: 10
 
@@ -83,7 +81,7 @@ jobs:
 
       - name: 上传 e2e 失败现场
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
