@@ -681,6 +681,9 @@ async function run() {
       const doc = await payload.create({
         collection: 'case-studies',
         data: {
+          // CaseStudies 开了 versions.drafts，不显式写就默认落成草稿；
+          // 而前台查询一律带 where: PUBLISHED，草稿在列表里根本不出现（e2e 会挂）
+          _status: 'published',
           title: c.en.title,
           slug: c.slug,
           excerpt: c.en.excerpt,
