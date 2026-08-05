@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { anyone, authenticated } from '@/access'
+import { authenticated, publishedOrAuthenticated } from '@/access'
 import { caseBlocks } from '@/blocks/case'
 import { seoField } from '@/fields/seo'
 import { slugField } from '@/fields/slug'
@@ -34,7 +34,8 @@ export const CaseStudies: CollectionConfig = {
     maxPerDoc: 20,
   },
   access: {
-    read: anyone,
+    // 开了 drafts，不能用 anyone —— 公开 REST 会把草稿连正文一起吐出去
+    read: publishedOrAuthenticated,
     create: authenticated,
     update: authenticated,
     delete: authenticated,
