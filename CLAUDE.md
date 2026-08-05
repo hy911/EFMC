@@ -129,6 +129,10 @@ CaseStudies 开了 `versions.drafts`。三件事必须一起记住：
 
 字段契约与校验规则集中在 `scripts/lib/case-schema.mjs` —— 这个文件外部写手也会直接跑（`node case-schema.mjs case.json`），所以它零依赖、不连库。**规则只能有这一份**，导入器 import 它，别在导入器里另写一套。
 
+各字段的**可选值不在校验器里手写**：`scripts/lib/case-blocks.json` 由 `scripts/gen-case-blocks.mjs` 从 `src/blocks/case.ts` 生成，校验器和外部写手都查它。改了 block 的 select 选项要重新生成并提交，CI 有 `--check` 步骤守着（客户用 AI 生成内容，给 AI 的字段清单一漂移就是一轮返工）。
+
+图片上传走**内容指纹去重**：`uploadMedia` 先算原始字节的 sha256，命中 `media.contentHash` 就复用已有的图，不再传副本（以前反复 `--replace` 会让同一张图堆七八份）。因此 `--prune` 只删「旧引用里新版本不再用的」那部分，别改回按 `oldMediaIds` 全删——那会删掉新内容正在用的图。
+
 客户案例是**内容与代码分离**的：`scripts/import-case-study.mjs <case.json>` 是通用导入器，内容放 `scripts/data/cases/*.json`。字段契约见 `docs/CASE_STUDY_JSON.md` —— 那份文档同时是给外部写手（含客户的 AI 助手）的交付规范，改积木块字段时要同步更新它，否则外部产出的 JSON 会缺字段。新案例不要再写专用脚本。
 
 导入 localized blocks 的通用套路：先以 en 写入 → 回读拿到 block id 与数组行 id → `mergeLocale()` 把 zh 叶子字段合并进去再 PATCH。跳过回读会让数组被重建、en 内容全丢。写完自检要用 `?fallback-locale=none` 回读，否则 zh 为空时会回落成 en 的值，看不出漏翻。

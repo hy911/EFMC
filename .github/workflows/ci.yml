@@ -61,6 +61,10 @@ jobs:
       - name: 类型检查
         run: pnpm exec tsc --noEmit
 
+      # 积木块目录是给外部写手/AI 的字段权威，漂移了会让他们照着错的写
+      - name: 积木块目录未过期
+        run: pnpm exec tsx scripts/gen-case-blocks.mjs --check
+
       - name: 数据库迁移
         run: pnpm payload migrate
 

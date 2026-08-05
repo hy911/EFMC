@@ -18,6 +18,8 @@ node scripts/lib/case-schema.mjs scripts/data/cases/<名字>.json
 
 `case-schema.mjs` 零依赖、不连库，外部写手也直接跑它。**规则只有这一份**——导入器 import 它，不要在别处另写一套。
 
+它需要同目录的 `case-blocks.json`（字段与可选值目录，由 `pnpm exec tsx scripts/gen-case-blocks.mjs` 从 `src/blocks/case.ts` 生成）。发给外部写手时**两个文件都要给**。改了积木块的 select 选项就重新生成并提交，CI 的 `--check` 步骤会拦住忘记生成的情况。
+
 它会查：必填字段、积木块类型合法性、图片文件是否存在（含**大小写不一致**——Linux 服务器区分大小写，Windows 上看不出来）、以及只有 `en` 没有 `zh` 的漏翻字段。
 
 校验不过就别往下走。

@@ -1,0 +1,527 @@
+{
+  "_generated": "由 scripts/gen-case-blocks.mjs 从 src/blocks/case.ts 生成，不要手改",
+  "_source": "src/blocks/case.ts",
+  "blocks": {
+    "caseSplit": {
+      "label": "Challenge (two columns)",
+      "fields": {
+        "kicker": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "heading": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "intro": {
+          "type": "textarea",
+          "localized": true
+        },
+        "theme": {
+          "type": "select",
+          "options": [
+            "auto",
+            "white",
+            "wash",
+            "washBlue",
+            "dark"
+          ]
+        },
+        "themeImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "accentEdge": {
+          "type": "checkbox"
+        },
+        "quote": {
+          "type": "textarea",
+          "localized": true
+        },
+        "quoteLabel": {
+          "type": "text",
+          "localized": true
+        },
+        "quoteFooter": {
+          "type": "text",
+          "localized": true
+        },
+        "points": {
+          "type": "array",
+          "fields": {
+            "label": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "text": {
+              "type": "textarea",
+              "required": true,
+              "localized": true
+            }
+          }
+        }
+      }
+    },
+    "caseFigure": {
+      "label": "Full-width Figure",
+      "fields": {
+        "kicker": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "heading": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "intro": {
+          "type": "textarea",
+          "localized": true
+        },
+        "theme": {
+          "type": "select",
+          "options": [
+            "auto",
+            "white",
+            "wash",
+            "washBlue",
+            "dark"
+          ]
+        },
+        "themeImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "accentEdge": {
+          "type": "checkbox"
+        },
+        "variant": {
+          "type": "select",
+          "options": [
+            "full",
+            "side"
+          ]
+        },
+        "image": {
+          "type": "upload",
+          "required": true,
+          "relationTo": "media"
+        },
+        "banner": {
+          "type": "text",
+          "localized": true
+        }
+      }
+    },
+    "caseCards": {
+      "label": "Card Grid",
+      "fields": {
+        "kicker": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "heading": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "intro": {
+          "type": "textarea",
+          "localized": true
+        },
+        "theme": {
+          "type": "select",
+          "options": [
+            "auto",
+            "white",
+            "wash",
+            "washBlue",
+            "dark"
+          ]
+        },
+        "themeImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "accentEdge": {
+          "type": "checkbox"
+        },
+        "layout": {
+          "type": "select",
+          "options": [
+            "uniform",
+            "bento",
+            "metrics"
+          ]
+        },
+        "sideImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "sideImageLabel": {
+          "type": "text",
+          "localized": true
+        },
+        "sideImageValue": {
+          "type": "text",
+          "localized": true
+        },
+        "cards": {
+          "type": "array",
+          "fields": {
+            "image": {
+              "type": "upload",
+              "relationTo": "media"
+            },
+            "tag": {
+              "type": "text",
+              "localized": true
+            },
+            "title": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "value": {
+              "type": "text",
+              "localized": true
+            },
+            "text": {
+              "type": "textarea",
+              "required": true,
+              "localized": true
+            }
+          }
+        },
+        "facts": {
+          "type": "array",
+          "fields": {
+            "value": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "label": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            }
+          },
+          "maxRows": 4
+        },
+        "note": {
+          "type": "textarea",
+          "localized": true
+        }
+      }
+    },
+    "caseSteps": {
+      "label": "Step Strip",
+      "fields": {
+        "kicker": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "heading": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "intro": {
+          "type": "textarea",
+          "localized": true
+        },
+        "theme": {
+          "type": "select",
+          "options": [
+            "auto",
+            "white",
+            "wash",
+            "washBlue",
+            "dark"
+          ]
+        },
+        "themeImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "accentEdge": {
+          "type": "checkbox"
+        },
+        "style": {
+          "type": "select",
+          "options": [
+            "strip",
+            "flow",
+            "grid"
+          ]
+        },
+        "cellLabel": {
+          "type": "text",
+          "localized": true
+        },
+        "steps": {
+          "type": "array",
+          "fields": {
+            "image": {
+              "type": "upload",
+              "relationTo": "media"
+            },
+            "pictogram": {
+              "type": "select",
+              "options": [
+                "none",
+                "ai",
+                "network"
+              ]
+            },
+            "title": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "tone": {
+              "type": "select",
+              "options": [
+                "accent",
+                "flag",
+                "go",
+                "navy"
+              ]
+            },
+            "text": {
+              "type": "textarea",
+              "required": true,
+              "localized": true
+            }
+          },
+          "maxRows": 6
+        },
+        "proofValue": {
+          "type": "text",
+          "localized": true
+        },
+        "proofNote": {
+          "type": "textarea",
+          "localized": true
+        }
+      }
+    },
+    "caseCompare": {
+      "label": "Before / After Table",
+      "fields": {
+        "kicker": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "heading": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "intro": {
+          "type": "textarea",
+          "localized": true
+        },
+        "theme": {
+          "type": "select",
+          "options": [
+            "auto",
+            "white",
+            "wash",
+            "washBlue",
+            "dark"
+          ]
+        },
+        "themeImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "accentEdge": {
+          "type": "checkbox"
+        },
+        "labelArea": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "labelBefore": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "labelAfter": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "rows": {
+          "type": "array",
+          "fields": {
+            "area": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "before": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "after": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            }
+          }
+        },
+        "panelImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "panelBeforeLabel": {
+          "type": "text",
+          "localized": true
+        },
+        "panelBeforeTitle": {
+          "type": "text",
+          "localized": true
+        },
+        "panelBeforeRows": {
+          "type": "array",
+          "fields": {
+            "image": {
+              "type": "upload",
+              "relationTo": "media"
+            },
+            "symbol": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "text": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "note": {
+              "type": "text",
+              "localized": true
+            },
+            "tag": {
+              "type": "text",
+              "localized": true
+            }
+          },
+          "maxRows": 3
+        },
+        "panelBeforeResultLabel": {
+          "type": "text",
+          "localized": true
+        },
+        "panelBeforeResultValue": {
+          "type": "text",
+          "localized": true
+        },
+        "panelAfterLabel": {
+          "type": "text",
+          "localized": true
+        },
+        "panelAfterTitle": {
+          "type": "text",
+          "localized": true
+        },
+        "panelImageTags": {
+          "type": "array",
+          "fields": {
+            "text": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "corner": {
+              "type": "select",
+              "options": [
+                "bottomLeft",
+                "topRight",
+                "topLeft"
+              ]
+            }
+          },
+          "maxRows": 3
+        },
+        "panelAfterFacts": {
+          "type": "array",
+          "fields": {
+            "label": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "value": {
+              "type": "text",
+              "required": true,
+              "localized": true
+            },
+            "highlight": {
+              "type": "checkbox"
+            }
+          },
+          "maxRows": 3
+        }
+      }
+    },
+    "caseStatement": {
+      "label": "Closing Statement",
+      "fields": {
+        "kicker": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "heading": {
+          "type": "text",
+          "required": true,
+          "localized": true
+        },
+        "intro": {
+          "type": "textarea",
+          "localized": true
+        },
+        "theme": {
+          "type": "select",
+          "options": [
+            "auto",
+            "white",
+            "wash",
+            "washBlue",
+            "dark"
+          ]
+        },
+        "themeImage": {
+          "type": "upload",
+          "relationTo": "media"
+        },
+        "accentEdge": {
+          "type": "checkbox"
+        },
+        "body": {
+          "type": "textarea",
+          "localized": true
+        },
+        "statement": {
+          "type": "textarea",
+          "required": true,
+          "localized": true
+        }
+      }
+    }
+  }
+}

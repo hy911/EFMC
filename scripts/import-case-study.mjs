@@ -445,16 +445,23 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     `自检通过：en「${checkEn.title}」/ zh「${checkZh.title}」，${checkEn.sections.length} 个章节`,
   )
 
-  if (PRUNE && oldMediaIds.length) {
-    for (const mediaId of oldMediaIds) {
+  // 上传走内容指纹去重，没换过的图这次会**复用同一个 media id**，
+  // 于是它同时出现在 oldMediaIds 和新版本里 —— 照着 oldMediaIds 全删会把
+  // 新内容正在用的图删掉。只删真正被换下来的那些。
+  const stillUsed = new Set(Object.values(media))
+  const droppedMediaIds = oldMediaIds.filter((id) => !stillUsed.has(id))
+
+  if (PRUNE && droppedMediaIds.length) {
+    for (const mediaId of droppedMediaIds) {
       await api(`/api/media/${mediaId}`, { method: 'DELETE' }).catch((e) =>
         console.warn(`  旧图 ${mediaId} 删除失败（可能被别处引用）：${e.message}`),
       )
     }
-    console.log(`✓ 已删除 ${oldMediaIds.length} 张被换下的旧图`)
-  } else if (oldMediaIds.length) {
+    console.log(`✓ 已删除 ${droppedMediaIds.length} 张被换下的旧图`)
+  } else if (droppedMediaIds.length) {
     console.log(
-      `\n注意：${oldMediaIds.length} 张旧图仍留在媒体库（已无人引用）。确认新图无误后加 --prune 重跑清理。`,
+      `\n注意：${droppedMediaIds.length} 张旧图仍留在媒体库（本案例已不再引用）。` +
+        `确认新图无误后加 --prune 重跑清理，或用 scripts/find-orphan-media.mjs 统一清。`,
     )
   }
 

@@ -204,6 +204,7 @@ export interface Product {
 export interface Media {
   id: number;
   alt: string;
+  contentHash?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1531,6 +1532,7 @@ export interface InquiriesSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  contentHash?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

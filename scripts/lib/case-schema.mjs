@@ -12,9 +12,43 @@
  *
  * 改字段契约时**同时更新 docs/CASE_STUDY_JSON.md** —— 那份文档是给
  * 外部写手看的交付规范，两处不同步等于让人照着错的写。
+ *
+ * 各字段的**可选值清单不在这个文件里手写**，一律查同目录的 case-blocks.json
+ * （由 scripts/gen-case-blocks.mjs 从 src/blocks/case.ts 生成）。手抄一份的话，
+ * 代码里加了新版式而这里没跟上，校验器就会把合法内容判成非法。
  */
 import fs from 'node:fs'
 import path from 'node:path'
+
+/** 积木块目录：字段与可选值的权威来源，跟本文件放在同一目录一起交付 */
+const CATALOG = JSON.parse(
+  fs.readFileSync(new URL('./case-blocks.json', import.meta.url), 'utf8'),
+)
+
+/**
+ * 取某个字段的可选值。路径按 Payload 的字段名走（跟 JSON 契约的键不一定同名，
+ * 例如 JSON 的 panel.imageTags 对应 Payload 的 panelImageTags）。
+ * 查不到就抛错 —— 静默返回空数组会让校验器放行一切，比报错危险得多。
+ */
+function optionsOf(blockSlug, ...segs) {
+  let node = CATALOG.blocks[blockSlug]?.fields
+  for (const seg of segs.slice(0, -1)) node = node?.[seg]?.fields
+  const opts = node?.[segs.at(-1)]?.options
+  if (!opts?.length) {
+    throw new Error(
+      `case-blocks.json 里找不到 ${blockSlug}.${segs.join('.')} 的选项；` +
+        `重新生成：pnpm exec tsx scripts/gen-case-blocks.mjs`,
+    )
+  }
+  return opts
+}
+
+/** 值必须在可选清单里；错误信息直接用清单本身，永远不会跟代码对不上 */
+function checkOption(at, p, value, blockSlug, ...segs) {
+  if (value === undefined || value === null || value === '') return
+  const opts = optionsOf(blockSlug, ...segs)
+  if (!opts.includes(value)) at(p, `只能是 ${opts.join(' / ')}，收到 "${value}"`)
+}
 
 export const isText = (v) =>
   v && typeof v === 'object' && typeof v.en === 'string' && v.en.trim() !== ''
@@ -29,6 +63,17 @@ export const BLOCK_TYPE = {
   steps: 'caseSteps',
   compare: 'caseCompare',
   statement: 'caseStatement',
+}
+
+// 有人在 case.ts 里改了 block 的 slug 而这里没跟上，就在启动时炸出来，
+// 别等到导入时才发现半个案例写不进去
+for (const [short, slug] of Object.entries(BLOCK_TYPE)) {
+  if (!CATALOG.blocks[slug]) {
+    throw new Error(
+      `BLOCK_TYPE.${short} 指向 "${slug}"，但 case-blocks.json 里没有这个块。` +
+        `要么 src/blocks/case.ts 改了 slug，要么目录过期了（pnpm exec tsx scripts/gen-case-blocks.mjs）`,
+    )
+  }
 }
 
 /**
@@ -70,8 +115,7 @@ export function validate(data) {
       at(`${p}.kicker`, '必填，需要 { en, zh }（章节编号前台自动加，别自己写）')
     if (!isText(s.heading)) at(`${p}.heading`, '必填，需要 { en, zh }')
     if (s.intro !== undefined && !isText(s.intro)) at(`${p}.intro`, '写了就要 { en, zh }')
-    if (s.theme && !['auto', 'white', 'wash', 'washBlue', 'dark'].includes(s.theme))
-      at(`${p}.theme`, `只能是 auto / white / wash / washBlue / dark，收到 "${s.theme}"`)
+    checkOption(at, `${p}.theme`, s.theme, BLOCK_TYPE[s.type], 'theme')
     if (s.themeImage && s.theme !== 'dark')
       at(`${p}.themeImage`, '只有 theme 为 dark 时才有底纹照片')
 
@@ -89,12 +133,10 @@ export function validate(data) {
       case 'figure':
         if (!s.image) at(`${p}.image`, '必填，图片文件名')
         if (!isText(s.imageAlt)) at(`${p}.imageAlt`, '必填，需要 { en, zh }（SEO 与无障碍都靠它）')
-        if (s.variant && !['full', 'side'].includes(s.variant))
-          at(`${p}.variant`, `只能是 full 或 side，收到 "${s.variant}"`)
+        checkOption(at, `${p}.variant`, s.variant, 'caseFigure', 'variant')
         break
       case 'cards':
-        if (s.layout && !['uniform', 'bento', 'metrics'].includes(s.layout))
-          at(`${p}.layout`, `只能是 uniform / bento / metrics，收到 "${s.layout}"`)
+        checkOption(at, `${p}.layout`, s.layout, 'caseCards', 'layout')
         if (s.layout === 'metrics') {
           for (const [j, c] of (s.cards ?? []).entries()) {
             if (!isText(c.value)) at(`${p}.cards[${j}].value`, 'metrics 版式每张卡都要大号数值')
@@ -120,13 +162,17 @@ export function validate(data) {
         if (s.note !== undefined && !isText(s.note)) at(`${p}.note`, '写了就要 { en, zh }')
         break
       case 'steps': {
-        if (s.style && !['strip', 'flow', 'grid'].includes(s.style))
-          at(`${p}.style`, `只能是 strip / flow / grid，收到 "${s.style}"`)
+        checkOption(at, `${p}.style`, s.style, 'caseSteps', 'style')
         for (const [j, st] of (s.steps ?? []).entries()) {
-          if (st.tone && !['accent', 'flag', 'go', 'navy'].includes(st.tone))
-            at(`${p}.steps[${j}].tone`, '只能是 accent / flag / go / navy')
-          if (st.pictogram && !['none', 'ai', 'network'].includes(st.pictogram))
-            at(`${p}.steps[${j}].pictogram`, '只能是 none / ai / network')
+          checkOption(at, `${p}.steps[${j}].tone`, st.tone, 'caseSteps', 'steps', 'tone')
+          checkOption(
+            at,
+            `${p}.steps[${j}].pictogram`,
+            st.pictogram,
+            'caseSteps',
+            'steps',
+            'pictogram',
+          )
           if (st.focal && (!Array.isArray(st.focal) || st.focal.length !== 2))
             at(`${p}.steps[${j}].focal`, '要写成 [x, y]，两个 0–100 的数')
         }
@@ -182,8 +228,15 @@ export function validate(data) {
           if ((s.panel.imageTags?.length ?? 0) > 3) at(`${q}.imageTags`, '最多 3 个浮标')
           for (const [j, t] of (s.panel.imageTags ?? []).entries()) {
             if (!isText(t.text)) at(`${q}.imageTags[${j}].text`, '需要 { en, zh }')
-            if (t.corner && !['bottomLeft', 'topRight', 'topLeft'].includes(t.corner))
-              at(`${q}.imageTags[${j}].corner`, ' 只能是 bottomLeft / topRight / topLeft')
+            // JSON 的 panel.imageTags 对应 Payload 的 panelImageTags
+            checkOption(
+              at,
+              `${q}.imageTags[${j}].corner`,
+              t.corner,
+              'caseCompare',
+              'panelImageTags',
+              'corner',
+            )
           }
           if ((s.panel.afterFacts?.length ?? 0) > 3) at(`${q}.afterFacts`, '最多 3 格（一排放 3 个）')
           for (const [j, f] of (s.panel.afterFacts ?? []).entries()) {

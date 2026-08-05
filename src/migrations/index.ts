@@ -10,6 +10,7 @@ import * as migration_20260731_020850_case_figure_variant from './20260731_02085
 import * as migration_20260731_023222_case_section_themes from './20260731_023222_case_section_themes';
 import * as migration_20260731_025051_case_step_pictogram from './20260731_025051_case_step_pictogram';
 import * as migration_20260731_061231_case_drafts from './20260731_061231_case_drafts';
+import * as migration_20260805_052149_add_media_content_hash from './20260805_052149_add_media_content_hash';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260731_061231_case_drafts.up,
     down: migration_20260731_061231_case_drafts.down,
-    name: '20260731_061231_case_drafts'
+    name: '20260731_061231_case_drafts',
+  },
+  {
+    up: migration_20260805_052149_add_media_content_hash.up,
+    down: migration_20260805_052149_add_media_content_hash.down,
+    name: '20260805_052149_add_media_content_hash'
   },
 ];

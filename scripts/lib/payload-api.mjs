@@ -8,6 +8,7 @@
  * 读到后不打印、不落盘。已存在的环境变量不会被文件覆盖，
  * 所以「平时用文件里的生产站，临时改本地」只要在命令前加一次变量即可。
  */
+import crypto from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import dotenv from 'dotenv'
@@ -96,6 +97,21 @@ export const richTextOf = (paragraphs) => ({
  */
 export async function uploadMedia(filePath, altEn, altZh, focal) {
   const buf = await fs.readFile(filePath)
+
+  // 先按内容指纹查重：同一张图第二次导入直接复用，不再堆副本。
+  // 算的是**原始字节**（Payload 转 WebP 之前），所以同一个源文件永远同一个指纹。
+  const contentHash = crypto.createHash('sha256').update(buf).digest('hex')
+  const hit = await api(
+    `/api/media?where[contentHash][equals]=${contentHash}&limit=1&depth=0&locale=en`,
+  )
+  const existing = hit.docs?.[0]
+  if (existing) {
+    // 命中就原样复用：alt 和焦点是图片自身的属性，别拿这次的值去覆盖
+    // 别处已经在用的那份（改了会连带改掉所有引用它的地方）。
+    console.log(`  ↺ ${path.basename(filePath)} 已在库里（media ${existing.id}），复用`)
+    return existing.id
+  }
+
   const name = path.basename(filePath)
   const type = /\.png$/i.test(name) ? 'image/png' : 'image/jpeg'
   const form = new FormData()
@@ -104,6 +120,7 @@ export async function uploadMedia(filePath, altEn, altZh, focal) {
     '_payload',
     JSON.stringify({
       alt: altEn,
+      contentHash,
       ...(focal ? { focalX: focal[0], focalY: focal[1] } : {}),
     }),
   )

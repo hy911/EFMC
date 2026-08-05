@@ -30,6 +30,19 @@ export const Media: CollectionConfig = {
       required: true,
       localized: true, // 图片 alt 分语种维护（SEO 要求）
     },
+    {
+      /**
+       * 原始文件字节的 sha256（转 WebP 之前）。导入脚本上传前先算好、
+       * 拿它查一次库：命中就复用已有的 media，不再传一份副本。
+       * 没有它的时候，反复 --replace 会让同一张图在库里堆七八份
+       * （曾经 212 张里 76 张是这么来的）。
+       */
+      name: 'contentHash',
+      label: { en: 'Content Hash', zh: '内容指纹' },
+      type: 'text',
+      index: true, // 每次上传都要按它查一次，必须走索引
+      admin: { readOnly: true, hidden: true }, // 机器用的字段，别占运营的视线
+    },
   ],
   upload: {
     // 存储目录：锚定进程工作目录（dev = 项目根，Docker standalone = /app），
