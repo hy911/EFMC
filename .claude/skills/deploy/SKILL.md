@@ -87,11 +87,8 @@ bash deploy.sh
 
 **但迁移不会自动回滚。** 如果这次带了迁移，代码回滚后 schema 仍是新的——多数情况能跑（多出来的列不影响旧代码），但删列/改类型的迁移会让旧代码直接崩。那种情况用第 2 步的备份恢复库。
 
-## 常见坑（都踩过，别回退）
+## 常见坑
 
-- `postgres:18` 的卷挂载点是 `/var/lib/postgresql`（**不带** `/data`）。挂错容器直接拒绝启动，表现为构建期迁移 ECONNREFUSED
-- `NEXT_PUBLIC_*` 必须进 Dockerfile ARG + compose `build.args`，只放运行时 `env_file` 不够
-- `--max-old-space-size` 钉在 2048。生产机 2 核 4GB，调大会触发内核 OOM，被杀的往往是 sshd
-- Cloudflare Tunnel 的 Public Hostname 里 Service 填 `http://app:3000`（Docker 网络内的服务名，不是 localhost）
+卷挂载点、`NEXT_PUBLIC_*` 构建期变量、堆大小上限、Tunnel 的 Service 地址这几条「别回退」的约束，**只在 `CLAUDE.md` 的「部署的特殊约束」里维护一份**（那个文件每次会话都加载，是权威）。这里不再抄一遍——抄了两处就会漂。
 
 完整说明见 `docs/DEPLOYMENT.md`，排障见 `docs/MAINTENANCE.md`。
