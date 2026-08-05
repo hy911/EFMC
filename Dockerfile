@@ -52,10 +52,15 @@ RUN pnpm payload migrate && pnpm build
 FROM base AS runner
 WORKDIR /app
 
+# 部署的是哪个 commit —— 烧进运行层，不对外暴露。
+# 没有它就只能靠翻 git log 猜「线上到底跑到哪一版」，每次部署都要猜一遍。
+# 查看：docker compose exec app printenv GIT_SHA
+ARG GIT_SHA=unknown
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME=0.0.0.0
+    HOSTNAME=0.0.0.0 \
+    GIT_SHA=$GIT_SHA
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs

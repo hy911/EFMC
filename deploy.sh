@@ -71,6 +71,11 @@ done
 echo '  ✓ 数据库已就绪'
 
 echo '[3/4] 构建应用镜像（含数据库迁移 + 预渲染）…'
+# 把当前 commit 烧进镜像，之后 docker compose exec app printenv GIT_SHA 就能
+# 回答「线上跑的是哪一版」—— 不然只能翻 git log 猜。
+GIT_SHA=$(git rev-parse --short=12 HEAD 2>/dev/null || echo unknown)
+export GIT_SHA
+echo "  本次部署 commit：$GIT_SHA"
 docker compose build app
 
 echo '[4/4] 启动应用（含 tunnel，若已启用）…'
@@ -79,3 +84,4 @@ docker compose up -d
 echo '完成。健康检查：'
 sleep 3
 curl -sf -o /dev/null -w '  http://127.0.0.1:3000/en -> %{http_code}\n' http://127.0.0.1:3000/en || true
+echo "  线上版本：$(docker compose exec -T app printenv GIT_SHA 2>/dev/null || echo '读取失败')"

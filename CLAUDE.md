@@ -112,7 +112,12 @@ Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env
 - eslint.config.mjs 用 eslint-config-next 16 的原生 flat 导出，不要退回 FlatCompat 写法（会崩）
 - CI（`.github/workflows/ci.yml`）跑真实 postgres:18 service，顺序与生产一致：lint → tsc → migrate → build → test:int → test:e2e。本地想复现 CI 失败就按这个顺序跑
 - 深入文档在 `docs/`：`DEPLOYMENT.md`（VPS/Docker/Cloudflare 全流程）、`MAINTENANCE.md`（备份/升级/排障）、`ADMIN_GUIDE.md`（给运营的后台使用说明）；`README.md` 有本地起步与二期进度
-- `.claude/` 下有本仓库的自动化：`hooks/guard-schema-edit.mjs`（dev server 在跑时拦住改 schema、拦住手改 payload-types.ts，被拦了就按提示停 dev server，别绕过）、`agents/`（`draft-leak-reviewer` 查草稿泄漏、`migration-reviewer` 查迁移）、`skills/`（`new-collection`、`import-case`、`leadgen-site`）
+- `.claude/` 下有本仓库的自动化：
+  - `hooks/guard-schema-edit.mjs`（PreToolUse）：dev server 在跑时拦住改 schema、拦住手改 `payload-types.ts`、拦住改**已推到 origin/main 的迁移**（改已执行的迁移会让本地与生产 schema 静默分叉，要调整就新建一个迁移）。被拦了按提示做，别绕过——注意它只拦 Edit/Write，用 Bash 写文件绕得过去
+  - `hooks/remind-regen-blocks.mjs`（PostToolUse）：改了 `src/blocks/case.ts` 且目录过期时提醒重新生成，不拦截
+  - `agents/`：`draft-leak-reviewer` 查草稿泄漏、`migration-reviewer` 查迁移
+  - `skills/`：`new-collection`、`import-case`、`deploy`、`leadgen-site`
+- 线上跑的是哪个 commit：`docker compose exec -T app printenv GIT_SHA`（`deploy.sh` 构建时烧进镜像，不对外暴露）
 
 ### 案例的草稿与预览
 

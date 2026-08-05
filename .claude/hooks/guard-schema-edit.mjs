@@ -14,6 +14,7 @@
  * 约定：退出码 2 = 拦截，stderr 回传给 Claude 当反馈；退出码 0 = 放行。
  * 任何内部异常一律放行（fail-open）—— 守卫脚本自己坏掉不该把所有编辑都堵死。
  */
+import { execFileSync } from 'node:child_process'
 import net from 'node:net'
 
 /** dev server 端口，与 .claude/launch.json 保持一致 */
@@ -24,6 +25,9 @@ const SCHEMA_FILES = /\/src\/(collections|blocks|fields)\/|\/src\/payload\.confi
 
 /** 生成物，只能由 pnpm generate:types 写 */
 const GENERATED = /\/src\/payload-types\.ts$/
+
+/** 迁移文件（index.ts 是清单，由工具维护，不在此列） */
+const MIGRATION = /\/src\/migrations\/(?!index\.ts$)[^/]+\.ts$/
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -56,6 +60,24 @@ function block(msg) {
   process.exit(2)
 }
 
+/**
+ * 这个文件是否已经出现在 origin/main 上。
+ * 用本地已知的 origin/main，不做 fetch —— hook 里发网络请求会拖慢每一次编辑。
+ * 查不到（没有 origin、是新仓库、git 不可用）一律当作「不在」放行。
+ */
+function isOnRemote(filePath) {
+  try {
+    const out = execFileSync(
+      'git',
+      ['log', '--oneline', '-1', 'origin/main', '--', filePath],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 },
+    )
+    return out.trim() !== ''
+  } catch {
+    return false
+  }
+}
+
 try {
   const raw = await readStdin()
   if (!raw.trim()) process.exit(0)
@@ -71,6 +93,18 @@ try {
     block(
       'src/payload-types.ts 是生成物，不要手改。\n' +
         '改完 collection / block 定义后跑：pnpm generate:types',
+    )
+  }
+
+  // 已经推到 origin/main 的迁移 = 大概率已经在生产库跑过了。
+  // 改它的后果是静默的：本地重建会走新内容，生产库停在旧结果上，
+  // schema 从此永久分叉，而且没有任何报错。要改就新加一个迁移。
+  if (MIGRATION.test(p) && isOnRemote(p)) {
+    block(
+      `${p.split('/src/')[1]} 已经推到 origin/main，大概率已在生产库执行过。\n` +
+        '改已执行的迁移不会报错，但会让本地与生产的 schema 永久分叉。\n' +
+        '要调整 schema 就改 collection/block 定义，然后新生成一个迁移：\n' +
+        '  pnpm payload migrate:create <name>',
     )
   }
 
