@@ -109,6 +109,16 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
+    /**
+     * 测试里关掉 dev schema push。
+     *
+     * 测试跑在已经 migrate 过的库上，push 本来就是多余的；更麻烦的是每个测试
+     * 文件都会各起一个 Payload 实例，几个 push 并发打同一个库，会撞
+     * `constraint … does not exist`（42704）/ `already exists`（42710），
+     * 表现为随机某个测试文件挂掉、加一个测试文件就翻车。
+     * 顺带也让每次 init 快很多（不然 beforeAll 会顶到 vitest 的 10 秒上限）。
+     */
+    push: !process.env.VITEST,
   }),
   sharp,
   plugins: [],

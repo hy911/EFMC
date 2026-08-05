@@ -111,6 +111,7 @@ Cloudflare Tunnel（cloudflared）内建在 compose 的 `tunnel` profile：`.env
 - `src/payload-types.ts` 是生成物（已在 eslint ignore），改 schema 后跑 `pnpm generate:types`，不要手改
 - eslint.config.mjs 用 eslint-config-next 16 的原生 flat 导出，不要退回 FlatCompat 写法（会崩）
 - CI（`.github/workflows/ci.yml`）跑真实 postgres:18 service，顺序与生产一致：lint → tsc → migrate → build → test:int → test:e2e。本地想复现 CI 失败就按这个顺序跑
+- 集成测试里 **dev schema push 是关掉的**（`payload.config.ts` 的 `push: !process.env.VITEST`）。测试跑在已 migrate 的库上，push 本来多余；而每个测试文件各起一个 Payload 实例，并发 push 同一个库会撞 `constraint … does not exist`（42704）/ `already exists`（42710），表现为「加一个测试文件就随机翻车」。别把这行删掉
 - 深入文档在 `docs/`：`DEPLOYMENT.md`（VPS/Docker/Cloudflare 全流程）、`MAINTENANCE.md`（备份/升级/排障）、`ADMIN_GUIDE.md`（给运营的后台使用说明）；`README.md` 有本地起步与二期进度
 - `.claude/` 下有本仓库的自动化：
   - `hooks/guard-schema-edit.mjs`（PreToolUse）：dev server 在跑时拦住改 schema、拦住手改 `payload-types.ts`、拦住改**已推到 origin/main 的迁移**（改已执行的迁移会让本地与生产 schema 静默分叉，要调整就新建一个迁移）。被拦了按提示做，别绕过——注意它只拦 Edit/Write，用 Bash 写文件绕得过去
