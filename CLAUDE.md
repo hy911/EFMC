@@ -141,4 +141,6 @@ CaseStudies 开了 `versions.drafts`。三件事必须一起记住：
 
 客户案例是**内容与代码分离**的：`scripts/import-case-study.mjs <case.json>` 是通用导入器，内容放 `scripts/data/cases/*.json`。字段契约见 `docs/CASE_STUDY_JSON.md` —— 那份文档同时是给外部写手（含客户的 AI 助手）的交付规范，改积木块字段时要同步更新它，否则外部产出的 JSON 会缺字段。新案例不要再写专用脚本。
 
+`docs/CASE_STUDY_JSON.md` 和 `docs/CASE_STUDY_FOR_CLIENT.md` 是**原样打包发给客户的交付物**（跟 `case-schema.mjs`、`case-blocks.json`、一份示例 json、空 `assets/` 一起压缩），客户手上没有这个仓库。所以这两份里**不要写 `scripts/` 路径、`pnpm` 命令、`.env.import`、`PREVIEW_SECRET` 这类只有维护方能用的东西** —— 导入器的命令行选项在 `scripts/import-case-study.mjs` 头部注释里，凭据与草稿流程在本文件上面几段，各归各位。
+
 导入 localized blocks 的通用套路：先以 en 写入 → 回读拿到 block id 与数组行 id → `mergeLocale()` 把 zh 叶子字段合并进去再 PATCH。跳过回读会让数组被重建、en 内容全丢。写完自检要用 `?fallback-locale=none` 回读，否则 zh 为空时会回落成 en 的值，看不出漏翻。

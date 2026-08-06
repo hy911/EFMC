@@ -5,27 +5,15 @@
 1. 一个 `case.json`（内容，中英双语）
 2. 一个 `assets/` 目录（图片原图）
 
-导入命令一条：
-
-```bash
-node scripts/import-case-study.mjs path/to/case.json --dry-run
-```
-
-空跑会逐条报出哪个字段不合格（精确到 `sections[3].steps[2].text`），改完去掉 `--dry-run` 就进站了。
-
-**写手可以自己先校验**，不用等导入：把 `scripts/lib/case-schema.mjs` 跟 `case.json` 放一起，
+**交付前自己校验**，不用等对方导入。把 `case-schema.mjs`、`case-blocks.json` 跟 `case.json` 放在同一目录：
 
 ```bash
 node case-schema.mjs case.json
 ```
 
-这一个文件零依赖、不连数据库，会把字段问题、图片对不上、漏翻的中文一次列全。改到显示「校验通过」再交付。
-（同目录的 `case-blocks.json` 要一起带上，校验器从它读可选值。）
+校验器零依赖、不连数据库，会把字段问题、图片对不上、漏翻的中文一次列全，精确到 `sections[3].steps[2].text`。**改到显示「校验通过」再交付。**
 
-**字段与可选值以 `scripts/lib/case-blocks.json` 为准。** 那个文件由代码自动生成（`pnpm exec tsx
-scripts/gen-case-blocks.mjs`），列出每种积木块的全部字段和每个选项字段的合法取值。下面的说明是
-给人看的「怎么挑块」，遇到不一致时以 JSON 为准 —— 手写文档会漂，生成物不会。AI 助手直接读那个
-文件，比读散文准确得多。
+**字段与可选值一律以 `case-blocks.json` 为准。** 那个文件由官网代码自动生成，列出每种积木块的全部字段和每个选项字段的合法取值。下面的说明是给人看的「怎么挑块」，遇到不一致时以 JSON 为准 —— 手写文档会漂，生成物不会。AI 助手直接读那个文件，比读散文准确得多。
 
 **不需要为案例单独做网页、写 HTML/CSS 或搭前端项目**——官网已有统一的版式和配色，另做一套只会和站点其它页面对不上。
 
@@ -42,7 +30,7 @@ scripts/gen-case-blocks.mjs`），列出每种积木块的全部字段和每个�
 | `cover` | 是 | 封面图文件名（只写文件名，不写路径） |
 | `coverAlt` | 否 | `{ en, zh }`，封面 alt；不写则用 title |
 | `coverFocal` | 否 | 封面裁切焦点 `[x, y]`，两个 0–100 的数。页头是宽幅裁切，主体不在正中就要给 |
-| `assets` | 否 | 素材目录，相对项目根。不写则取 json 同级的 `assets/` |
+| `assets` | 否 | 素材目录。不写则取 `case.json` 同级的 `assets/` —— 照这个放就不用填 |
 | `industry` | 否 | 行业 slug：`agriculture-livestock` / `energy` / `water-treatment` / `machinery-machine-tools` / `industrial-automation` / `instrumentation` |
 | `relatedProducts` | 否 | 产品 slug 数组，页面底部会出现这些产品的卡片内链 |
 | `location` | 否 | `{ en, zh }`，项目地点 |
@@ -295,16 +283,22 @@ scripts/gen-case-blocks.mjs`），列出每种积木块的全部字段和每个�
 
 ## 给 AI 助手的提示词
 
-把下面这段连同素材一起给它：
+在打开了这个文件夹的对话里，把下面这段整段发给它：
 
-> 我要为公司官网写一个客户案例。官网已有统一的版式和配色，你**不需要做任何网页、HTML、CSS，也不要新建前端项目**——那套东西做出来和官网对不上，我用不了。你只需要交两样东西：
+> 我要为公司官网写一个客户案例。这个目录里已经备齐了你需要的全部规范，**先按顺序读完再动手**：
 >
-> 1. 一个 `case.json`，严格按我发你的《客户案例交付规范》写（把那份文档全文一并发给它）
+> 1. `02-字段规范.md` —— 字段契约和版式说明，整份读完
+> 2. `case-blocks.json` —— **字段名和合法取值的唯一权威**，与文档不一致时以它为准
+> 3. `example-case.json` —— 一个写好的真实案例，结构照它抄
+>
+> 官网已有统一的版式和配色，你**不需要做任何网页、HTML、CSS，也不要新建前端项目**——那套东西做出来和官网对不上，我用不了。也不要改动上面这三个文件。你只交两样东西：
+>
+> 1. 一个 `case.json`（写在这个目录下）
 > 2. 把项目照片放进 `assets/` 目录，JSON 里只写文件名
 >
-> 我还会发你 `case-blocks.json`。**字段名和每个选项字段的合法取值一律以它为准**，不要发明新的
-> 版式或字段名——写了不存在的值，导入会被拒。交付前自己跑 `node case-schema.mjs case.json`
-> 校验到通过（`case-schema.mjs` 和 `case-blocks.json` 跟 `case.json` 放同一目录）。
+> **读完之后先别写，先问我。** 把你写这篇案例还缺的信息一次列出来问我——尤其是：这个项目到底解决了什么问题、改造前后差在哪、有没有实测数据和它的测量口径、哪些环节有照片哪些没有。我回答完你再开始写。**材料里没有的东西一律不要替我编**，包括数字、认证、品牌授权——宁可不写。
+>
+> 写完自己跑 `node case-schema.mjs case.json`，**改到显示「校验通过」为止**再交给我。不要发明新的版式或字段名，写了不存在的值导入会被拒。
 >
 > **内容要求**
 > - 所有面向读者的文字都是 `{"en": "...", "zh": "..."}` 双语对象，中文单独写、不要机器直译
@@ -332,43 +326,17 @@ scripts/gen-case-blocks.mjs`），列出每种积木块的全部字段和每个�
 >
 > 写完先自查一遍：每节的 `intro` 都有吗？每个数字都有出处吗？中文是不是直译？
 >
-> 素材和项目情况：<在这里描述项目背景、附上照片和技术资料>
+> 现在开始：先读上面三个文件，然后把你缺的信息列出来问我。
 
 ---
 
-## 已有的两个案例
+## 照着抄的样本
 
-- **`scripts/data/cases/ai-vision-precision-spraying.json` —— 抄这个。** 9 个章节，用到全部 6 种块和绝大多数选项（引语卡、对比图示、metrics 数据、三种步骤版式、示意图、焦点、底色分档），是目前唯一跟得上前台版式的完整样本
-- `scripts/import-case-study-spray-cooling.mjs` 是精准喷淋降温案例的专用脚本，写在通用导入器之前。**别照它写新案例**——它没有 JSON 契约、每加一个字段都要改代码，留着只是因为那个案例已经进库了
+`example-case.json` —— 一个真实案例，9 个章节，用到全部 6 种块和绝大多数选项（引语卡、对比图示、metrics 数据、三种步骤版式、示意图、焦点、底色分档）。**新案例照它的结构抄，最省事。**
 
-## 先导草稿，看过再发布
+它的 `assets/` 是空的，所以直接拿它跑校验会报「图片缺失」，这是正常的——它只用来看格式。
 
-内容第一次进站建议走草稿：
+---
 
-```bash
-node scripts/import-case-study.mjs case.json --replace --draft
-```
-
-草稿只写版本表，**线上已发布的那一版原样不动**。导完拿一条预览链接（带 `PREVIEW_SECRET`）发给写手，页面顶部会有一条红色「草稿预览」横幅，改到满意再去后台点发布。这样反复改不需要重新部署，也不会有半成品出现在线上或 sitemap 里。
-
-## 导入选项
-
-```bash
-node scripts/import-case-study.mjs <json> --dry-run            # 只校验，不写数据
-node scripts/import-case-study.mjs <json>                      # 导入
-node scripts/import-case-study.mjs <json> --replace            # 已存在时覆盖
-node scripts/import-case-study.mjs <json> --replace --prune    # 顺带删掉被换下的旧图
-node scripts/import-case-study.mjs <json> --assets "D:/某目录"  # 覆盖素材目录
-```
-
-凭据从 `.env.import` 读（照 `.env.import.example` 抄一份填好，已 gitignore）：
-
-```bash
-cp .env.import.example .env.import
-```
-
-临时换目标站点不用改文件，命令前加变量即可（命令行优先于文件）：
-
-```bash
-PAYLOAD_URL=http://localhost:3000 node scripts/import-case-study.mjs <json> --dry-run
-```
+> 交付方式：把 `case.json` 和 `assets/` 目录打包发回。导入、预览、发布由官网维护方操作，
+> 内容第一次进站会先导成草稿，拿预览链接确认后再发布，改多少轮都不会有半成品出现在线上。
