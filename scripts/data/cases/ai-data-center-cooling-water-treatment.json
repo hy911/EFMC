@@ -1,0 +1,775 @@
+{
+  "slug": "ai-data-center-cooling-water-treatment-turnkey",
+  "assets": "photos-out/cases/ai-data-center-cooling-water-treatment-turnkey/assets",
+  "industry": "water-treatment",
+  "title": {
+    "en": "Cooling Water Treatment",
+    "zh": "算力中心冷却水处理"
+  },
+  "titleAccent": {
+    "en": "for an AI data center.",
+    "zh": "从水质设计到交钥匙交付。"
+  },
+  "excerpt": {
+    "en": "Starting with the client’s outlet-water requirements, EFMC coordinated process engineering, electrical automation, civil and piping works, data-center-side interfaces, construction and commissioning as one turnkey cooling-water treatment project.",
+    "zh": "从客户提出的出水水质要求出发，EFMC 将水处理工艺、电气自控、土建管路、算力中心侧接口、现场施工与联调运行整合为一套交钥匙冷却水处理工程。"
+  },
+  "cover": "完工照片-车间1.jpg",
+  "coverAlt": {
+    "en": "Completed cooling-water treatment workshop for an AI data center",
+    "zh": "完工后的 AI 算力数据中心冷却水处理车间"
+  },
+  "coverFocal": [
+    50,
+    52
+  ],
+  "metrics": [
+    {
+      "value": {
+        "en": "12",
+        "zh": "12 项"
+      },
+      "label": {
+        "en": "Design water-quality indicators",
+        "zh": "设计水质指标"
+      }
+    },
+    {
+      "value": {
+        "en": "UF + RO",
+        "zh": "超滤 + 反渗透"
+      },
+      "label": {
+        "en": "Core treatment train",
+        "zh": "核心处理链路"
+      }
+    },
+    {
+      "value": {
+        "en": "4 disciplines",
+        "zh": "四专业"
+      },
+      "label": {
+        "en": "Integrated engineering scope",
+        "zh": "一体化工程范围"
+      }
+    },
+    {
+      "value": {
+        "en": "Turnkey",
+        "zh": "交钥匙"
+      },
+      "label": {
+        "en": "Delivery model",
+        "zh": "项目交付模式"
+      }
+    }
+  ],
+  "highlights": [
+    {
+      "en": "Water-quality-led design",
+      "zh": "水质指标驱动设计"
+    },
+    {
+      "en": "UF + RO process",
+      "zh": "超滤 + 反渗透工艺"
+    },
+    {
+      "en": "Electrical automation",
+      "zh": "电气自动化"
+    },
+    {
+      "en": "Turnkey integration",
+      "zh": "交钥匙集成"
+    }
+  ],
+  "sections": [
+    {
+      "type": "split",
+      "kicker": {
+        "en": "Client requirement",
+        "zh": "客户需求"
+      },
+      "heading": {
+        "en": "The project began with water quality, but it could not end with process equipment alone.",
+        "zh": "项目从水质要求开始，但交付不能只停留在工艺设备。"
+      },
+      "intro": {
+        "en": "The client needed a complete cooling-water treatment system for an AI compute facility. The treatment process had to meet the specified outlet-water criteria and connect cleanly with power, controls, buildings, pipelines and the operating data center.",
+        "zh": "客户需要的是一套服务于 AI 算力设施的完整冷却水处理系统：既要按照指定出水指标完成工艺设计，也要与供配电、自控、土建、管路及运行中的算力中心顺利衔接。"
+      },
+      "points": [
+        {
+          "label": {
+            "en": "A defined water-quality basis",
+            "zh": "明确的水质设计依据"
+          },
+          "text": {
+            "en": "Twelve client-provided indicators established the design basis, covering pH, turbidity, conductivity, hardness, alkalinity, chloride, iron, sulfate, ammonia nitrogen, COD, bacteria and organic phosphorus.",
+            "zh": "客户给出的 12 项指标构成设计基准，覆盖 pH、浊度、电导率、硬度、碱度、氯离子、铁、硫酸根、氨氮、COD、菌落及有机磷。"
+          }
+        },
+        {
+          "label": {
+            "en": "Several disciplines, one interface",
+            "zh": "多专业必须统一接口"
+          },
+          "text": {
+            "en": "Process design, electrical automation, civil works and piping could not be developed as isolated packages; equipment footprints, utilities, signals and tie-in points had to agree before construction.",
+            "zh": "工艺、电气自控、土建与管路不能各自为战；设备占地、公用工程、信号点位和系统接口必须在施工前统一。"
+          }
+        },
+        {
+          "label": {
+            "en": "A system ready to operate",
+            "zh": "交付的是可运行系统"
+          },
+          "text": {
+            "en": "The required endpoint was not separate skids or drawings. It was an integrated installation that could be commissioned, monitored from the supervisory system and handed over as a working plant.",
+            "zh": "最终目标不是几套设备或几份图纸，而是一套能够完成联调、通过上位机监控并正式投入运行的整体装置。"
+          }
+        }
+      ],
+      "theme": "white"
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Design basis",
+        "zh": "设计基准"
+      },
+      "heading": {
+        "en": "Client water-quality criteria became engineering inputs, not a note added after design.",
+        "zh": "客户的水质要求不是设计后的备注，而是工程计算的起点。"
+      },
+      "intro": {
+        "en": "The supplied outlet-water schedule defined twelve parameters. The values below are selected design criteria from that schedule, not claims of field-test performance.",
+        "zh": "客户提供的出水要求表共列出 12 项参数。以下为其中四项设计值，用于说明工艺设计依据，并非现场实测业绩数据。"
+      },
+      "layout": "metrics",
+      "cards": [
+        {
+          "tag": {
+            "en": "At 25°C",
+            "zh": "25°C 条件"
+          },
+          "title": {
+            "en": "pH range",
+            "zh": "pH 范围"
+          },
+          "value": {
+            "en": "6.5–8.5",
+            "zh": "6.5–8.5"
+          },
+          "text": {
+            "en": "Specified design outlet-water range.",
+            "zh": "规定的设计出水范围。"
+          }
+        },
+        {
+          "tag": {
+            "en": "Outlet-water criterion",
+            "zh": "出水设计值"
+          },
+          "title": {
+            "en": "Turbidity",
+            "zh": "浊度"
+          },
+          "value": {
+            "en": "3 NTU",
+            "zh": "3 NTU"
+          },
+          "text": {
+            "en": "Design value supplied for process selection.",
+            "zh": "用于工艺选型的设计值。"
+          }
+        },
+        {
+          "tag": {
+            "en": "At 25°C",
+            "zh": "25°C 条件"
+          },
+          "title": {
+            "en": "Conductivity",
+            "zh": "电导率"
+          },
+          "value": {
+            "en": "400 μS/cm",
+            "zh": "400 μS/cm"
+          },
+          "text": {
+            "en": "Specified electrical-conductivity design value.",
+            "zh": "规定的电导率设计值。"
+          }
+        },
+        {
+          "tag": {
+            "en": "Outlet-water criterion",
+            "zh": "出水设计值"
+          },
+          "title": {
+            "en": "Total iron",
+            "zh": "总铁"
+          },
+          "value": {
+            "en": "0.3 mg/L",
+            "zh": "0.3 mg/L"
+          },
+          "text": {
+            "en": "Specified total-iron design value.",
+            "zh": "规定的总铁设计值。"
+          }
+        }
+      ],
+      "facts": [
+        {
+          "value": {
+            "en": "12",
+            "zh": "12 项"
+          },
+          "label": {
+            "en": "Indicators in the client schedule",
+            "zh": "客户水质表所列指标"
+          }
+        },
+        {
+          "value": {
+            "en": "Client brief",
+            "zh": "客户资料"
+          },
+          "label": {
+            "en": "Source of design criteria",
+            "zh": "设计指标来源"
+          }
+        },
+        {
+          "value": {
+            "en": "Outlet water",
+            "zh": "系统出水"
+          },
+          "label": {
+            "en": "Specified control point",
+            "zh": "指标对应位置"
+          }
+        }
+      ],
+      "note": {
+        "en": "Values shown are selected requirements from the client-provided design schedule. No commissioning test report was supplied for this case package, so no measured efficiency, recovery-rate or compliance claim is made here.",
+        "zh": "以上数值选自客户提供的设计出水要求。本案例素材未附调试检测报告，因此不在此宣称实测效率、回收率或达标结果。"
+      },
+      "theme": "washBlue"
+    },
+    {
+      "type": "steps",
+      "kicker": {
+        "en": "Turnkey delivery path",
+        "zh": "交钥匙实施路径"
+      },
+      "heading": {
+        "en": "One delivery chain connected the first water-quality requirement to final operation.",
+        "zh": "一条完整交付链，把最初的水质要求一直连到系统运行。"
+      },
+      "intro": {
+        "en": "EFMC organized the project as a continuous engineering and delivery sequence. Each stage produced the conditions needed by the next, reducing gaps between design documents, fabricated equipment, site interfaces and operating logic.",
+        "zh": "EFMC 将项目组织成连续的工程交付过程：前一阶段为下一阶段准备完整条件，减少图纸、设备、现场接口和运行逻辑之间的脱节。"
+      },
+      "style": "strip",
+      "cellLabel": {
+        "en": "Turnkey project stage",
+        "zh": "交钥匙项目阶段"
+      },
+      "steps": [
+        {
+          "title": {
+            "en": "Define requirements",
+            "zh": "确认需求"
+          },
+          "text": {
+            "en": "Translate the client’s water-quality criteria, cooling demand and site interfaces into a coordinated design basis.",
+            "zh": "把客户水质指标、冷却需求与现场接口整理为统一设计基准。"
+          }
+        },
+        {
+          "title": {
+            "en": "Engineer the system",
+            "zh": "系统设计"
+          },
+          "text": {
+            "en": "Develop treatment process, equipment layout, electrical distribution, control architecture, civil works and piping together.",
+            "zh": "协同完成处理工艺、设备布局、配电、自控、土建与管路设计。"
+          }
+        },
+        {
+          "title": {
+            "en": "Fabricate and assemble",
+            "zh": "制造装配"
+          },
+          "text": {
+            "en": "Build treatment skids and automation panels against the approved interfaces before site installation.",
+            "zh": "按照确认后的接口制造水处理设备并装配电气自控柜。"
+          }
+        },
+        {
+          "title": {
+            "en": "Construct on site",
+            "zh": "现场施工"
+          },
+          "text": {
+            "en": "Execute the treatment workshop, electrical and control installation, piping works and data-center-side construction.",
+            "zh": "实施水处理车间、电气自控、现场管路及算力中心侧施工。"
+          }
+        },
+        {
+          "title": {
+            "en": "Integrate and commission",
+            "zh": "系统联调"
+          },
+          "text": {
+            "en": "Connect field equipment, instruments, PLC logic and supervisory screens, then verify operation as one system.",
+            "zh": "打通现场设备、仪表、PLC 逻辑与上位机画面，并按整体系统联调。"
+          }
+        },
+        {
+          "title": {
+            "en": "Run and hand over",
+            "zh": "运行交付"
+          },
+          "text": {
+            "en": "Place the completed installation into operation and hand over a visible, controllable and maintainable water-treatment plant.",
+            "zh": "系统投入运行，交付一套状态可见、过程可控、便于维护的水处理装置。"
+          }
+        }
+      ],
+      "theme": "wash"
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Integrated engineering",
+        "zh": "一体化工程设计"
+      },
+      "heading": {
+        "en": "Process, layout, power, controls and fabrication were resolved as one engineered system.",
+        "zh": "工艺、布局、配电、自控与制造，在同一套工程逻辑下落地。"
+      },
+      "intro": {
+        "en": "The design package coordinated plant footprint, equipment arrangement, main electrical circuits and automation interfaces before work moved to the site. Fabrication then followed the same system boundaries used in the drawings.",
+        "zh": "项目在进场前就把车间占地、设备布置、主回路与自动化接口纳入同一设计包；设备和控制柜制造继续沿用相同的系统边界。"
+      },
+      "layout": "bento",
+      "cards": [
+        {
+          "image": "初期-图纸设计.png",
+          "imageAlt": {
+            "en": "Early CAD layout for the cooling-water treatment workshop",
+            "zh": "冷却水处理车间前期 CAD 布置设计"
+          },
+          "tag": {
+            "en": "01 / General arrangement",
+            "zh": "01 / 总体布置"
+          },
+          "title": {
+            "en": "Plant Layout and Equipment Footprints",
+            "zh": "车间布局与设备占地"
+          },
+          "text": {
+            "en": "Equipment, tanks, operating clearances and service areas were coordinated in the workshop layout before construction.",
+            "zh": "施工前统一协调设备、水池、操作空间及检修区域。"
+          }
+        },
+        {
+          "image": "初期-电气及自控图纸.png",
+          "imageAlt": {
+            "en": "Main-circuit electrical drawing for the treatment system distribution cabinet",
+            "zh": "水处理系统配电柜主回路电气图"
+          },
+          "tag": {
+            "en": "02 / Electrical automation",
+            "zh": "02 / 电气自控"
+          },
+          "title": {
+            "en": "Power Distribution and Control Design",
+            "zh": "配电与控制系统设计"
+          },
+          "text": {
+            "en": "Pumps, treatment equipment and auxiliary systems were incorporated into a documented electrical and automation architecture.",
+            "zh": "泵组、处理设备及辅助系统被纳入成套电气与自动化架构。"
+          }
+        },
+        {
+          "image": "设备制作.jpg",
+          "imageAlt": {
+            "en": "Water-treatment process skid during fabrication and assembly",
+            "zh": "制造装配阶段的水处理工艺撬装设备"
+          },
+          "tag": {
+            "en": "03 / Equipment fabrication",
+            "zh": "03 / 设备制造"
+          },
+          "title": {
+            "en": "Process Skid Fabrication",
+            "zh": "工艺设备制造装配"
+          },
+          "text": {
+            "en": "Membrane housings, pumps, valves and manifolds were assembled as maintainable process units before delivery.",
+            "zh": "膜壳、泵、阀门和管汇在发运前装配成便于维护的工艺单元。"
+          }
+        },
+        {
+          "image": "电气自动控柜制作.jpg",
+          "imageAlt": {
+            "en": "Electrical automation cabinet during panel fabrication",
+            "zh": "制作阶段的电气自动化控制柜"
+          },
+          "tag": {
+            "en": "04 / Panel assembly",
+            "zh": "04 / 控制柜装配"
+          },
+          "title": {
+            "en": "Automation Panel Assembly",
+            "zh": "自动化控制柜成套"
+          },
+          "text": {
+            "en": "Distribution, control and signal components were organized into the panel that would connect field devices with supervisory control.",
+            "zh": "配电、控制与信号元件集成进控制柜，为现场设备与上位系统建立连接。"
+          }
+        }
+      ],
+      "theme": "dark",
+      "themeImage": "完工照片-车间1.jpg",
+      "themeImageAlt": {
+        "en": "Completed water-treatment workshop used as the background for the engineering section",
+        "zh": "作为工程设计章节背景的完工水处理车间"
+      },
+      "accentEdge": true
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Data-center-side construction",
+        "zh": "算力中心侧施工"
+      },
+      "heading": {
+        "en": "The treatment plant was connected to real cooling infrastructure, not delivered as an isolated package.",
+        "zh": "水处理系统接入真实冷却基础设施，而不是作为孤立设备交付。"
+      },
+      "intro": {
+        "en": "Site work extended beyond the treatment workshop. Pipe routes, terminal connections and heat-rejection equipment on the AI compute side had to align with the water plant, construction sequence and final control strategy.",
+        "zh": "现场工作不止发生在水处理车间。算力中心侧的管路、末端接口与散热设备也必须与水处理装置、施工顺序和最终控制策略保持一致。"
+      },
+      "layout": "uniform",
+      "cards": [
+        {
+          "image": "施工阶段-AU算力中心施工1.jpg",
+          "imageAlt": {
+            "en": "Cooling-water piping installed above AI compute equipment during construction",
+            "zh": "施工阶段在 AI 算力设备上方安装的冷却水管路"
+          },
+          "tag": {
+            "en": "01 / Overhead services",
+            "zh": "01 / 顶部管路"
+          },
+          "title": {
+            "en": "Coordinated Pipe Routes",
+            "zh": "协调后的管线路由"
+          },
+          "text": {
+            "en": "Cooling-water services were routed through constrained technical spaces while preserving equipment access.",
+            "zh": "冷却水管路穿过受限技术空间，同时为设备操作与检修保留条件。"
+          }
+        },
+        {
+          "image": "施工阶段-AU算力中心施工2.jpg",
+          "imageAlt": {
+            "en": "AI compute cabinets and cooling-water connections during site installation",
+            "zh": "现场安装阶段的 AI 算力机柜与冷却水连接"
+          },
+          "tag": {
+            "en": "02 / Terminal integration",
+            "zh": "02 / 末端集成"
+          },
+          "title": {
+            "en": "Connections at the Compute Equipment",
+            "zh": "算力设备侧接口施工"
+          },
+          "text": {
+            "en": "The water system was tied into the compute-side cooling equipment as part of the same delivery scope.",
+            "zh": "水系统接口作为同一交付范围的一部分接入算力侧冷却设备。"
+          }
+        },
+        {
+          "image": "施工阶段-AU算力中心施工3.jpg",
+          "imageAlt": {
+            "en": "Outdoor heat-rejection equipment installed for the AI data center",
+            "zh": "为 AI 算力中心安装的室外散热设备"
+          },
+          "tag": {
+            "en": "03 / Heat rejection",
+            "zh": "03 / 散热端"
+          },
+          "title": {
+            "en": "External Cooling Infrastructure",
+            "zh": "室外冷却基础设施"
+          },
+          "text": {
+            "en": "Outdoor cooling equipment completed the physical loop between water preparation, circulation and heat rejection.",
+            "zh": "室外冷却设备补全了水处理、循环供水与散热之间的物理链路。"
+          }
+        }
+      ],
+      "theme": "white"
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Completed treatment plant",
+        "zh": "完工水处理系统"
+      },
+      "heading": {
+        "en": "Each subsystem was completed as part of one maintainable water-treatment workshop.",
+        "zh": "各子系统在同一座可维护的水处理车间内完整落地。"
+      },
+      "intro": {
+        "en": "The finished installation brings pretreatment, ultrafiltration, reverse osmosis, dosing, chemical cleaning, pumping and operations into a coordinated plant environment with clear access around major equipment.",
+        "zh": "完工装置把预处理、超滤、反渗透、加药、化学清洗、泵组与运行管理集中在协调一致的车间环境中，并为主要设备保留清晰的操作维护空间。"
+      },
+      "layout": "uniform",
+      "cards": [
+        {
+          "image": "完工照片-超滤系统.jpg",
+          "imageAlt": {
+            "en": "Completed ultrafiltration membrane system in the treatment workshop",
+            "zh": "水处理车间内完工的超滤膜系统"
+          },
+          "tag": {
+            "en": "01 / Ultrafiltration",
+            "zh": "01 / 超滤"
+          },
+          "title": {
+            "en": "Ultrafiltration Train",
+            "zh": "超滤处理单元"
+          },
+          "text": {
+            "en": "Parallel membrane modules form the front-end separation stage and connect to automated production and cleaning routes.",
+            "zh": "并联膜组件构成前端分离环节，并接入自动产水及清洗管路。"
+          }
+        },
+        {
+          "image": "完工照片-反渗透系统.jpg",
+          "imageAlt": {
+            "en": "Completed reverse-osmosis system with pressure vessels and pumps",
+            "zh": "配置膜壳与泵组的完工反渗透系统"
+          },
+          "tag": {
+            "en": "02 / Reverse osmosis",
+            "zh": "02 / 反渗透"
+          },
+          "title": {
+            "en": "Reverse-Osmosis Treatment",
+            "zh": "反渗透处理单元"
+          },
+          "text": {
+            "en": "The RO stage follows ultrafiltration and provides the principal dissolved-solids treatment step in the documented process.",
+            "zh": "反渗透承接超滤出水，是现有工艺中处理溶解性物质的核心环节。"
+          }
+        },
+        {
+          "image": "完工照片-加药系统.jpg",
+          "imageAlt": {
+            "en": "Completed chemical dosing tanks, metering pumps and pipework",
+            "zh": "完工的药剂箱、计量泵与加药管路"
+          },
+          "tag": {
+            "en": "03 / Dosing",
+            "zh": "03 / 加药"
+          },
+          "title": {
+            "en": "Integrated Chemical Dosing",
+            "zh": "集成式化学加药"
+          },
+          "text": {
+            "en": "Dedicated tanks and metering pumps support the chemical conditions required by the treatment and water-supply processes.",
+            "zh": "独立药剂箱与计量泵为处理和供水过程提供所需化学条件。"
+          }
+        },
+        {
+          "image": "完工照片-化学清洗系统及泵组.jpg",
+          "imageAlt": {
+            "en": "Completed chemical-cleaning system, storage tank and pump group",
+            "zh": "完工的化学清洗系统、储罐与泵组"
+          },
+          "tag": {
+            "en": "04 / Cleaning and pumping",
+            "zh": "04 / 清洗与泵组"
+          },
+          "title": {
+            "en": "Cleaning and Pumping Support",
+            "zh": "化学清洗与输送泵组"
+          },
+          "text": {
+            "en": "Cleaning circuits and pump equipment were installed alongside the main trains to support operation and maintenance.",
+            "zh": "清洗回路与泵组随主系统同步安装，为运行维护提供配套支持。"
+          }
+        },
+        {
+          "image": "完工照片-车间2.jpg",
+          "imageAlt": {
+            "en": "Wide view of the completed and organized water-treatment workshop",
+            "zh": "整洁有序的完工水处理车间全景"
+          },
+          "tag": {
+            "en": "05 / Integrated workshop",
+            "zh": "05 / 一体化车间"
+          },
+          "title": {
+            "en": "A Plant Built for Access",
+            "zh": "为操作维护留出空间"
+          },
+          "text": {
+            "en": "The completed workshop organizes major treatment units, circulation paths and maintenance access as a single operating environment.",
+            "zh": "完工车间把主要处理单元、循环通道与检修空间组织成统一运行环境。"
+          }
+        }
+      ],
+      "theme": "wash"
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Supervisory automation",
+        "zh": "上位机自动化"
+      },
+      "heading": {
+        "en": "Operators can see the complete process instead of managing separate equipment islands.",
+        "zh": "运行人员看到的是完整流程，而不是彼此割裂的设备孤岛。"
+      },
+      "intro": {
+        "en": "The supervisory system separates the process into ultrafiltration, reverse osmosis, dosing and supply views while keeping operating states visible on a shared status panel. Field devices, valves, pumps, tanks and key process readings are represented in the same control environment.",
+        "zh": "上位系统按超滤、反渗透、加药和供水划分工艺画面，同时在共享状态面板中集中呈现运行状态；现场设备、阀门、泵、水池及关键过程读数处于同一控制环境。"
+      },
+      "layout": "uniform",
+      "cards": [
+        {
+          "image": "上位机画面-1.png",
+          "imageAlt": {
+            "en": "Supervisory process screen for the ultrafiltration system",
+            "zh": "超滤系统上位机工艺流程画面"
+          },
+          "tag": {
+            "en": "01 / Ultrafiltration view",
+            "zh": "01 / 超滤画面"
+          },
+          "title": {
+            "en": "Production, Backwash and Tank Status",
+            "zh": "产水、反洗与水池状态"
+          },
+          "text": {
+            "en": "The screen presents the UF flow path, pump and valve states, water levels and selected operating values.",
+            "zh": "画面集中呈现超滤流程、泵阀状态、水位及所选运行参数。"
+          }
+        },
+        {
+          "image": "上位机画面-2.png",
+          "imageAlt": {
+            "en": "Supervisory process screen for the two-stage reverse-osmosis system",
+            "zh": "两段反渗透系统上位机工艺流程画面"
+          },
+          "tag": {
+            "en": "02 / RO view",
+            "zh": "02 / 反渗透画面"
+          },
+          "title": {
+            "en": "Two-Stage RO Process Visibility",
+            "zh": "两段 RO 过程可视化"
+          },
+          "text": {
+            "en": "Operators can review feed conditions, membrane-stage routing, production flow, conductivity and tank status from one screen.",
+            "zh": "运行人员可在同一画面查看进水条件、膜段路径、产水流量、电导率与水池状态。"
+          }
+        },
+        {
+          "image": "上位机画面-3.png",
+          "imageAlt": {
+            "en": "Supervisory screen for chemical dosing tanks and metering pumps",
+            "zh": "药剂箱与计量泵的上位机加药系统画面"
+          },
+          "tag": {
+            "en": "03 / Dosing view",
+            "zh": "03 / 加药画面"
+          },
+          "title": {
+            "en": "Dosing Equipment Status",
+            "zh": "加药设备状态管理"
+          },
+          "text": {
+            "en": "Dosing tanks, mixers and metering pumps are presented by process function, with automatic and manual states visible to operators.",
+            "zh": "药剂箱、搅拌机与计量泵按工艺用途展示，自动和手动状态对运行人员清晰可见。"
+          }
+        },
+        {
+          "image": "上位机画面-4.png",
+          "imageAlt": {
+            "en": "Supervisory screen for treated-water storage and external water supply",
+            "zh": "处理水储存与外供水系统上位机画面"
+          },
+          "tag": {
+            "en": "04 / Supply view",
+            "zh": "04 / 供水画面"
+          },
+          "title": {
+            "en": "Storage and External Supply",
+            "zh": "储水与系统外供"
+          },
+          "text": {
+            "en": "Tank levels, transfer pumps, external supply pressure and conductivity complete the visible path from treatment to use.",
+            "zh": "水池液位、输送泵、外供压力与电导率补全从处理到用水端的可视链路。"
+          }
+        },
+        {
+          "image": "完工照片-上位系统.jpg",
+          "imageAlt": {
+            "en": "Completed control room with the water-treatment supervisory system in operation",
+            "zh": "水处理上位系统投入运行后的控制室"
+          },
+          "tag": {
+            "en": "05 / Operations station",
+            "zh": "05 / 运行工作站"
+          },
+          "title": {
+            "en": "A Working Operations Interface",
+            "zh": "投入使用的运行界面"
+          },
+          "text": {
+            "en": "The finished operations station places the integrated process display in the environment used for daily supervision.",
+            "zh": "完工运行工作站把一体化工艺画面带入日常监控环境。"
+          }
+        }
+      ],
+      "theme": "washBlue"
+    },
+    {
+      "type": "statement",
+      "kicker": {
+        "en": "Project outcome",
+        "zh": "项目成果"
+      },
+      "heading": {
+        "en": "A cooling-water requirement became a complete, operating treatment system.",
+        "zh": "一组冷却水要求，最终成为一套完整运行的水处理系统。"
+      },
+      "intro": {
+        "en": "The project demonstrates EFMC’s ability to carry one technical objective through engineering, fabrication, multidisciplinary construction, automation integration and final operation.",
+        "zh": "这个项目体现了 EFMC 将一个技术目标贯穿工程设计、设备制造、多专业施工、自动化集成与最终运行的能力。"
+      },
+      "body": {
+        "en": "The completed scope combines the treatment workshop, UF and RO trains, chemical dosing, cleaning and pumping systems, electrical automation, supervisory visualization and data-center-side cooling connections. Because the package contains design criteria but no formal commissioning test report, this case describes the delivered architecture and visible operating system without adding unsupported performance claims. The result is a coordinated plant delivered around the client’s requirements rather than a collection of independently supplied components.",
+        "zh": "完工范围覆盖水处理车间、超滤与反渗透、加药、清洗与泵组、电气自控、上位机可视化以及算力中心侧冷却接口。本素材包提供了设计指标，但未附正式调试检测报告，因此案例聚焦已交付架构与可见运行系统，不添加缺乏依据的性能结论。最终形成的是围绕客户需求协同完成的整套装置，而不是若干彼此独立的设备。"
+      },
+      "statement": {
+        "en": "From the first water-quality target to the final operating screen, one team remained responsible for the whole system.",
+        "zh": "从第一项水质指标到最终运行画面，整套系统始终由一个团队负责到底。"
+      },
+      "theme": "dark"
+    }
+  ]
+}
