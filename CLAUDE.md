@@ -133,7 +133,19 @@ CaseStudies 开了 `versions.drafts`。三件事必须一起记住：
 
 生产内容不靠手工录入，走 REST API 脚本导入。凭据从 `.env.import` 读（模板 `.env.import.example`，实际文件已 gitignore），命令行前缀的环境变量优先于文件。公共封装在 `scripts/lib/payload-api.mjs`。
 
-`scripts/lib/case-preview.mjs` 把 case.json 渲染成**结构线框图**（单页 HTML，零依赖），交付给客户让他们自己迭代，不用每改一版都找维护方导草稿。**刻意不做高保真复刻**——那要把 1000 行的 `caseRenderers.tsx` 再抄一遍，从此每改一个案例块都得改两处，早晚漂成两个样子，而客户照着一个已经不准的预览改稿比没有预览更糟。所以它只画结构（章节顺序、编号、块类型与选项、文案长短、图片位置、中英对照），页面顶部明写「不是最终效果」，并且**碰到 `case-blocks.json` 里没有的块类型直接非零退出**——让漂移变成硬错误。CI 有一步拿它跑全部样本案例守着。真实效果仍以草稿预览链接为准。
+`scripts/lib/case-preview.mjs` 让客户在本地看到**与线上一致**的案例页面（生成 `preview-en.html` / `preview-zh.html`），自己迭代到定稿再交付，不用每改一版都找维护方导草稿。
+
+**它不是另写的一套渲染器**——`scripts/build-case-preview.mjs` 用 esbuild 把真实的 `caseRenderers.tsx` + `CaseHero.tsx` 打成零依赖 SSR bundle，用项目自己的 `@tailwindcss/postcss` 编译 `globals.css`（字体内联），产物在 `scripts/lib/preview/`，跟 `case-blocks.json` 一样是**生成物、要提交**。改了案例块、页头或 globals.css 就重新生成，CI 有 `--check` 守着。JSON→Payload 的字段映射也只有一份（`scripts/lib/case-to-payload.mjs`，导入器和预览共用）。
+
+为此把案例页头从页面文件抽成了 `src/components/case/CaseHero.tsx`（不带数据获取和 next-intl，文案由调用方传，脱离 Next 运行时也能渲染）。
+
+两个坑：
+- **Tailwind 的扫描范围必须锁死在 `src/`**（构建脚本里把 `@import 'tailwindcss'` 换成 `source(none)` + 显式 `@source`）。默认从项目根自动探测会把本工具生成的 `preview-*.html` 也扫进去，那些文件里全是 Tailwind 类名，产物于是随「上次生成了哪些预览」而变，`--check` 每次结果都不一样
+- esbuild 打 ESM 时要补 `createRequire` banner（打进来的 CJS 依赖内部会 `require('util')`），并 `define` `process.env.NODE_ENV='production'`，否则打进去的是 React dev 版
+
+保真度靠 `tests/e2e/preview-fidelity.spec.ts` 守：同一份 case.json 分别走 dev server 和预览工具，逐项比对章节数、底色序列、每个标题的字体/字号/字距/行高/颜色。预览独有的三处（next/image 的 shim、CSS 产物、媒体对象适配）漂了就在这里红。
+
+预览与线上刻意的三处差异：没有导航栏页脚、图片未压缩、没有入场动画。
 
 字段契约与校验规则集中在 `scripts/lib/case-schema.mjs` —— 这个文件外部写手也会直接跑（`node case-schema.mjs case.json`），所以它零依赖、不连库。**规则只能有这一份**，导入器 import 它，别在导入器里另写一套。
 

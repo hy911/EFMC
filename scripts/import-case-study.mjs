@@ -22,8 +22,8 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 import { api, login, requireEnv, uploadMedia } from './lib/payload-api.mjs'
+import { sectionToBlock } from './lib/case-to-payload.mjs'
 import {
-  BLOCK_TYPE,
   checkAssets,
   collectImages,
   collectVideos,
@@ -63,106 +63,6 @@ async function resolveAsset(assetsDir, outDir, file) {
   await fs.mkdir(outDir, { recursive: true })
   await sharp(src, { density: 200 }).resize({ width: 1600 }).png().toFile(out)
   return out
-}
-
-/** JSON 章节 → Payload block（en）。media 是文件名 → media id 的映射 */
-function sectionToBlockEn(s, media) {
-  const base = {
-    blockType: BLOCK_TYPE[s.type],
-    kicker: en(s.kicker),
-    heading: en(s.heading),
-    intro: en(s.intro),
-    theme: s.theme ?? 'auto',
-    themeImage: s.themeImage ? media[s.themeImage] : undefined,
-    accentEdge: s.accentEdge === true,
-  }
-  switch (s.type) {
-    case 'split':
-      return {
-        ...base,
-        quote: en(s.quote),
-        quoteLabel: en(s.quoteLabel),
-        quoteFooter: en(s.quoteFooter),
-        points: s.points.map((p) => ({ label: en(p.label), text: en(p.text) })),
-      }
-    case 'figure':
-      return {
-        ...base,
-        variant: s.variant ?? 'full',
-        image: media[s.image],
-        video: s.video ? media[s.video] : undefined,
-        banner: en(s.banner),
-      }
-    case 'cards':
-      return {
-        ...base,
-        layout: s.layout ?? 'uniform',
-        cards: s.cards.map((c) => ({
-          image: c.image ? media[c.image] : undefined,
-          tag: en(c.tag),
-          title: en(c.title),
-          value: en(c.value),
-          text: en(c.text),
-        })),
-        sideImage: s.sideImage ? media[s.sideImage] : undefined,
-        sideImageLabel: en(s.sideImageLabel),
-        sideImageValue: en(s.sideImageValue),
-        facts: (s.facts ?? []).map((f) => ({ value: en(f.value), label: en(f.label) })),
-        note: en(s.note),
-      }
-    case 'steps':
-      return {
-        ...base,
-        style: s.style ?? 'strip',
-        cellLabel: en(s.cellLabel),
-        steps: s.steps.map((st) => ({
-          image: st.image ? media[st.image] : undefined,
-          title: en(st.title),
-          tone: st.tone ?? 'accent',
-          pictogram: st.pictogram ?? 'none',
-          text: en(st.text),
-        })),
-        proofValue: en(s.proofValue),
-        proofNote: en(s.proofNote),
-      }
-    case 'compare':
-      return {
-        ...base,
-        labelArea: en(s.labels.area),
-        labelBefore: en(s.labels.before),
-        labelAfter: en(s.labels.after),
-        rows: s.rows.map((r) => ({ area: en(r.area), before: en(r.before), after: en(r.after) })),
-        ...(s.panel
-          ? {
-              panelImage: media[s.panel.image],
-              panelBeforeLabel: en(s.panel.beforeLabel),
-              panelBeforeTitle: en(s.panel.beforeTitle),
-              panelBeforeRows: s.panel.beforeRows.map((r) => ({
-                image: r.image ? media[r.image] : undefined,
-                symbol: en(r.symbol),
-                text: en(r.text),
-                note: en(r.note),
-                tag: en(r.tag),
-              })),
-              panelBeforeResultLabel: en(s.panel.beforeResultLabel),
-              panelBeforeResultValue: en(s.panel.beforeResultValue),
-              panelAfterLabel: en(s.panel.afterLabel),
-              panelAfterTitle: en(s.panel.afterTitle),
-              panelImageTags: (s.panel.imageTags ?? []).map((t) => ({
-                text: en(t.text),
-                corner: t.corner ?? 'bottomLeft',
-              })),
-              panelAfterFacts: (s.panel.afterFacts ?? []).map((f) => ({
-                label: en(f.label),
-                value: en(f.value),
-                highlight: f.highlight === true,
-              })),
-            }
-          : {}),
-      }
-    case 'statement':
-      return { ...base, body: en(s.body), statement: en(s.statement) }
-  }
 }
 
 /** JSON 章节 → 只含中文叶子字段的对象（结构与 en 一致，供 mergeLocale 合并） */
@@ -386,7 +286,7 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     completedAt: data.completedAt ? `${data.completedAt}-01T00:00:00.000Z` : undefined,
     metrics: (data.metrics ?? []).map((m) => ({ value: m.value.en, label: m.label.en })),
     highlights: (data.highlights ?? []).map((h) => ({ label: h.en })),
-    sections: data.sections.map((s) => sectionToBlockEn(s, media)),
+    sections: data.sections.map((s) => sectionToBlock(s, media, en)),
     // 简版正文清空：本案例走章节排版，两者都有会重复渲染一遍。
     // body 是 localized 字段，这里只清 en，zh 在下面的 PATCH 里再清一次
     body: null,

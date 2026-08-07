@@ -30,6 +30,9 @@ const eslintConfig = [
       'src/payload-types.ts',
       'src/payload-generated-schema.ts',
       'src/migrations/',
+      // 客户端预览的产物：真实渲染器打的包（压缩过）+ 编译好的 Tailwind
+      // 由 scripts/build-case-preview.mjs 生成，不手写也不该被规则挑刺
+      'scripts/lib/preview/',
     ],
   },
 ]
