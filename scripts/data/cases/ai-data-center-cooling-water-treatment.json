@@ -36,32 +36,12 @@
     },
     {
       "value": {
-        "en": "UF + RO",
-        "zh": "超滤 + 反渗透"
-      },
-      "label": {
-        "en": "Core treatment train",
-        "zh": "核心处理链路"
-      }
-    },
-    {
-      "value": {
         "en": "4 disciplines",
         "zh": "四专业"
       },
       "label": {
         "en": "Integrated engineering scope",
         "zh": "一体化工程范围"
-      }
-    },
-    {
-      "value": {
-        "en": "Turnkey",
-        "zh": "交钥匙"
-      },
-      "label": {
-        "en": "Delivery model",
-        "zh": "项目交付模式"
       }
     }
   ],
@@ -129,8 +109,7 @@
             "zh": "最终目标不是几套设备或几份图纸，而是一套能够完成联调、通过上位机监控并正式投入运行的整体装置。"
           }
         }
-      ],
-      "theme": "white"
+      ]
     },
     {
       "type": "cards",
@@ -144,9 +123,9 @@
       },
       "intro": {
         "en": "The supplied outlet-water schedule defined twelve parameters. The values below are selected design criteria from that schedule, not claims of field-test performance.",
-        "zh": "客户提供的出水要求表共列出 12 项参数。以下为其中四项设计值，用于说明工艺设计依据，并非现场实测业绩数据。"
+        "zh": "客户提供的出水要求表共列出 12 项参数。以下为其中六项设计值，用于说明工艺设计依据，并非现场实测业绩数据。"
       },
-      "layout": "metrics",
+      "layout": "uniform",
       "cards": [
         {
           "tag": {
@@ -154,8 +133,8 @@
             "zh": "25°C 条件"
           },
           "title": {
-            "en": "pH range",
-            "zh": "pH 范围"
+            "en": "pH range: 6.5–8.5",
+            "zh": "pH 范围：6.5–8.5"
           },
           "value": {
             "en": "6.5–8.5",
@@ -172,8 +151,8 @@
             "zh": "出水设计值"
           },
           "title": {
-            "en": "Turbidity",
-            "zh": "浊度"
+            "en": "Turbidity: 3 NTU",
+            "zh": "浊度：3 NTU"
           },
           "value": {
             "en": "3 NTU",
@@ -190,8 +169,8 @@
             "zh": "25°C 条件"
           },
           "title": {
-            "en": "Conductivity",
-            "zh": "电导率"
+            "en": "Conductivity: 400 μS/cm",
+            "zh": "电导率：400 μS/cm"
           },
           "value": {
             "en": "400 μS/cm",
@@ -208,8 +187,8 @@
             "zh": "出水设计值"
           },
           "title": {
-            "en": "Total iron",
-            "zh": "总铁"
+            "en": "Total iron: 0.3 mg/L",
+            "zh": "总铁：0.3 mg/L"
           },
           "value": {
             "en": "0.3 mg/L",
@@ -219,45 +198,44 @@
             "en": "Specified total-iron design value.",
             "zh": "规定的总铁设计值。"
           }
-        }
-      ],
-      "facts": [
+        },
         {
-          "value": {
-            "en": "12",
-            "zh": "12 项"
+          "tag": {
+            "en": "As CaCO₃",
+            "zh": "以 CaCO₃ 计"
           },
-          "label": {
-            "en": "Indicators in the client schedule",
-            "zh": "客户水质表所列指标"
+          "title": {
+            "en": "Calcium hardness: 100 mg/L",
+            "zh": "钙硬度：100 mg/L"
+          },
+          "value": {
+            "en": "100 mg/L",
+            "zh": "100 mg/L"
+          },
+          "text": {
+            "en": "Specified calcium-hardness design value.",
+            "zh": "规定的钙硬度设计值。"
           }
         },
         {
-          "value": {
-            "en": "Client brief",
-            "zh": "客户资料"
+          "tag": {
+            "en": "As CaCO₃",
+            "zh": "以 CaCO₃ 计"
           },
-          "label": {
-            "en": "Source of design criteria",
-            "zh": "设计指标来源"
-          }
-        },
-        {
-          "value": {
-            "en": "Outlet water",
-            "zh": "系统出水"
+          "title": {
+            "en": "Total alkalinity: 200 mg/L",
+            "zh": "总碱度：200 mg/L"
           },
-          "label": {
-            "en": "Specified control point",
-            "zh": "指标对应位置"
+          "value": {
+            "en": "200 mg/L",
+            "zh": "200 mg/L"
+          },
+          "text": {
+            "en": "Specified total-alkalinity design value.",
+            "zh": "规定的总碱度设计值。"
           }
         }
-      ],
-      "note": {
-        "en": "Values shown are selected requirements from the client-provided design schedule. No commissioning test report was supplied for this case package, so no measured efficiency, recovery-rate or compliance claim is made here.",
-        "zh": "以上数值选自客户提供的设计出水要求。本案例素材未附调试检测报告，因此不在此宣称实测效率、回收率或达标结果。"
-      },
-      "theme": "washBlue"
+      ]
     },
     {
       "type": "steps",
@@ -339,8 +317,7 @@
             "zh": "系统投入运行，交付一套状态可见、过程可控、便于维护的水处理装置。"
           }
         }
-      ],
-      "theme": "wash"
+      ]
     },
     {
       "type": "cards",
@@ -444,7 +421,7 @@
       "accentEdge": true
     },
     {
-      "type": "cards",
+      "type": "figure",
       "kicker": {
         "en": "Data-center-side construction",
         "zh": "算力中心侧施工"
@@ -457,67 +434,16 @@
         "en": "Site work extended beyond the treatment workshop. Pipe routes, terminal connections and heat-rejection equipment on the AI compute side had to align with the water plant, construction sequence and final control strategy.",
         "zh": "现场工作不止发生在水处理车间。算力中心侧的管路、末端接口与散热设备也必须与水处理装置、施工顺序和最终控制策略保持一致。"
       },
-      "layout": "uniform",
-      "cards": [
-        {
-          "image": "施工阶段-AU算力中心施工1.jpg",
-          "imageAlt": {
-            "en": "Cooling-water piping installed above AI compute equipment during construction",
-            "zh": "施工阶段在 AI 算力设备上方安装的冷却水管路"
-          },
-          "tag": {
-            "en": "01 / Overhead services",
-            "zh": "01 / 顶部管路"
-          },
-          "title": {
-            "en": "Coordinated Pipe Routes",
-            "zh": "协调后的管线路由"
-          },
-          "text": {
-            "en": "Cooling-water services were routed through constrained technical spaces while preserving equipment access.",
-            "zh": "冷却水管路穿过受限技术空间，同时为设备操作与检修保留条件。"
-          }
-        },
-        {
-          "image": "施工阶段-AU算力中心施工2.jpg",
-          "imageAlt": {
-            "en": "AI compute cabinets and cooling-water connections during site installation",
-            "zh": "现场安装阶段的 AI 算力机柜与冷却水连接"
-          },
-          "tag": {
-            "en": "02 / Terminal integration",
-            "zh": "02 / 末端集成"
-          },
-          "title": {
-            "en": "Connections at the Compute Equipment",
-            "zh": "算力设备侧接口施工"
-          },
-          "text": {
-            "en": "The water system was tied into the compute-side cooling equipment as part of the same delivery scope.",
-            "zh": "水系统接口作为同一交付范围的一部分接入算力侧冷却设备。"
-          }
-        },
-        {
-          "image": "施工阶段-AU算力中心施工3.jpg",
-          "imageAlt": {
-            "en": "Outdoor heat-rejection equipment installed for the AI data center",
-            "zh": "为 AI 算力中心安装的室外散热设备"
-          },
-          "tag": {
-            "en": "03 / Heat rejection",
-            "zh": "03 / 散热端"
-          },
-          "title": {
-            "en": "External Cooling Infrastructure",
-            "zh": "室外冷却基础设施"
-          },
-          "text": {
-            "en": "Outdoor cooling equipment completed the physical loop between water preparation, circulation and heat rejection.",
-            "zh": "室外冷却设备补全了水处理、循环供水与散热之间的物理链路。"
-          }
-        }
-      ],
-      "theme": "white"
+      "variant": "full",
+      "image": "施工阶段-AU算力中心施工3.jpg",
+      "imageAlt": {
+        "en": "Outdoor heat-rejection equipment installed for the AI data center",
+        "zh": "为 AI 算力中心安装的室外散热设备"
+      },
+      "banner": {
+        "en": "One delivery scope connected water preparation, compute-side circulation and rooftop heat rejection.",
+        "zh": "同一交付范围贯通水处理、算力侧循环供水与屋面散热。"
+      }
     },
     {
       "type": "cards",
@@ -630,8 +556,7 @@
             "zh": "完工车间把主要处理单元、循环通道与检修空间组织成统一运行环境。"
           }
         }
-      ],
-      "theme": "wash"
+      ]
     },
     {
       "type": "figure",
@@ -773,8 +698,7 @@
             "zh": "完工运行工作站把一体化工艺画面带入日常监控环境。"
           }
         }
-      ],
-      "theme": "washBlue"
+      ]
     },
     {
       "type": "statement",
