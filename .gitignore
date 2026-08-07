@@ -60,3 +60,6 @@ selection.json
 # Claude Code 的本机配置：命令放行规则带本机绝对路径，因人因机而异，不共享
 # （.claude/settings.json、hooks/、agents/、skills/ 是仓库级自动化，故意提交）
 .claude/settings.local.json
+
+# 结构预览工具的生成物（case-preview.mjs 在 case.json 旁边生成）
+preview.html

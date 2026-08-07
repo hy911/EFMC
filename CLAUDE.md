@@ -133,6 +133,8 @@ CaseStudies 开了 `versions.drafts`。三件事必须一起记住：
 
 生产内容不靠手工录入，走 REST API 脚本导入。凭据从 `.env.import` 读（模板 `.env.import.example`，实际文件已 gitignore），命令行前缀的环境变量优先于文件。公共封装在 `scripts/lib/payload-api.mjs`。
 
+`scripts/lib/case-preview.mjs` 把 case.json 渲染成**结构线框图**（单页 HTML，零依赖），交付给客户让他们自己迭代，不用每改一版都找维护方导草稿。**刻意不做高保真复刻**——那要把 1000 行的 `caseRenderers.tsx` 再抄一遍，从此每改一个案例块都得改两处，早晚漂成两个样子，而客户照着一个已经不准的预览改稿比没有预览更糟。所以它只画结构（章节顺序、编号、块类型与选项、文案长短、图片位置、中英对照），页面顶部明写「不是最终效果」，并且**碰到 `case-blocks.json` 里没有的块类型直接非零退出**——让漂移变成硬错误。CI 有一步拿它跑全部样本案例守着。真实效果仍以草稿预览链接为准。
+
 字段契约与校验规则集中在 `scripts/lib/case-schema.mjs` —— 这个文件外部写手也会直接跑（`node case-schema.mjs case.json`），所以它零依赖、不连库。**规则只能有这一份**，导入器 import 它，别在导入器里另写一套。
 
 各字段的**可选值不在校验器里手写**：`scripts/lib/case-blocks.json` 由 `scripts/gen-case-blocks.mjs` 从 `src/blocks/case.ts` 生成，校验器和外部写手都查它。改了 block 的 select 选项要重新生成并提交，CI 有 `--check` 步骤守着（客户用 AI 生成内容，给 AI 的字段清单一漂移就是一轮返工）。

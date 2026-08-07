@@ -65,6 +65,16 @@ jobs:
       - name: 积木块目录未过期
         run: pnpm exec tsx scripts/gen-case-blocks.mjs --check
 
+      # 结构预览是交付给客户的工具，零依赖、不进构建，坏了没有任何别的步骤会报错。
+      # 它内置漂移守卫：碰到 case-blocks.json 里没有的块类型就非零退出，
+      # 所以加了新版式却忘了更新它，这一步会红。
+      # （只跑预览不跑校验器：校验器要查素材文件，而 photos-out/ 不进 git）
+      - name: 结构预览工具可用
+        run: |
+          for f in scripts/data/cases/*.json; do
+            node scripts/lib/case-preview.mjs "$f"
+          done
+
       - name: 数据库迁移
         run: pnpm payload migrate
 
