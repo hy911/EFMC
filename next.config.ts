@@ -25,6 +25,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  /**
+   * 把浏览器控制台的报错转发到 dev 终端。
+   *
+   * 客户端的报错只出现在浏览器里，而写代码的 AI 看的是终端输出 —— 不转发的话
+   * 它拿不到自己被要求修的那个错。设 'error' 不设 true：全量转发会把
+   * React 的各种开发提示也刷进来，真正的报错反而淹掉。
+   *
+   * 只影响 next dev，生产构建不带。
+   */
+  logging: { browserToTerminal: 'error' },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
