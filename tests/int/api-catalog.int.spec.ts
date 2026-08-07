@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { GET as catalog } from '@/app/.well-known/api-catalog/route'
 import { GET as openapi } from '@/app/api/openapi.json/route'
-import robots from '@/app/robots'
+import { GET as robots } from '@/app/robots.txt/route'
 import { PUBLIC_COLLECTIONS } from '@/lib/api-catalog'
 
 /**
@@ -49,14 +49,29 @@ describe('API 目录', () => {
     }
   })
 
-  it('robots.txt 放行目录指出去的地址', () => {
-    const { rules } = robots()
-    const allow = [(Array.isArray(rules) ? rules[0] : rules).allow].flat()
+  it('robots.txt 放行目录指出去的地址', async () => {
+    const txt = await robots().text()
 
     // 目录里 service-desc / service-doc / status 三个地址都在 /api/ 下，
     // 被 Disallow: /api/ 挡住的话，这份 API 目录就是一张打不开的清单
     for (const p of ['/api/openapi.json', '/api/docs', '/api/health']) {
-      expect(allow).toContain(p)
+      expect(txt).toContain(`Allow: ${p}`)
     }
+    expect(txt).toContain('Disallow: /admin')
+  })
+
+  it('robots.txt 声明 Content Signals，且不挡 AI 回答与搜索', async () => {
+    const txt = await robots().text()
+    const signal = txt.match(/^Content-Signal:\s*(.+)$/m)?.[1]
+    expect(signal, '没有 Content-Signal 指令').toBeTruthy()
+
+    /*
+     * 站点目标是被 AI 回答引用来获客，所以 search 和 ai-input 必须是 yes。
+     * 各种示例和扫描器给的默认值多是 ai-input=no / ai-train=no，照抄一次
+     * 就把自己从 ChatGPT、Perplexity 那类带链接的回答里摘出去了 ——
+     * 那正是我们要的入口。要改成 no 得是明确的业务决定，不是顺手抄默认值。
+     */
+    expect(signal).toMatch(/\bsearch=yes\b/)
+    expect(signal).toMatch(/\bai-input=yes\b/)
   })
 })
