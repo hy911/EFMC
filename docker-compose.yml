@@ -36,6 +36,22 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      # /api/health 会真去连一次库：Payload 与 Next 同进程，进程活着但连不上库时
+      # 页面全是 500，只探端口通不通看不出来。
+      # 探针用 node 自带的 fetch —— 镜像是 node:24-alpine，不装 curl，
+      # busybox 的 wget 虽然在但不保证长期在，而 node 是 CMD 本身，一定有。
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # 冷启动要跑 Next standalone 引导 + Payload 初始化，给足时间，
+      # 否则刚起来那几十秒会被判成 unhealthy
+      start_period: 60s
 
   postgres:
     image: postgres:18-alpine
@@ -73,7 +89,9 @@ services:
       # 避免未用 tunnel 时 compose 解析整个文件就因必填校验报错
       TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
     depends_on:
-      - app
+      # 等 app 真的能服务再接流量，别在冷启动那几十秒里把 502 送到公网
+      app:
+        condition: service_healthy
 
 volumes:
   pgdata:
