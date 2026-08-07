@@ -64,3 +64,12 @@ selection.json
 # 客户端预览的生成物（case-preview.mjs 在 case.json 旁边生成）
 preview-en.html
 preview-zh.html
+
+# 外部装的 skill（npx skills add payloadcms/skills）：
+# .agents/ 是拉下来的第三方内容，.claude/skills/ 下的同名项是指向它的**绝对路径符号链接**
+# （/e/wrk/EFMC/... 写死了本机盘符），提交进去换台机器就是断链，还跟自家那几个 skill 混在一起。
+# 提交 skills-lock.json 就够了 —— 里面有来源和内容哈希，换机器重新装一次即可：
+#   npx skills add payloadcms/skills
+.agents/
+.claude/skills/payload
+.claude/skills/cms-migration
