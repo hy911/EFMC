@@ -32,4 +32,9 @@ export const PUBLIC_APIS = [
     title: 'Content API',
     summary: '只读的产品、案例、行业与文章内容',
   },
+  {
+    anchor: '/mcp',
+    title: 'MCP Server',
+    summary: 'Model Context Protocol 端点（Streamable HTTP，只读工具）',
+  },
 ] as const

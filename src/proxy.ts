@@ -47,11 +47,12 @@ export const config = {
    * - /admin  → Payload 管理后台
    * - /api    → Payload REST/GraphQL + 询盘 API
    * - /md     → 内容协商的 Markdown 出口（本身不带语言前缀）
+   * - /mcp    → MCP 端点（JSON-RPC，代理连的地址，加前缀就连不上了）
    * - /_next  → Next.js 静态资源
    * - 带扩展名的文件（favicon、图片等）
    *
    * 注意 `.*\..*` 那段顺带把 /.well-known/… 也排除了 —— API 目录
    * （RFC 9727）靠这个才不会被加语言前缀。收紧这个 matcher 时要确认它还通。
    */
-  matcher: '/((?!api|admin|md|_next|_vercel|.*\\..*).*)',
+  matcher: '/((?!api|admin|md|mcp|_next|_vercel|.*\\..*).*)',
 }

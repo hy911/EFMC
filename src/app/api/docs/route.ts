@@ -62,6 +62,18 @@ Rate limiting is enforced at the CDN edge.</p>
 <a href="/api/openapi.json">OpenAPI document</a>, which is generated from the
 server-side validation rules.</p>
 
+<h2>MCP server</h2>
+<p>Model Context Protocol endpoint at <code>${SITE_URL}/mcp</code> (Streamable HTTP, stateless —
+<code>POST</code> only). Read-only tools: <code>search_products</code>, <code>get_product</code>,
+<code>list_case_studies</code>, <code>get_case_study</code>, <code>get_contact</code>.</p>
+<p>There is deliberately no inquiry-submission tool: the web form is protected by a honeypot field
+and Cloudflare Turnstile, and an anonymous MCP write endpoint would bypass both. Point the end user
+at the contact form instead.</p>
+<pre>curl -X POST '${SITE_URL}/mcp' \\
+  -H 'Content-Type: application/json' \\
+  -H 'Accept: application/json, text/event-stream' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'</pre>
+
 <h2>Contact</h2>
 <p>Commercial enquiries: <a href="${SITE_URL}/en/contact">${SITE_URL}/en/contact</a></p>
 </body></html>`
