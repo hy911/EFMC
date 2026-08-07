@@ -21,20 +21,28 @@ export const PUBLIC_COLLECTIONS = [
   'media',
 ] as const
 
+/**
+ * `desc` 是这个接口的机器可读描述（linkset 里的 service-desc）。
+ * REST 那两条共用 OpenAPI 文档；MCP 有自己的 server card（SEP-1649），
+ * 指 OpenAPI 是不对的 —— 那份文档里没有 MCP 的任何内容。
+ */
 export const PUBLIC_APIS = [
   {
     anchor: '/api/inquiries',
     title: 'Inquiry API',
     summary: '提交询盘（站点唯一写入入口，带人机校验）',
+    desc: { href: '/api/openapi.json', type: 'application/openapi+json' },
   },
   {
     anchor: '/api',
     title: 'Content API',
     summary: '只读的产品、案例、行业与文章内容',
+    desc: { href: '/api/openapi.json', type: 'application/openapi+json' },
   },
   {
     anchor: '/mcp',
     title: 'MCP Server',
     summary: 'Model Context Protocol 端点（Streamable HTTP，只读工具）',
+    desc: { href: '/.well-known/mcp/server-card.json', type: 'application/json' },
   },
 ] as const

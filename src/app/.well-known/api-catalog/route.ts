@@ -23,7 +23,7 @@ export const dynamic = 'force-static'
 export function GET() {
   const linkset = PUBLIC_APIS.map((api) => ({
     anchor: `${SITE_URL}${api.anchor}`,
-    'service-desc': [{ href: `${SITE_URL}/api/openapi.json`, type: 'application/openapi+json' }],
+    'service-desc': [{ href: `${SITE_URL}${api.desc.href}`, type: api.desc.type }],
     'service-doc': [{ href: `${SITE_URL}/api/docs`, type: 'text/html' }],
     status: [{ href: `${SITE_URL}/api/health`, type: 'application/json' }],
   }))

@@ -39,9 +39,16 @@ function plain(node: unknown): string {
 const productUrl = (locale: string, slug: string) => `${SITE_URL}/${locale}/products/${slug}`
 const caseUrl = (locale: string, slug: string) => `${SITE_URL}/${locale}/cases/${slug}`
 
+/**
+ * 服务端标识。**给 initialize 用的和写进 server card 的必须是同一份**
+ * （`/.well-known/mcp/server-card.json`）—— 卡片上写的名字版本跟连上来实际
+ * 拿到的对不上，代理侧的缓存和版本判断就全乱了。
+ */
+export const MCP_SERVER_INFO = { name: 'donglin-controls', version: '1.0.0' } as const
+
 export function buildMcpServer(): McpServer {
   const server = new McpServer(
-    { name: 'donglin-controls', version: '1.0.0' },
+    { ...MCP_SERVER_INFO },
     {
       instructions: [
         '天津东林众控（Donglin Controls）官网的只读接口：工业自动化控制柜与系统集成商。',

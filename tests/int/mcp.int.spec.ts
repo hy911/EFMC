@@ -1,6 +1,7 @@
 import { getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
+import { GET as cardGET } from '@/app/.well-known/mcp/server-card.json/route'
 import { POST } from '@/app/mcp/route'
 import config from '@/payload.config'
 
@@ -36,6 +37,22 @@ describe('MCP server', () => {
 
   afterAll(async () => {
     if (draftId) await payload.delete({ collection: 'case-studies', id: draftId })
+  })
+
+  it('server card 与 initialize 报的是同一个身份和能力', async () => {
+    // 卡片是代理在连上来之前读的。上面写的名字、版本、能力跟握手实际拿到的
+    // 对不上，代理侧的缓存和版本判断就全乱了 —— 而两处各写一份必然漂。
+    const card = await (await cardGET()).json()
+    const { result } = await rpc('initialize', {
+      protocolVersion: '2025-06-18',
+      capabilities: {},
+      clientInfo: { name: 'test', version: '1' },
+    })
+
+    expect(card.serverInfo).toEqual(result.serverInfo)
+    expect(card.endpoint).toMatch(/\/mcp$/)
+    // 没有 resources / prompts 就别报，报了代理会去请求然后拿到空手
+    expect(Object.keys(card.capabilities)).toEqual(Object.keys(result.capabilities))
   })
 
   it('只暴露只读工具', async () => {
