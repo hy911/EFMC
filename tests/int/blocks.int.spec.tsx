@@ -5,6 +5,7 @@ import { cleanup, render, screen } from '@testing-library/react'
 import config from '@/payload.config'
 import { FeatureColumns } from '@/components/ui/FeatureColumns'
 import { LogoStrip } from '@/components/ui/LogoStrip'
+import { MediaVideo } from '@/components/ui/MediaVideo'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { SiteSetting } from '@/payload-types'
 
@@ -208,5 +209,62 @@ describe('LogoStrip 组件', () => {
   it('logos 为空时整体不渲染', () => {
     const { container } = render(<LogoStrip logos={[]} />)
     expect(container.firstChild).toBeNull()
+  })
+})
+
+/**
+ * 案例视频（figure 块的 video 字段）。
+ *
+ * 三条会真出事的规矩，光看渲染结果看不出来，必须断言属性：
+ * - 绝不能 autoplay：B2B 案例页翻到一半突然出声是负体验
+ * - 必须 preload="metadata"：写成 auto 的话每个访客都白下 7 MB
+ * - 必须有 poster：没有封面帧，用户翻到这一节看到的是一块黑
+ */
+describe('案例视频（MediaVideo）', () => {
+  const video = {
+    id: 190,
+    alt: '完工冷却水处理车间实录',
+    url: '/api/media/file/walkthrough.mp4',
+    mimeType: 'video/mp4',
+  }
+  const poster = {
+    id: 184,
+    alt: '完工车间',
+    url: '/api/media/file/cover.jpg',
+    sizes: { feature: { url: '/api/media/file/cover-1280x720.webp' } },
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderVideo = (props: any) => render(<MediaVideo {...props} />).container
+
+  it('不自动播放、只预加载元数据、带原生控件', () => {
+    const el = renderVideo({ video, poster }).querySelector('video')
+    expect(el?.hasAttribute('autoplay'), '案例视频不能自动播放').toBe(false)
+    expect(el?.getAttribute('preload'), 'preload 不是 metadata 会让每个访客白下整个文件').toBe(
+      'metadata',
+    )
+    expect(el?.hasAttribute('controls')).toBe(true)
+    expect(el?.hasAttribute('playsinline'), 'iOS 上没有它会强制全屏').toBe(true)
+  })
+
+  it('封面帧取 feature 尺寸的 webp，不是原图', () => {
+    const el = renderVideo({ video, poster }).querySelector('video')
+    expect(el?.getAttribute('poster')).toBe('/api/media/file/cover-1280x720.webp')
+  })
+
+  it('封面没有 feature 尺寸时回落原图', () => {
+    const el = renderVideo({ video, poster: { ...poster, sizes: {} } }).querySelector('video')
+    expect(el?.getAttribute('poster')).toBe('/api/media/file/cover.jpg')
+  })
+
+  it('alt 挂成 aria-label（屏幕阅读器要靠它说明这是什么视频）', () => {
+    const el = renderVideo({ video, poster }).querySelector('video')
+    expect(el?.getAttribute('aria-label')).toBe('完工冷却水处理车间实录')
+  })
+
+  it('关系未 populate（纯 id）或为空时不渲染，不会输出空的 <video>', () => {
+    expect(renderVideo({ video: 190, poster }).firstChild).toBeNull()
+    expect(renderVideo({ video: null, poster }).firstChild).toBeNull()
+    expect(renderVideo({ video: { ...video, url: null }, poster }).firstChild).toBeNull()
   })
 })

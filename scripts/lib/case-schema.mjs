@@ -134,6 +134,11 @@ export function validate(data) {
         if (!s.image) at(`${p}.image`, '必填，图片文件名')
         if (!isText(s.imageAlt)) at(`${p}.imageAlt`, '必填，需要 { en, zh }（SEO 与无障碍都靠它）')
         checkOption(at, `${p}.variant`, s.variant, 'caseFigure', 'variant')
+        // 视频是可选的；填了 image 依然必填 —— 它当封面帧，没有的话首屏是一块黑
+        if (s.video && !/\.mp4$/i.test(s.video))
+          at(`${p}.video`, `只收 .mp4（H.264/AAC），收到 "${s.video}"`)
+        if (s.video && !isText(s.videoAlt))
+          at(`${p}.videoAlt`, '有 video 就必须有 { en, zh }（屏幕阅读器要靠它说明这段视频是什么）')
         break
       case 'cards':
         checkOption(at, `${p}.layout`, s.layout, 'caseCards', 'layout')
@@ -254,6 +259,16 @@ export function validate(data) {
 }
 
 /** 收集 JSON 里引用的全部图片文件名 */
+/**
+ * 案例里用到的视频文件名。跟图片分开收：视频不进 sharp（不转 webp、不生成多尺寸），
+ * 上传时的 mimetype 也不同，混在一起迟早有人拿 SVG 转换那条路去处理 mp4。
+ */
+export function collectVideos(data) {
+  const files = new Set()
+  for (const s of data.sections ?? []) if (s.video) files.add(s.video)
+  return [...files]
+}
+
 export function collectImages(data) {
   const files = new Set([data.cover])
   for (const s of data.sections ?? []) {
@@ -282,13 +297,15 @@ export function checkAssets(data, assetsDir) {
     return [`素材目录不存在：${assetsDir}`]
   }
   const lower = new Map(names.map((n) => [n.toLowerCase(), n]))
-  for (const f of collectImages(data)) {
+  const videos = new Set(collectVideos(data))
+  for (const f of [...collectImages(data), ...videos]) {
+    const kind = videos.has(f) ? '视频' : '图片'
     if (names.includes(f)) continue
     const hit = lower.get(f.toLowerCase())
     errs.push(
       hit
-        ? `图片 ${f}：目录里的实际文件名是 ${hit}，大小写不一致（Linux 服务器区分大小写）`
-        : `图片 ${f}：素材目录里没有这个文件`,
+        ? `${kind} ${f}：目录里的实际文件名是 ${hit}，大小写不一致（Linux 服务器区分大小写）`
+        : `${kind} ${f}：素材目录里没有这个文件`,
     )
   }
   return errs
@@ -338,9 +355,12 @@ if (isMain) {
     process.exit(1)
   }
 
-  const assetsDir = process.argv[3]
-    ? path.resolve(process.cwd(), process.argv[3])
-    : path.join(path.dirname(full), 'assets')
+  // 优先级跟导入器保持一致：命令行 > json 的 assets 字段 > json 同级的 assets/。
+  // 两处规则不一样的话，会出现「校验说素材缺失、导入却成功」这种自相矛盾的结果。
+  const assetsDir = path.resolve(
+    process.cwd(),
+    process.argv[3] || data.assets || path.join(path.dirname(full), 'assets'),
+  )
 
   const errs = [...validate(data), ...checkAssets(data, assetsDir)]
 
@@ -354,7 +374,10 @@ if (isMain) {
   }
 
   const n = data.sections?.length ?? 0
-  console.log(`✓ 校验通过：${n} 个章节，${collectImages(data).length} 张图片，素材齐全。`)
+  const vids = collectVideos(data).length
+  console.log(
+    `✓ 校验通过：${n} 个章节，${collectImages(data).length} 张图片${vids ? `、${vids} 段视频` : ''}，素材齐全。`,
+  )
 
   const missing = findUntranslated(data)
   if (missing.length) {

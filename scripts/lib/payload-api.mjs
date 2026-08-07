@@ -113,7 +113,14 @@ export async function uploadMedia(filePath, altEn, altZh, focal) {
   }
 
   const name = path.basename(filePath)
-  const type = /\.png$/i.test(name) ? 'image/png' : 'image/jpeg'
+  // Payload 按 mimetype 决定走不走 sharp：报错了会整条导入挂掉，别猜。
+  // mp4 走视频分支（Media 的 mimeTypes 放行了它），sharp 自动跳过。
+  const type =
+    {
+      '.png': 'image/png',
+      '.webp': 'image/webp',
+      '.mp4': 'video/mp4',
+    }[path.extname(name).toLowerCase()] ?? 'image/jpeg'
   const form = new FormData()
   form.append('file', new Blob([buf], { type }), name)
   form.append(

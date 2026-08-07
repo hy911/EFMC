@@ -26,6 +26,7 @@ import {
   BLOCK_TYPE,
   checkAssets,
   collectImages,
+  collectVideos,
   en,
   findUntranslated,
   validate,
@@ -89,6 +90,7 @@ function sectionToBlockEn(s, media) {
         ...base,
         variant: s.variant ?? 'full',
         image: media[s.image],
+        video: s.video ? media[s.video] : undefined,
         banner: en(s.banner),
       }
     case 'cards':
@@ -284,6 +286,7 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
   }
 
   const imageFiles = collectImages(data)
+  const videoFiles = collectVideos(data)
 
   const base = requireEnv()
   console.log(`目标站点：${base}${DRY ? '　【空跑，不写任何数据】' : ''}`)
@@ -327,6 +330,7 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     console.log(
       `  所属行业：${industryId ? data.industry : '（无）'}　|　关联产品：${relatedProducts.length} 个`,
     )
+    if (videoFiles.length) console.log(`  视频：${videoFiles.length} 段（原样上传，不转码）`)
     console.log(`  成果指标：${data.metrics?.length ?? 0} 条`)
     console.log(`\n  ${data.sections.length} 个章节：`)
     data.sections.forEach((s, i) => {
@@ -344,6 +348,7 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
           existing.coverImage,
           ...(existing.sections ?? []).flatMap((b) => [
             b.image,
+            b.video,
             ...(b.cards ?? []).map((c) => c.image),
             ...(b.steps ?? []).map((s) => s.image),
           ]),
@@ -360,6 +365,13 @@ JSON 格式见 docs/CASE_STUDY_JSON.md`)
     const full = await resolveAsset(assetsDir, outDir, file)
     media[file] = await uploadMedia(full, alt.en, alt.zh, focal)
     console.log(`  ↑ ${file} → media ${media[file]}`)
+  }
+  // 视频不进 resolveAsset（那条路是给 SVG 转 PNG 的），原样上传；
+  // 去重仍然走内容指纹，反复 --replace 不会在库里堆同一段视频
+  for (const file of videoFiles) {
+    const alt = altFor(data, file)
+    media[file] = await uploadMedia(path.join(assetsDir, file), alt.en, alt.zh)
+    console.log(`  ↑ ${file} → media ${media[file]}（视频）`)
   }
 
   const payloadEn = {
@@ -500,6 +512,10 @@ function altFor(data, file) {
     }
     if (s.themeImage === file) {
       const a = s.themeImageAlt ?? data.title
+      return { en: en(a), zh: zh(a) ?? en(a) }
+    }
+    if (s.video === file) {
+      const a = s.videoAlt
       return { en: en(a), zh: zh(a) ?? en(a) }
     }
     if (s.sideImage === file) {

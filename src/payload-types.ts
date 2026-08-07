@@ -568,6 +568,10 @@ export interface CaseStudy {
              */
             image: number | Media;
             /**
+             * Optional MP4 (H.264/AAC). The image above becomes its poster frame. Keep it under ~30 MB — it is served from our own server.
+             */
+            video?: (number | null) | Media;
+            /**
              * One line on a dark bar under the image, e.g. a signal-flow summary. Optional.
              */
             banner?: string | null;
@@ -1328,6 +1332,7 @@ export interface CaseStudiesSelect<T extends boolean = true> {
               accentEdge?: T;
               variant?: T;
               image?: T;
+              video?: T;
               banner?: T;
               id?: T;
               blockName?: T;

@@ -137,6 +137,10 @@ CaseStudies 开了 `versions.drafts`。三件事必须一起记住：
 
 各字段的**可选值不在校验器里手写**：`scripts/lib/case-blocks.json` 由 `scripts/gen-case-blocks.mjs` 从 `src/blocks/case.ts` 生成，校验器和外部写手都查它。改了 block 的 select 选项要重新生成并提交，CI 有 `--check` 步骤守着（客户用 AI 生成内容，给 AI 的字段清单一漂移就是一轮返工）。
 
+**案例视频**：`caseFigure` 块的可选 `video` 字段（`src/components/ui/MediaVideo.tsx` 渲染原生 `<video>`，没引播放器库）。Media 的 `mimeTypes` 只放行 `video/mp4`，sharp 自动跳过视频。三个不能改回去的默认值：不 autoplay、`preload="metadata"`（写成 auto 会让每个访客白下整个文件）、必须有 poster（用同块的 `image`）——`tests/int/blocks.int.spec.tsx` 有断言守着。
+
+视频自托管从 VPS 出，**Cloudflare 免费版的服务条款限制通过 CDN 分发大比例非 HTML 内容**（视频是明确点名的）。单个几 MB、低流量碰不到门槛，但要在 Cloudflare 加一条 Cache Rule 对 `*.mp4` 设 bypass 让它直接回源。视频多到成为流量主项时再考虑 Cloudflare Stream / R2，那是流量问题不是架构问题。
+
 图片上传走**内容指纹去重**：`uploadMedia` 先算原始字节的 sha256，命中 `media.contentHash` 就复用已有的图，不再传副本（以前反复 `--replace` 会让同一张图堆七八份）。因此 `--prune` 只删「旧引用里新版本不再用的」那部分，别改回按 `oldMediaIds` 全删——那会删掉新内容正在用的图。
 
 客户案例是**内容与代码分离**的：`scripts/import-case-study.mjs <case.json>` 是通用导入器，内容放 `scripts/data/cases/*.json`。字段契约见 `docs/CASE_STUDY_JSON.md` —— 那份文档同时是给外部写手（含客户的 AI 助手）的交付规范，改积木块字段时要同步更新它，否则外部产出的 JSON 会缺字段。新案例不要再写专用脚本。

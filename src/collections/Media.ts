@@ -76,6 +76,10 @@ export const Media: CollectionConfig = {
     ],
     // 后台列表缩略图
     adminThumbnail: 'card',
-    mimeTypes: ['image/*'],
+    /**
+     * 视频只放行 mp4：案例页用原生 <video> 播，H.264/AAC 是唯一各浏览器都稳的组合。
+     * sharp 只处理位图，视频原样存盘（上面的 formatOptions / imageSizes 自动跳过）。
+     */
+    mimeTypes: ['image/*', 'video/mp4'],
   },
 }

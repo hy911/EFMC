@@ -634,6 +634,35 @@
       "theme": "wash"
     },
     {
+      "type": "figure",
+      "kicker": {
+        "en": "Walkthrough",
+        "zh": "完工实录"
+      },
+      "heading": {
+        "en": "The finished plant, walked end to end.",
+        "zh": "完工后的处理车间，从头走到尾。"
+      },
+      "intro": {
+        "en": "A single pass through the completed workshop — pretreatment, ultrafiltration, reverse osmosis and the dosing skid, in the order the water moves through them.",
+        "zh": "一镜走完建成后的车间：预处理、超滤、反渗透、加药撬装，顺序就是水流经过它们的顺序。"
+      },
+      "image": "完工视频-封面.jpg",
+      "imageAlt": {
+        "en": "Completed cooling-water treatment workshop with ultrafiltration and reverse osmosis skids",
+        "zh": "完工的冷却水处理车间，超滤与反渗透撬装机组"
+      },
+      "video": "完工视频.mp4",
+      "videoAlt": {
+        "en": "Walkthrough of the completed cooling-water treatment plant",
+        "zh": "完工冷却水处理车间实录"
+      },
+      "banner": {
+        "en": "Pretreatment → Ultrafiltration → Reverse osmosis → Dosing → Supply",
+        "zh": "预处理 → 超滤 → 反渗透 → 加药 → 供水"
+      }
+    },
+    {
       "type": "cards",
       "kicker": {
         "en": "Supervisory automation",

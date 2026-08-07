@@ -211,6 +211,25 @@ export const CaseFigureBlock: Block = {
       },
     },
     {
+      /**
+       * 可选视频。填了就把上面那张 image 当封面（poster）播视频，不填还是渲染图。
+       * 老案例一行不动 —— 这是纯增量字段。
+       *
+       * 只收 mp4（H.264/AAC）：浏览器原生 <video> 就能播，不引播放器库。
+       * 不做转码，Media 的 sharp 管线只处理位图，视频原样存。
+       */
+      name: 'video',
+      label: { en: 'Video', zh: '视频' },
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: {
+          en: 'Optional MP4 (H.264/AAC). The image above becomes its poster frame. Keep it under ~30 MB — it is served from our own server.',
+          zh: '可选 MP4（H.264/AAC）。上面那张图会当作封面帧。控制在 30 MB 以内——视频走自己的服务器分发。',
+        },
+      },
+    },
+    {
       name: 'banner',
       label: { en: 'Banner Line', zh: '深色标语条' },
       type: 'text',

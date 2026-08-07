@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 
 import { Container } from '@/components/ui/Container'
 import { MediaImage } from '@/components/ui/MediaImage'
+import { MediaVideo } from '@/components/ui/MediaVideo'
 import type { CaseStudy } from '@/payload-types'
 
 /** CaseStudies.sections 的 block 联合类型（由 payload-types 自动生成） */
@@ -461,12 +462,20 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                 >
                   <figure className="m-0 grid grid-cols-1 bg-navy text-white shadow-[0_22px_70px_rgba(6,28,59,0.08)] lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,0.45fr)]">
                     <div className="relative min-h-[260px] lg:min-h-[430px]">
-                      <MediaImage
-                        media={block.image}
-                        size="feature"
-                        fill
-                        sizes="(min-width: 1024px) 800px, 100vw"
-                      />
+                      {block.video ? (
+                        <MediaVideo
+                          video={block.video}
+                          poster={block.image}
+                          className="absolute inset-0 h-full w-full object-cover"
+                        />
+                      ) : (
+                        <MediaImage
+                          media={block.image}
+                          size="feature"
+                          fill
+                          sizes="(min-width: 1024px) 800px, 100vw"
+                        />
+                      )}
                     </div>
                     <figcaption className="flex flex-col justify-end p-8 lg:border-l lg:border-white/15 lg:p-[42px]">
                       <span className="text-[9px] font-extrabold tracking-[0.17em] text-sky uppercase">
@@ -502,11 +511,15 @@ export function RenderCaseSections({ blocks }: { blocks: CaseBlock[] }) {
                 <div
                   className={`border p-2 sm:p-[22px] ${dark ? 'border-white/20 bg-navy-deep' : 'border-line bg-white'}`}
                 >
-                  <MediaImage
-                    media={block.image}
-                    sizes="(min-width: 1240px) 1136px, 100vw"
-                    quality={90}
-                  />
+                  {block.video ? (
+                    <MediaVideo video={block.video} poster={block.image} />
+                  ) : (
+                    <MediaImage
+                      media={block.image}
+                      sizes="(min-width: 1240px) 1136px, 100vw"
+                      quality={90}
+                    />
+                  )}
                 </div>
                 {block.banner && (
                   <div className="mt-8 bg-navy px-[30px] py-[22px] text-center font-display text-[18px] leading-[1.45] font-bold text-white sm:text-[21px]">

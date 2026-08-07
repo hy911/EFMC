@@ -111,6 +111,10 @@
           "required": true,
           "relationTo": "media"
         },
+        "video": {
+          "type": "upload",
+          "relationTo": "media"
+        },
         "banner": {
           "type": "text",
           "localized": true
