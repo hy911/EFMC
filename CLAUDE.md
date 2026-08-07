@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**改 Next.js 相关的代码之前先看 [AGENTS.md](AGENTS.md)** —— 版本匹配的 Next 16 文档就在
+`node_modules/next/dist/docs/`，本项目踩过的几处 Next 16 与旧版差异也列在那里。
+
 ## 项目概述
 
 天津东林众控（Donglin Controls）官网：面向海外 B2B 客户的展示 + 询盘（Lead Gen）站点，不做在线交易。Payload CMS 3 + Next.js 16（App Router）**单体架构**——CMS 后台（`/admin`）、SEO 前端（`/en` `/zh`）、询盘 API 在同一代码库、同一进程、一次部署。数据库 PostgreSQL，部署为 VPS + Docker Compose + Cloudflare，零 SaaS 依赖（图片走 Payload 本地存储）。
