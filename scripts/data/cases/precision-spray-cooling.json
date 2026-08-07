@@ -1,0 +1,448 @@
+{
+  "slug": "precision-spray-cooling-dairy-retrofit",
+  "assets": "photos-out/cases/precision-spray-cooling-dairy-retrofit/assets",
+  "title": {
+    "en": "Cooling Only Where It Matters",
+    "zh": "只在需要的位置降温"
+  },
+  "excerpt": {
+    "en": "A commercial dairy needed to move beyond row-level spraying. We engineered a stall-level control system that detects cow presence and activates only the corresponding spray position.",
+    "zh": "牧场需要摆脱整排喷淋的粗放方式。我们设计了牛位级控制系统：检测牛只是否在位，只启动对应位置的喷头。"
+  },
+  "cover": "hero-dairy-barn.jpg",
+  "coverAlt": {
+    "en": "Sensor-activated spray-cooling retrofit in a commercial dairy barn",
+    "zh": "商业牧场牛舍内的传感器触发式喷淋降温改造"
+  },
+  "industry": "agriculture-livestock",
+  "relatedProducts": [
+    "siemens-s7-1200-plc-control-cabinet",
+    "instrument-enclosure-operator-valve-control-box"
+  ],
+  "sections": [
+    {
+      "type": "split",
+      "kicker": {
+        "en": "Client challenge",
+        "zh": "客户的难题"
+      },
+      "heading": {
+        "en": "The system could deliver water—but not according to actual cow occupancy.",
+        "zh": "原系统能把水送出去，却送不到真正需要的位置。"
+      },
+      "quote": {
+        "en": "Detect whether a cow is present at each position, and activate only the nozzle serving that occupied position.",
+        "zh": "检测每个位置上是否有牛，只启动该位置对应的喷头。"
+      },
+      "points": [
+        {
+          "label": {
+            "en": "Empty-position spraying",
+            "zh": "空位置照喷"
+          },
+          "text": {
+            "en": "Every nozzle on the line operated, even when positions were unoccupied.",
+            "zh": "管线上的所有喷头一起动作，位置上没有牛也照喷。"
+          }
+        },
+        {
+          "label": {
+            "en": "Coarse control",
+            "zh": "控制颗粒度粗"
+          },
+          "text": {
+            "en": "A single valve controlled an entire row—or, in some areas, a complete barn line.",
+            "zh": "一个阀控制一整排——部分区域甚至是一整条牛舍管线。"
+          }
+        },
+        {
+          "label": {
+            "en": "Installation and maintenance burden",
+            "zh": "安装与维护负担重"
+          },
+          "text": {
+            "en": "Long cable runs and secondary field wiring slowed installation and troubleshooting.",
+            "zh": "线路长、现场二次接线多，安装和排查都被拖慢。"
+          }
+        }
+      ]
+    },
+    {
+      "type": "figure",
+      "kicker": {
+        "en": "The control transformation",
+        "zh": "控制方式的转变"
+      },
+      "heading": {
+        "en": "From pipe-level operation to cow-position-level control.",
+        "zh": "从管路级运行，下沉到牛位级控制。"
+      },
+      "image": "control-transformation.svg",
+      "imageAlt": {
+        "en": "Engineering comparison of row-level spraying and position-level precision control",
+        "zh": "整排喷淋与单位置精准控制的工程对比"
+      }
+    },
+    {
+      "type": "figure",
+      "kicker": {
+        "en": "Engineered system",
+        "zh": "系统工程"
+      },
+      "heading": {
+        "en": "One coordinated architecture—from presence detection to remote operations.",
+        "zh": "一套协同的架构——从在位检测一直到远程运维。"
+      },
+      "intro": {
+        "en": "The requirement could not be solved by adding a sensor alone. Sensing, field connectivity, PLC decision logic, individual valve actuation and operator visibility had to operate as one control loop.",
+        "zh": "这个需求不是加个传感器就能解决的。感应、现场连接、PLC 判断逻辑、单阀执行与运行可见性，必须作为一个控制闭环协同工作。"
+      },
+      "image": "system-architecture.svg",
+      "imageAlt": {
+        "en": "Layered architecture of the sensor-activated precision spray-cooling system",
+        "zh": "传感器触发式精准喷淋降温系统的分层架构"
+      },
+      "banner": {
+        "en": "Presence Detection → Field Signal → PLC Decision → Individual Valve Actuation → Operational Feedback",
+        "zh": "在位检测 → 现场信号 → PLC 判断 → 单阀执行 → 运行反馈"
+      }
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Purpose-built hardware and software",
+        "zh": "专门设计的软硬件"
+      },
+      "heading": {
+        "en": "Four custom elements designed around the barn—not adapted from a generic control package.",
+        "zh": "四个围绕牛舍现场定制的部件——不是通用控制方案改一改。"
+      },
+      "cards": [
+        {
+          "image": "sensing-enclosure.jpg",
+          "imageAlt": {
+            "en": "Purpose-built sensing enclosure",
+            "zh": "专门设计的感应盒"
+          },
+          "tag": {
+            "en": "01 / Sensing",
+            "zh": "01 / 感应"
+          },
+          "title": {
+            "en": "Purpose-Built Sensing Enclosure",
+            "zh": "专用感应盒"
+          },
+          "text": {
+            "en": "Evaluates cow presence at the corresponding spray position and sends the field signal to the control system.",
+            "zh": "判断对应喷淋位置上是否有牛，并把现场信号送给控制系统。"
+          }
+        },
+        {
+          "image": "t-cable-harness.jpg",
+          "imageAlt": {
+            "en": "Plug-and-play T-cable harness",
+            "zh": "即插即用 T 型线束"
+          },
+          "tag": {
+            "en": "02 / Connectivity",
+            "zh": "02 / 连接"
+          },
+          "title": {
+            "en": "Plug-and-Play T-Cable Harness",
+            "zh": "即插即用 T 型线束"
+          },
+          "text": {
+            "en": "Standardized connections eliminate unnecessary secondary wiring and simplify installation, replacement and expansion.",
+            "zh": "标准化连接取消了不必要的二次接线，安装、更换与扩展都更简单。"
+          }
+        },
+        {
+          "image": "plc-control-panel.jpg",
+          "imageAlt": {
+            "en": "Dedicated PLC control panel",
+            "zh": "专用 PLC 控制柜"
+          },
+          "tag": {
+            "en": "03 / Control",
+            "zh": "03 / 控制"
+          },
+          "title": {
+            "en": "Dedicated PLC Control",
+            "zh": "专用 PLC 控制"
+          },
+          "text": {
+            "en": "Applies presence, temperature, timing and zoning logic before commanding the corresponding solenoid valve.",
+            "zh": "综合在位、温度、时序与分区逻辑判断后，再驱动对应的电磁阀。"
+          }
+        },
+        {
+          "image": "mobile-operations-app.png",
+          "imageAlt": {
+            "en": "Mobile equipment status screen",
+            "zh": "移动端设备状态界面"
+          },
+          "tag": {
+            "en": "04 / Operations",
+            "zh": "04 / 运维"
+          },
+          "title": {
+            "en": "Mobile Operations App",
+            "zh": "移动端运维 App"
+          },
+          "text": {
+            "en": "Provides equipment status, operating visibility, parameter review and faster localization of abnormal device states.",
+            "zh": "提供设备状态、运行可见性与参数查看，设备异常也能更快定位。"
+          }
+        }
+      ],
+      "facts": []
+    },
+    {
+      "type": "steps",
+      "kicker": {
+        "en": "Delivery approach",
+        "zh": "实施方式"
+      },
+      "heading": {
+        "en": "Survey first. Configure for the actual barn. Retrofit by zone.",
+        "zh": "先勘查，按实际牛舍配置，分区改造。"
+      },
+      "steps": [
+        {
+          "title": {
+            "en": "Site Survey",
+            "zh": "现场勘查"
+          },
+          "text": {
+            "en": "Map water, power, cable routes and existing controls.",
+            "zh": "梳理水路、电源、线缆走向与现有控制。"
+          }
+        },
+        {
+          "title": {
+            "en": "Control Zoning",
+            "zh": "控制分区"
+          },
+          "text": {
+            "en": "Define positions, sensors, valves and spray points.",
+            "zh": "确定牛位、传感器、阀门与喷淋点的对应关系。"
+          }
+        },
+        {
+          "title": {
+            "en": "Configuration",
+            "zh": "按需配置"
+          },
+          "text": {
+            "en": "Prepare enclosures, harnesses and panels for the barn.",
+            "zh": "按牛舍实际情况准备感应盒、线束与控制柜。"
+          }
+        },
+        {
+          "title": {
+            "en": "Installation",
+            "zh": "分区安装"
+          },
+          "text": {
+            "en": "Retrofit by zone to reduce operational disruption.",
+            "zh": "按区改造，尽量不影响日常生产。"
+          }
+        },
+        {
+          "title": {
+            "en": "Commissioning",
+            "zh": "系统调试"
+          },
+          "text": {
+            "en": "Verify detection, control logic, valve response and timing.",
+            "zh": "验证检测、控制逻辑、阀门响应与时序。"
+          }
+        },
+        {
+          "title": {
+            "en": "Handover",
+            "zh": "交付培训"
+          },
+          "text": {
+            "en": "Configure mobile operations and train the dairy team.",
+            "zh": "配置移动端运维并培训牧场团队。"
+          }
+        }
+      ]
+    },
+    {
+      "type": "compare",
+      "kicker": {
+        "en": "Before and after",
+        "zh": "改造前后"
+      },
+      "heading": {
+        "en": "A measurable change in how the system is controlled and maintained.",
+        "zh": "控制方式与维护方式都发生了实实在在的变化。"
+      },
+      "labels": {
+        "area": {
+          "en": "Control area",
+          "zh": "对比项"
+        },
+        "before": {
+          "en": "Before retrofit",
+          "zh": "改造前"
+        },
+        "after": {
+          "en": "After retrofit",
+          "zh": "改造后"
+        }
+      },
+      "rows": [
+        {
+          "area": {
+            "en": "Presence detection",
+            "zh": "在位检测"
+          },
+          "before": {
+            "en": "No position-level detection",
+            "zh": "没有位置级检测"
+          },
+          "after": {
+            "en": "Presence evaluated at each spray position",
+            "zh": "逐个喷淋位置判断在位"
+          }
+        },
+        {
+          "area": {
+            "en": "Spray control",
+            "zh": "喷淋控制"
+          },
+          "before": {
+            "en": "Entire row or barn line",
+            "zh": "整排或整条牛舍管线"
+          },
+          "after": {
+            "en": "Individual occupied positions",
+            "zh": "只喷有牛的位置"
+          }
+        },
+        {
+          "area": {
+            "en": "Field connection",
+            "zh": "现场连接"
+          },
+          "before": {
+            "en": "Secondary wiring required",
+            "zh": "需要二次接线"
+          },
+          "after": {
+            "en": "Plug-and-play T-cable harness",
+            "zh": "即插即用 T 型线束"
+          }
+        },
+        {
+          "area": {
+            "en": "Control logic",
+            "zh": "控制逻辑"
+          },
+          "before": {
+            "en": "Coarse line-level operation",
+            "zh": "管线级粗控"
+          },
+          "after": {
+            "en": "PLC-based temperature, timing and zoning logic",
+            "zh": "PLC 的温度、时序与分区逻辑"
+          }
+        },
+        {
+          "area": {
+            "en": "System visibility",
+            "zh": "状态可见性"
+          },
+          "before": {
+            "en": "On-site inspection",
+            "zh": "到现场逐个看"
+          },
+          "after": {
+            "en": "Mobile equipment-status visibility",
+            "zh": "移动端查看设备状态"
+          }
+        },
+        {
+          "area": {
+            "en": "Troubleshooting",
+            "zh": "故障排查"
+          },
+          "before": {
+            "en": "Broad manual search",
+            "zh": "大范围人工查找"
+          },
+          "after": {
+            "en": "Faster localization by zone and device",
+            "zh": "按分区与设备快速定位"
+          }
+        }
+      ]
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Value delivered",
+        "zh": "交付价值"
+      },
+      "heading": {
+        "en": "Precision at the spray position. Simplicity in the field. Visibility for operations.",
+        "zh": "喷淋位置更精准，现场更简洁，运行更透明。"
+      },
+      "cards": [
+        {
+          "title": {
+            "en": "More Targeted Cooling",
+            "zh": "降温更有的放矢"
+          },
+          "text": {
+            "en": "Spray activation follows actual occupancy instead of opening every nozzle on the line.",
+            "zh": "按牛只实际在位启动喷淋，不再一开就是整条管线的喷头。"
+          }
+        },
+        {
+          "title": {
+            "en": "Cleaner Installation",
+            "zh": "现场更干净"
+          },
+          "text": {
+            "en": "Purpose-built, plug-and-play connections reduce field wiring and make replacement easier.",
+            "zh": "专门设计的即插即用连接减少了现场接线，更换也更方便。"
+          }
+        },
+        {
+          "title": {
+            "en": "More Visible Operations",
+            "zh": "运行更透明"
+          },
+          "text": {
+            "en": "PLC control and the mobile interface make status, parameters and abnormal conditions easier to manage.",
+            "zh": "PLC 控制与移动端界面让状态、参数与异常都更容易管理。"
+          }
+        }
+      ],
+      "facts": []
+    },
+    {
+      "type": "statement",
+      "kicker": {
+        "en": "Project perspective",
+        "zh": "项目回顾"
+      },
+      "heading": {
+        "en": "The retrofit redefined the smallest controllable unit of the cooling system.",
+        "zh": "这次改造重新定义了降温系统的最小可控单元。"
+      },
+      "body": {
+        "en": "Control moved from the pipe level to the cow-position level—supported by purpose-built sensing, connectivity, automation and mobile operations.",
+        "zh": "控制粒度从管路级下沉到牛位级——由专用感应、现场连接、自动化控制与移动运维共同支撑。"
+      },
+      "statement": {
+        "en": "The goal is not to make every nozzle operate. It is to make the right nozzle operate at the right position.",
+        "zh": "目标不是让每个喷头都动，而是让对的喷头在对的位置动。"
+      }
+    }
+  ]
+}

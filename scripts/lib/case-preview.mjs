@@ -10,10 +10,12 @@
  * 不是另写的一套仿制品），样式是官网真实的 Tailwind 产物（`preview/preview.css`，
  * 字体已内联）。所以看到的排版、字号、留白、配色跟线上一致。
  *
- * 三处必然的差异，改稿时心里有数就行：
+ * 四处必然的差异，改稿时心里有数就行：
  * - 页面上下没有导航栏和页脚（那两块要连数据库取站点设置）
  * - 图片是原图直接显示，线上会转成多尺寸 WebP，实际更快、更清晰
  * - 入场动画没有（线上是滚动到才淡入，静态页里一律直接可见）
+ * - 末尾「本项目使用的产品」那一节不显示：产品的标题和配图在数据库里，
+ *   这里只认 relatedProducts 的 slug。写了照样生效，只是预览里看不到
  *
  * 改一版重跑一次，刷新浏览器即可。定稿后把 case.json 和 assets/ 打包交付。
  */
@@ -125,8 +127,8 @@ function page(data, assetsRel, locale, cssHref) {
   <a href="preview-${other}.html">${other === 'zh' ? '看中文版' : 'View English'}</a>
   <span>${
     locale === 'en'
-      ? 'Real site components and styles. No navbar/footer, no scroll animations, images unoptimised.'
-      : '用的是官网真实组件与样式。没有导航栏页脚、没有入场动画、图片未压缩，其余与线上一致。'
+      ? 'Real site components and styles. No navbar/footer, no related-products section, no scroll animations, images unoptimised.'
+      : '用的是官网真实组件与样式。没有导航栏页脚、没有末尾的产品推荐、没有入场动画、图片未压缩，其余与线上一致。'
   }</span>
 </div>
 ${renderCase(doc, facts)}

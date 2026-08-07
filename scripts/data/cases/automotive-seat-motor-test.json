@@ -1,0 +1,467 @@
+{
+  "slug": "automotive-seat-motor-test-traceability",
+  "assets": "photos-out/cases/automotive-seat-motor-test-traceability/assets",
+  "title": {
+    "en": "Traceable motor testing",
+    "zh": "电机逐台检测"
+  },
+  "titleAccent": {
+    "en": "for automotive seat production.",
+    "zh": "结果直达 MES。"
+  },
+  "excerpt": {
+    "en": "An automated test and data-handling system links each automotive seat motor to its scanned identity, acquires test data through PLC control, stores the complete record locally and sends the final result to the customer’s MES.",
+    "zh": "这套汽车座椅电机检测系统把扫码身份、现场测试、PLC 数据采集、本地存档和 MES 上送连成一条链，让每台电机都有可查询、可判定的记录。"
+  },
+  "cover": "a_crisp_industrial_laboratory_automation_workbenc_1.webp",
+  "industry": "industrial-automation",
+  "highlights": [
+    {
+      "en": "Scan-linked identity",
+      "zh": "扫码绑定身份"
+    },
+    {
+      "en": "PLC data acquisition",
+      "zh": "PLC 数据采集"
+    },
+    {
+      "en": "Local record storage",
+      "zh": "本地完整留存"
+    },
+    {
+      "en": "MES result transfer",
+      "zh": "结果上送 MES"
+    }
+  ],
+  "sections": [
+    {
+      "type": "split",
+      "kicker": {
+        "en": "Production requirement",
+        "zh": "产线诉求"
+      },
+      "heading": {
+        "en": "Every finished motor needed a result that stayed attached to its own identity.",
+        "zh": "每台下线电机，都要带着自己的检测结果往后走。"
+      },
+      "intro": {
+        "en": "The customer needed more than a stand-alone test action. Identification, controlled testing, data capture, local retention and MES reporting had to work as one continuous production record, while the confidential internal test sequence remained protected.",
+        "zh": "客户要的不是一台只会做动作的检测设备，而是一条从身份确认到结果入库的完整记录链。检测细节需要保密，但每台电机的来路、数据与结论必须清楚。"
+      },
+      "points": [
+        {
+          "label": {
+            "en": "Identify before testing",
+            "zh": "先确认身份"
+          },
+          "text": {
+            "en": "Operators place completed motors in the dedicated fixture and scan the code on each unit. The scan creates the identity reference used by the following test and record-handling stages.",
+            "zh": "工人先把成品电机放进专用工装，再逐个扫描电机编号。后续检测、存储和查询都沿用这条身份线索。"
+          }
+        },
+        {
+          "label": {
+            "en": "Test each unit",
+            "zh": "逐台完成检测"
+          },
+          "text": {
+            "en": "After the identifiers are recorded, the station runs the defined test sequence for every motor. The sequence itself is confidential; the system boundary described here begins with the scan and ends with the recorded outcome.",
+            "zh": "扫码记录完成后，设备按既定程序对每台电机执行检测。案例不展开保密工艺，只说明系统如何承接身份、数据和最终判定。"
+          }
+        },
+        {
+          "label": {
+            "en": "Keep the outcome usable",
+            "zh": "让结果继续可用"
+          },
+          "text": {
+            "en": "Measured values, including temperature and current data, are retained on the local server. The upper-level computer also prepares the performance result for transfer to the customer’s central MES.",
+            "zh": "温度、电流等检测数据保存在本地服务器，上位机再把性能结果整理并发送到客户总服务器 MES，结果不会停留在单机界面里。"
+          }
+        }
+      ]
+    },
+    {
+      "type": "figure",
+      "kicker": {
+        "en": "Fixture and identification",
+        "zh": "工装与身份绑定"
+      },
+      "heading": {
+        "en": "The traceability chain begins where the motor meets the fixture.",
+        "zh": "电机一放进工装，追溯链就从现场开始。"
+      },
+      "intro": {
+        "en": "The dedicated fixture gives operators a repeatable place to load the finished motors. Each motor carries its own machine-readable code, so the station can associate the physical unit with the test record before the confidential test process begins.",
+        "zh": "专用工装把电机装载位置固定下来，电机本体上的可扫描编号则把实物和数据记录连在一起。这样，检测启动前就已经明确“测的是哪一台”。"
+      },
+      "image": "motor-test-fixture-2.webp",
+      "imageAlt": {
+        "en": "Automotive seat motors positioned in a dedicated production test fixture",
+        "zh": "汽车座椅电机放置在专用生产检测工装上"
+      },
+      "focal": [
+        50,
+        78
+      ],
+      "banner": {
+        "en": "Load the motor → Scan its identity → Release the linked test record",
+        "zh": "装入电机 → 扫描身份 → 生成对应检测记录"
+      }
+    },
+    {
+      "type": "steps",
+      "kicker": {
+        "en": "Data path",
+        "zh": "数据流转"
+      },
+      "heading": {
+        "en": "One data path carries the motor from scan to the customer’s MES.",
+        "zh": "从扫码到 MES，一条数据链贯穿整台电机的检测过程。"
+      },
+      "intro": {
+        "en": "Read this strip as the project’s main operating line: a motor enters the fixture, receives a scanned identity, completes the confidential test, passes through PLC acquisition and local classification, and leaves the station with a result ready for the customer’s MES.",
+        "zh": "这条图示流程就是项目主线：电机进入工装，扫码确认身份，完成保密检测，再经过 PLC 采集和本地判定，最后把结果送到客户 MES。"
+      },
+      "theme": "washBlue",
+      "cellLabel": {
+        "en": "Project mainline",
+        "zh": "项目主线"
+      },
+      "steps": [
+        {
+          "image": "motor-test-fixture-2.webp",
+          "imageAlt": {
+            "en": "Automotive seat motors positioned in a dedicated production test fixture",
+            "zh": "汽车座椅电机放置在专用生产检测工装上"
+          },
+          "focal": [
+            50,
+            78
+          ],
+          "title": {
+            "en": "Load",
+            "zh": "装载"
+          },
+          "text": {
+            "en": "The operator places each completed motor in the corresponding position of the dedicated fixture.",
+            "zh": "工人把成品电机放到专用工装的对应位置。"
+          }
+        },
+        {
+          "image": "motor-test-fixture-2.webp",
+          "imageAlt": {
+            "en": "Automotive seat motors positioned in a dedicated production test fixture",
+            "zh": "汽车座椅电机放置在专用生产检测工装上"
+          },
+          "focal": [
+            50,
+            78
+          ],
+          "title": {
+            "en": "Scan",
+            "zh": "扫码"
+          },
+          "text": {
+            "en": "The code on the motor is scanned and recorded before testing starts, establishing the identity used by the station.",
+            "zh": "检测开始前扫描并记录电机编号，先建立该工位使用的身份标识。"
+          }
+        },
+        {
+          "image": "motor-test-dashboard-2.webp",
+          "imageAlt": {
+            "en": "Upper-level monitoring screen presenting the running state of identified motor tests",
+            "zh": "上位机监控界面显示已识别电机的检测运行状态"
+          },
+          "title": {
+            "en": "Test",
+            "zh": "检测"
+          },
+          "text": {
+            "en": "The station runs the confidential test sequence for the identified motor and produces its individual process data.",
+            "zh": "设备对已确认身份的电机执行保密检测流程，并形成对应过程数据。"
+          }
+        },
+        {
+          "image": "plc-control-cabinets-2.webp",
+          "imageAlt": {
+            "en": "PLC control cabinets acquiring motor test data and exchanging station information",
+            "zh": "PLC 控制柜采集电机检测数据并交换工位信息"
+          },
+          "focal": [
+            50,
+            34
+          ],
+          "title": {
+            "en": "Acquire",
+            "zh": "采集"
+          },
+          "text": {
+            "en": "The PLC control cabinet acquires motor data and exchanges the current station information with the upper-level computer in real time.",
+            "zh": "PLC 控制柜采集电机数据，并与上位机实时交换当前工位信息。"
+          }
+        },
+        {
+          "image": "motor-test-records-2.webp",
+          "imageAlt": {
+            "en": "Local motor test records organized by identity, workstation, result and time",
+            "zh": "本地电机检测记录按身份、工位、结果和时间整理"
+          },
+          "title": {
+            "en": "Store and classify",
+            "zh": "存储与判定"
+          },
+          "text": {
+            "en": "The upper-level computer saves the record locally and presents the configured qualified or unqualified status for each completed test.",
+            "zh": "上位机把记录保存到本地，并按设定逻辑显示该次检测的合格或不合格状态。"
+          }
+        },
+        {
+          "title": {
+            "en": "Transfer",
+            "zh": "上送"
+          },
+          "pictogram": "network",
+          "text": {
+            "en": "The upper-level computer sends the motor’s performance result to the customer’s central MES so the production record can continue downstream.",
+            "zh": "上位机把电机性能结果发送到客户总服务器 MES，让这条生产记录继续向后流转。"
+          }
+        }
+      ]
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Engineered system",
+        "zh": "系统构成"
+      },
+      "heading": {
+        "en": "The station combines physical handling, deterministic control and production-data integration.",
+        "zh": "工装、控制与生产数据，被整合成一套现场系统。"
+      },
+      "intro": {
+        "en": "Each layer has a specific responsibility. The fixture holds the product, the PLC cabinet collects and exchanges field data, the upper-level application organizes the test workflow, and the record interface makes completed results searchable.",
+        "zh": "每一层都只做自己该做的事：工装承载产品，PLC 负责现场采集，上位机组织检测与判定，记录界面把历史结果留给后续查询。"
+      },
+      "theme": "dark",
+      "layout": "bento",
+      "cards": [
+        {
+          "image": "motor-test-fixture-2.webp",
+          "imageAlt": {
+            "en": "Automotive seat motors positioned in a dedicated production test fixture",
+            "zh": "汽车座椅电机放置在专用生产检测工装上"
+          },
+          "tag": {
+            "en": "Product interface",
+            "zh": "产品接口"
+          },
+          "title": {
+            "en": "Fixture and scanned motor identity",
+            "zh": "工装与电机身份"
+          },
+          "text": {
+            "en": "The fixture establishes the physical test position, while the scanned motor code establishes the digital identity that follows the result.",
+            "zh": "工装确定电机在现场的位置，扫码编号确定它在系统里的身份，两者从检测起点就完成对应。"
+          }
+        },
+        {
+          "image": "plc-control-cabinets-2.webp",
+          "imageAlt": {
+            "en": "PLC control cabinets acquiring motor test data and exchanging station information",
+            "zh": "PLC 控制柜采集电机检测数据并交换工位信息"
+          },
+          "tag": {
+            "en": "Control layer",
+            "zh": "控制层"
+          },
+          "title": {
+            "en": "PLC acquisition and real-time exchange",
+            "zh": "PLC 采集与实时交互"
+          },
+          "text": {
+            "en": "The PLC cabinet gathers data from each motor test and maintains real-time communication with the upper-level computer.",
+            "zh": "PLC 控制柜承接每台电机的检测数据，并与上位机保持实时通信。"
+          }
+        },
+        {
+          "image": "motor-test-dashboard-2.webp",
+          "imageAlt": {
+            "en": "Upper-level monitoring screen presenting the running state of identified motor tests",
+            "zh": "上位机监控界面显示已识别电机的检测运行状态"
+          },
+          "tag": {
+            "en": "Operations layer",
+            "zh": "操作层"
+          },
+          "title": {
+            "en": "Live test status on the upper-level computer",
+            "zh": "上位机实时检测状态"
+          },
+          "text": {
+            "en": "The station interface brings scanned identities, current test status and the final classification into one operational view for the production team.",
+            "zh": "扫码身份、当前检测状态和最终判定集中在同一界面，现场人员不用在多套系统之间来回确认。"
+          }
+        },
+        {
+          "image": "motor-test-parameters-2.webp",
+          "imageAlt": {
+            "en": "Upper-level application page for managing motor test parameters by station",
+            "zh": "上位机应用按工位管理电机检测参数的界面"
+          },
+          "tag": {
+            "en": "Configuration layer",
+            "zh": "配置层"
+          },
+          "title": {
+            "en": "Managed parameters for repeatable execution",
+            "zh": "受控参数支持一致执行"
+          },
+          "text": {
+            "en": "The supplied interface shows that operating parameters are organized by test station, keeping configuration separate from the operator’s live monitoring view.",
+            "zh": "素材中的参数页面按检测台集中管理设置，把配置工作与日常监控界面分开，现场使用更清楚。"
+          }
+        }
+      ],
+      "facts": []
+    },
+    {
+      "type": "cards",
+      "kicker": {
+        "en": "Test outcome",
+        "zh": "检测结果"
+      },
+      "heading": {
+        "en": "Each completed test becomes an identity-linked result instead of a temporary screen message.",
+        "zh": "检测结束后，留下的不只是一块颜色，而是一条绑定身份的结果记录。"
+      },
+      "intro": {
+        "en": "The supplied materials document the result structure and data route, but do not include a signed performance report. This case therefore presents the recorded fields and pass-or-fail handling without publishing rates, throughput claims or inferred accuracy figures.",
+        "zh": "现有材料能确认结果字段和数据去向，但没有配套实测报告。因此这里不写通过率、节拍或准确率，只呈现系统确实记录和传递的内容。"
+      },
+      "accentEdge": true,
+      "layout": "metrics",
+      "cards": [
+        {
+          "tag": {
+            "en": "Identity",
+            "zh": "身份"
+          },
+          "title": {
+            "en": "A scanned code anchors the record",
+            "zh": "扫码编号绑定记录"
+          },
+          "value": {
+            "en": "Per motor",
+            "zh": "逐台"
+          },
+          "text": {
+            "en": "The motor identifier remains the reference for the station display, stored test data and later record search.",
+            "zh": "电机编号贯穿现场显示、本地数据保存和后续记录查询。"
+          }
+        },
+        {
+          "tag": {
+            "en": "Classification",
+            "zh": "判定"
+          },
+          "title": {
+            "en": "The outcome is explicit for operators",
+            "zh": "现场结论一眼可见"
+          },
+          "value": {
+            "en": "Pass / fail",
+            "zh": "合格 / 不合格"
+          },
+          "text": {
+            "en": "The monitoring screen distinguishes qualified and unqualified products with green and red status backgrounds.",
+            "zh": "监控界面用绿色和红色背景区分合格品与不合格品，现场人员能直接识别。"
+          }
+        },
+        {
+          "tag": {
+            "en": "Data destination",
+            "zh": "数据去向"
+          },
+          "title": {
+            "en": "Detailed data stays local while results move upstream",
+            "zh": "明细本地留存，结果向上流转"
+          },
+          "value": {
+            "en": "Local + MES",
+            "zh": "本地 + MES"
+          },
+          "text": {
+            "en": "Temperature, current and other motor data are stored on the local server, while the upper-level computer sends performance results to the customer’s MES.",
+            "zh": "温度、电流等电机数据保存在本地服务器，上位机把性能结果发送到客户 MES。"
+          }
+        }
+      ],
+      "sideImage": "motor-test-dashboard-2.webp",
+      "sideImageAlt": {
+        "en": "Upper-level monitoring screen presenting the running state of identified motor tests",
+        "zh": "上位机监控界面显示已识别电机的检测运行状态"
+      },
+      "sideImageLabel": {
+        "en": "Operator view",
+        "zh": "现场界面"
+      },
+      "sideImageValue": {
+        "en": "Status by motor",
+        "zh": "逐台显示状态"
+      },
+      "facts": [],
+      "note": {
+        "en": "The confidential internal test sequence is intentionally omitted. No percentage, cycle-time improvement or certification claim is made because none was supplied with a supporting report or certificate.",
+        "zh": "案例不披露保密检测工艺。由于素材未附实测报告或证书，本文不发布通过率、节拍提升、认证或资质结论。"
+      }
+    },
+    {
+      "type": "figure",
+      "kicker": {
+        "en": "Record access",
+        "zh": "记录查询"
+      },
+      "heading": {
+        "en": "Completed records remain available for production review and export.",
+        "zh": "检测完成后，记录仍可按生产线索查询和导出。"
+      },
+      "intro": {
+        "en": "The supplied record view organizes completed tests by motor identity, workstation, measured values, status and time. Search controls support review by identity, station, result state and date range, while export makes the selected records available for downstream use.",
+        "zh": "历史记录页把电机编号、工位、检测数据、状态和时间放在同一张表里。现场人员可以按身份、工位、结果状态或日期范围筛选，并把需要的数据导出使用。"
+      },
+      "image": "motor-test-records-2.webp",
+      "imageAlt": {
+        "en": "Local motor test records organized by identity, workstation, result and time",
+        "zh": "本地电机检测记录按身份、工位、结果和时间整理"
+      },
+      "banner": {
+        "en": "Scan-linked identity → Searchable local record → MES-ready result",
+        "zh": "扫码身份 → 本地可查记录 → 可上送 MES 的结果"
+      }
+    },
+    {
+      "type": "statement",
+      "kicker": {
+        "en": "Project outcome",
+        "zh": "项目成果"
+      },
+      "heading": {
+        "en": "The project turned motor testing into a connected production record.",
+        "zh": "这套系统把一次电机检测，变成了一条连贯的生产记录。"
+      },
+      "intro": {
+        "en": "The delivered system connects the physical motor, its scanned identity, the confidential test process, PLC acquisition, local data retention and MES reporting without presenting unsupported performance claims.",
+        "zh": "从实物、身份到检测、采集、存储和上送，项目把各个环节真正串了起来，同时不对没有报告支撑的性能数据作额外承诺。"
+      },
+      "body": {
+        "en": "For the production team, the result is a clearer chain of responsibility. Operators load and scan the product; the test station executes the defined process; the PLC control cabinet acquires and exchanges field data; the upper-level computer stores, classifies and presents the outcome; and the customer’s MES receives the performance result for the wider manufacturing record. Detailed temperature, current and related data remain available on the local server. Qualified and unqualified outcomes are visible at the station, and completed records can be searched by the identifiers and production fields shown in the supplied interface. The confidential test content stays outside the public case, while the data architecture and traceability value remain clear.",
+        "zh": "对生产现场来说，最直接的变化是责任链更清楚：工人装载并扫码，检测设备执行既定程序，PLC 控制柜采集现场数据，上位机完成保存、判定与展示，客户 MES 接收性能结果并接入更大的制造记录。温度、电流等明细继续留在本地服务器，合格与不合格状态在工位上清晰呈现，历史结果也能沿着电机身份和生产字段继续追溯。案例不公开保密工艺，但系统如何把数据接起来，一目了然。"
+      },
+      "statement": {
+        "en": "A motor leaves the station with more than a verdict: it leaves with a record the production system can use.",
+        "zh": "电机离开工位时，带走的不只是一个结论，更是一条能继续进入生产系统的记录。"
+      }
+    }
+  ]
+}

@@ -25,13 +25,22 @@ async function fingerprint(page: Page) {
   return page.evaluate(() => {
     const root = document.querySelector('main')!
     const cs = getComputedStyle
+    /*
+     * 线上末尾可能多一节「本项目使用的产品」（relatedProducts 非空时才渲染）。
+     * 那一节要连库取产品标题和配图，客户手上没有，预览工具刻意不渲染 ——
+     * 是已知差异，不是漂移。这里按「含产品链接的 section」把它摘掉，
+     * 否则这个测试是否通过就取决于 seed 数据恰好有没有关联产品。
+     */
+    const isProducts = (s: Element) => !!s.querySelector('a[href*="/products/"]')
+    const own = [...root.querySelectorAll(':scope > section')].filter((s) => !isProducts(s))
+    const inScope = (el: Element) => !el.closest('section') || !isProducts(el.closest('section')!)
     return {
-      sections: root.querySelectorAll('section').length,
-      images: root.querySelectorAll('img').length,
-      videos: root.querySelectorAll('video').length,
+      sections: [...root.querySelectorAll('section')].filter(inScope).length,
+      images: [...root.querySelectorAll('img')].filter(inScope).length,
+      videos: [...root.querySelectorAll('video')].filter(inScope).length,
       // 底色序列：章节编号与深浅交替的规则全体现在这里
-      backgrounds: [...root.querySelectorAll(':scope > section')].map((s) => cs(s).backgroundColor),
-      headings: [...root.querySelectorAll('h1,h2')].map((h) => ({
+      backgrounds: own.map((s) => cs(s).backgroundColor),
+      headings: [...root.querySelectorAll('h1,h2')].filter(inScope).map((h) => ({
         tag: h.tagName,
         text: (h as HTMLElement).innerText.replace(/\s+/g, ' ').trim(),
         font: cs(h).fontFamily.split(',')[0],
