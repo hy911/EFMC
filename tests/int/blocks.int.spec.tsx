@@ -6,6 +6,7 @@ import config from '@/payload.config'
 import { FeatureColumns } from '@/components/ui/FeatureColumns'
 import { LogoStrip } from '@/components/ui/LogoStrip'
 import { MediaVideo } from '@/components/ui/MediaVideo'
+import { safeBackPath } from '@/lib/preview'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import type { SiteSetting } from '@/payload-types'
 
@@ -266,5 +267,43 @@ describe('案例视频（MediaVideo）', () => {
     expect(renderVideo({ video: 190, poster }).firstChild).toBeNull()
     expect(renderVideo({ video: null, poster }).firstChild).toBeNull()
     expect(renderVideo({ video: { ...video, url: null }, poster }).firstChild).toBeNull()
+  })
+})
+
+/**
+ * 预览回跳路径的收敛。
+ *
+ * 真实事故：退出预览的 `?path=` 只判了 `startsWith('/')`，而 `new URL()` 依
+ * WHATWG 规范会剥掉制表符和换行 —— `"/\t/evil.com"` 过了检查、剥完变成
+ * 协议相对地址跳去站外。开放重定向，别人能拿我们的域名做钓鱼跳转。
+ *
+ * 所以这里判的是**解析后的 origin**，不是输入的形状。以后改这个函数，
+ * 下面每一条都必须还留在本站。
+ */
+describe('预览回跳路径不能跑到站外', () => {
+  const SITE = 'https://efmc-automation.com'
+
+  it.each([
+    ['//evil.example.com', '协议相对地址'],
+    ['/\evil.example.com', '反斜杠变体'],
+    ['https://evil.example.com', '整条外站地址'],
+    ['/\t/evil.example.com', '制表符夹在中间（URL 解析会把它剥掉）'],
+    ['/\n/evil.example.com', '换行同理'],
+    ['http://evil.example.com@efmc-automation.com/x', 'userinfo 伪装成本站'],
+  ])('%s（%s）回落到首页', (raw) => {
+    const dest = new URL(safeBackPath(raw, SITE), SITE)
+    expect(dest.host, `${JSON.stringify(raw)} 把用户送去了 ${dest.href}`).toBe(
+      'efmc-automation.com',
+    )
+  })
+
+  it('正常的本站路径原样保留（含查询串）', () => {
+    expect(safeBackPath('/en/cases/some-slug', SITE)).toBe('/en/cases/some-slug')
+    expect(safeBackPath('/zh/blog/x?page=2', SITE)).toBe('/zh/blog/x?page=2')
+  })
+
+  it('空值回首页', () => {
+    expect(safeBackPath(null, SITE)).toBe('/')
+    expect(safeBackPath('', SITE)).toBe('/')
   })
 })

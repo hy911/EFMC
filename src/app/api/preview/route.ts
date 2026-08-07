@@ -3,6 +3,8 @@ import { draftMode } from 'next/headers.js'
 import { NextResponse } from 'next/server.js'
 import { getPayload } from 'payload'
 
+import { SITE_URL } from '@/lib/seo'
+
 /**
  * 开启草稿预览。
  *
@@ -40,5 +42,13 @@ export async function GET(req: Request) {
 
   const draft = await draftMode()
   draft.enable()
-  return NextResponse.redirect(new URL(path, req.url))
+  /**
+   * 跳转基准用 SITE_URL，不能用 req.url。
+   *
+   * 容器里 Next 绑的是 0.0.0.0:3000，请求经 cloudflared 转进来时 req.url 是
+   * `http://0.0.0.0:3000/...`，照它拼出来的 Location 会把客户的浏览器送去
+   * https://0.0.0.0:3000 —— 一个连不上的地址。SITE_URL 是站点对外的规范域名
+   * （hreflang / sitemap / OG 都在用它），这里必须一致。
+   */
+  return NextResponse.redirect(new URL(path, SITE_URL))
 }
