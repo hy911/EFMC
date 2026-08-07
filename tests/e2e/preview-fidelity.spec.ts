@@ -46,11 +46,46 @@ async function fingerprint(page: Page) {
 }
 
 test('客户端预览与线上案例页逐项一致', async ({ page }) => {
-  // 1. 生成预览（写进临时目录，别污染工作区）
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'case-preview-'))
+  // 1. 按**交付包的目录布局**生成预览：工具、preview/ 产物、case.json 全在一起，
+  //    从那个目录里跑 —— 客户就是这么用的，仓库里的路径布局不能代表它。
+  //
+  //    目录名**故意带中文**：真实事故是 case-preview.mjs 用 `new URL(...).pathname`
+  //    取自身路径，非 ASCII 在 URL 里是百分号编码的、pathname 不解码，于是算出来的
+  //    CSS 相对路径绕出去再绕回来，生成一个加载不到的 href，页面变成没有任何样式的
+  //    裸 HTML。客户用中文目录名是常态，这里必须覆盖。
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), '案例预览-'))
+  for (const f of [
+    'case-preview.mjs',
+    'case-schema.mjs',
+    'case-to-payload.mjs',
+    'case-blocks.json',
+  ])
+    fs.copyFileSync(path.join('scripts/lib', f), path.join(tmp, f))
+  fs.mkdirSync(path.join(tmp, 'preview'))
+  for (const f of ['case-render.mjs', 'preview.css'])
+    fs.copyFileSync(path.join('scripts/lib/preview', f), path.join(tmp, 'preview', f))
+
   const json = path.join(tmp, 'case.json')
   fs.copyFileSync(CASE_JSON, json)
-  execFileSync('node', ['scripts/lib/case-preview.mjs', json, ASSETS], { stdio: 'pipe' })
+  execFileSync('node', ['case-preview.mjs', 'case.json', path.resolve(ASSETS)], {
+    cwd: tmp,
+    stdio: 'pipe',
+  })
+
+  /*
+   * 样式链接必须是干净的同目录相对路径。
+   *
+   * 出过一次事：用 `new URL(...).pathname` 取工具自身路径，非 ASCII 目录名在 URL 里
+   * 是百分号编码的、pathname 不解码，算出来的 href 变成 `../%E5%8F%91.../preview/preview.css`
+   * —— 绕出去再绕回来。原地打开还能解析（浏览器按同样编码的 html URL 还原），
+   * 但客户**把文件夹改个名或复制走**，链接立刻失效，页面变成没有样式的裸 HTML。
+   * 所以这里断言 href 里不能出现 `..`，而不是只看渲染结果。
+   */
+  const cssHref = fs
+    .readFileSync(path.join(tmp, 'preview-en.html'), 'utf8')
+    .match(/<link rel="stylesheet" href="([^"]+)"/)?.[1]
+  expect(cssHref, '没找到样式链接').toBeTruthy()
+  expect(cssHref, `样式链接绕了路径，文件夹一改名就失效：${cssHref}`).not.toContain('..')
 
   // 2. 线上（dev server 渲染的真实页面）
   await page.goto(`http://localhost:3000/en/cases/${SLUG}`)

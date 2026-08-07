@@ -19,6 +19,7 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { collectImages, collectVideos, en, zh } from './case-schema.mjs'
 import { sectionToBlock } from './case-to-payload.mjs'
@@ -183,12 +184,17 @@ for (const [i, s] of (data.sections ?? []).entries()) {
   }
 }
 
-// CSS 在工具旁边（交付包里是 preview/preview.css），算出相对 html 的路径
-const cssPath = path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\//, '')), 'preview', 'preview.css')
-const cssHref = (path.relative(dir, cssPath).split(path.sep).join('/') || 'preview.css').replace(
-  /\\/g,
-  '/',
-)
+/**
+ * CSS 在工具旁边（交付包里是 preview/preview.css），算出相对 html 的路径。
+ *
+ * 必须用 fileURLToPath 而不是 `new URL(...).pathname`：URL 里的非 ASCII 字符是
+ * 百分号编码的，pathname 不解码，于是「发给客户」这种中文目录名算出来的路径
+ * 跟真实目录对不上，path.relative 会绕出去再绕回来，生成一个加载不到的 href。
+ * 中文目录名是常态，别退回去。
+ */
+const cssPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'preview', 'preview.css')
+// href 里的空格与中文交给浏览器按相对 URL 解析，这里只做分隔符归一
+const cssHref = path.relative(dir, cssPath).split(path.sep).join('/') || 'preview.css'
 
 for (const locale of ['en', 'zh']) {
   const out = path.join(dir, `preview-${locale}.html`)
